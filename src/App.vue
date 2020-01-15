@@ -3,7 +3,7 @@
     <div id="file-upload" v-cloak v-on:drop.prevent="upload" v-on:dragover.prevent>
       Drag here to upload file
     </div>
-    <a v-bind:href="json_file_data_url" v-bind:download="project_name + '.db.json'">Save JSON</a>
+    <a v-bind:href="json_file_data_url()" v-bind:download="project_name + '.db.json'">Save JSON</a>
 
     <div class="form-group">
       <input type="text" v-model="project_name" />
@@ -108,13 +108,8 @@ export default Vue.extend({
       let file = event.dataTransfer.files[0];
       let item = event.dataTransfer.items[0];
 
-      // console.log(item)
-      // console.log(item.getAsString(function (s) { console.log(arguments) }))
-      // console.log(item.getAsFile(function (s) { console.log(arguments) }))
-
       var reader = new FileReader();
       reader.onload = (e : any) => {
-        // console.log('result')
         let result = JSON.parse(e.target.result);
 
         let sheets = _.map(result.sheets, (schema) => {
@@ -129,8 +124,6 @@ export default Vue.extend({
 
         this.database = new db.Database(sheets)
       };
-      // console.log('burb')
-      console.log(reader.readAsText(item.getAsFile()));
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
@@ -146,12 +139,12 @@ export default Vue.extend({
     json () {
       return JSON.stringify(this.database.json_data(), null, 2)
     },
-  },
-  computed: {
     json_file_data_url () {
       let file = new Blob([this.json()], {type: 'application/json'});
       return(URL.createObjectURL(file))
     },
+  },
+  computed: {
   }
 });
 </script>

@@ -67,13 +67,13 @@ export default Vue.extend({
                 currently_referenced_ids.includes(result.id));
       }).value()
     },
-    referenced_records () : (db.ReferenceQueryResult | null)[] {
-      return _.map(this.value, (reference : db.Reference) : db.ReferenceQueryResult | null => {
+    referenced_records () {
+      return _.map(this.value, (reference : db.Reference) => {
         let result = this.database.fetch_record(reference);
 
-        if (!result) { return(null) }
+        if (!result) { return(undefined) }
 
-        return _.assign(result, {record: result.sheet.record_values(result.record)})
+        return(_.set(result, 'record', result.sheet.record_values(result.record)))
       })
     },
     choose (item : db.ReferenceQueryResult, event : any) {
