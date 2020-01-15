@@ -94,7 +94,7 @@ export default Vue.extend({
   },
   data () : { database: db.Database, current_sheet_id: string, current_focus: {sheet_id: string, record_id: string} | null, project_name: string } {
     return {
-      database: database,
+      database: new db.Database([]),
       current_sheet_id: database.sheets[0]._id,
       current_focus: null,
       project_name: 'Project Name'
