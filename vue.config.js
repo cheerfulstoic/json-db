@@ -1,3 +1,3 @@
 module.exports = {
-  publicPath: '/json-db/'
+  publicPath: '/json-db/dist/'
 }
