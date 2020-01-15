@@ -1,0 +1,119 @@
+<template>
+  <div class="input-group referenced-object">
+    <div v-for="result in referenced_records()" v-bind:key="result.id">
+      <a v-on:click="remove(result)" class="remove">🗑</a>
+      <RecordResult v-bind:result="result" v-bind:database="database" />
+    </div>
+
+    <div class="search">
+      <b-input-group prepend="🔎">
+        <input class="form-control" type="text" v-model="match_text" />
+      </b-input-group>
+
+      <div v-if="match_text" class="results">
+        <b-list-group>
+          <b-list-group-item button v-for="item in search_results()" v-bind:key="item.id"
+            variant="secondary"
+            v-on:click="choose(item, $event)"
+            class="search_result">
+
+            <RecordResult v-bind:result="item" v-bind:database="database" />
+          </b-list-group-item>
+        </b-list-group>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue';
+
+import RecordResult from '../RecordResult.vue';
+
+import _ from 'lodash';
+
+import * as db from '../../db';
+
+export default Vue.extend({
+  name: 'String',
+  components: {
+    RecordResult,
+  },
+  data () {
+    return { match_text: null }
+  },
+  props: {
+    value: Array,
+    record_id: String,
+    database: db.Database,
+  },
+  methods: {
+    update_value (event : any) {
+      this.$emit('input', event.target.value)
+    },
+    search_results () {
+      if (!this.match_text) { return([]) }
+
+      let currently_referenced_ids = _.map(this.value, 'record_id')
+
+      return _(this.database.search(`${this.match_text}`)).map((result) => {
+        return({
+          id: result.id,
+          sheet: result.sheet,
+          record: result.sheet.record_values(result.record)
+        })
+      }).reject((result) => {
+        return(result.id === this.record_id ||
+                currently_referenced_ids.includes(result.id));
+      }).value()
+    },
+    referenced_records () : (db.ReferenceQueryResult | null)[] {
+      return _.map(this.value, (reference : db.Reference) : db.ReferenceQueryResult | null => {
+        let result = this.database.fetch_record(reference);
+
+        if (!result) { return(null) }
+
+        return _.assign(result, {record: result.sheet.record_values(result.record)})
+      })
+    },
+    choose (item : db.ReferenceQueryResult, event : any) {
+      this.$emit('input', (this.value || []).concat([{record_id: item.id, sheet_id: item.sheet._id}]))
+      this.match_text = null;
+    },
+    remove (result : db.ReferenceQueryResult) {
+      this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
+        return(reference.record_id == result.id)
+      }))
+    }
+  }
+});
+</script>
+
+<style scoped lang="scss">
+
+.remove {
+  float: left;
+  margin: 0.8em 0.8em 0 0.8em;
+}
+
+.referenced-object {
+  display: block;
+  text-align: left;
+}
+
+.search {
+  display: block;
+  margin-top: 1em;
+
+  .results {
+    position: absolute;
+    z-index: 1;
+  }
+}
+
+.search_result {
+  text-align: left
+}
+
+</style>
+

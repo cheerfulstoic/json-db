@@ -9,13 +9,21 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@egjs/hammerjs": "^2.0.17",
     "@types/lodash": "^4.14.149",
+    "@types/vue-color": "^2.4.2",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.1.0",
     "core-js": "^3.4.4",
     "fuse.js": "^3.4.6",
+    "keycharm": "^0.3.1",
     "lodash": "^4.17.15",
-    "vue": "^2.6.11"
+    "moment": "^2.24.0",
+    "node-uuid": "^1.4.8",
+    "vis-data": "^6.3.1",
+    "vis-network": "^6.5.0",
+    "vue": "^2.6.11",
+    "vue-color": "^2.7.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.5",

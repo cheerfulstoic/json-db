@@ -1,89 +1,145 @@
 import _ from 'lodash';
 import Fuse from 'fuse.js';
 
+const uuidv1 = require('uuid/v1');
+
 export interface Definition {
-  id: string;
+  _id: string;
   name: string;
   type: string;
+  unique_id: boolean;
   options?: string[];
 }
 
 export interface ReferenceQueryResult {
+  sheet: Sheet;
+  id: string;
+  record: any;
+}
+
+export interface Reference {
+  sheet_id: string;
+  record_id: string;
+}
+
+// DEPRECATED
+export interface NameReference {
   sheet: string;
   id: string;
-  description_data: object;
 }
 
 export class Sheet {
-  name: string;
-  schema_data: Definition[];
-  record_data: object[];
+  public _id: string;
+  public name: string;
+  public hex_color: string;
+  public definitions: Definition[];
+  public record_data: object[];
 
-  constructor(name: string, schema_data: object[], record_data: object[]) {
+  private description_types : string[] = ['string', 'text_area', 'select_one'];
+
+  static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425'];
+  static last_used_hex_color = -1;
+
+  constructor(name: string, id: string | null, hex_color: string | null, definitions: object[], record_data: object[]) {
+    this._id = id || uuidv1();
     this.name = name;
-    this.schema_data = _.map(schema_data, this.add_id);
+    this.definitions = _.map(definitions, this.add_id);
 
-    let definitions_by_name = _.keyBy(this.schema_data, 'name')
+    Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1;
+    this.hex_color = hex_color || Sheet.hex_colors[Sheet.last_used_hex_color];
 
-    this.record_data = _.map(record_data, (record) => {
+    let definitions_by_name = _.keyBy(this.definitions, 'name');
+
+    this.record_data = _(record_data).map((record) => {
       return _.mapKeys(record, (_, name) => {
-        return definitions_by_name[name].id;
-      })
-    })
-  }
-
-  records () {
-    let definitions_by_id = _.keyBy(this.schema_data, 'id')
-
-    return _.map(this.record_data, (record) => {
-      return _.mapKeys(record, (_, key) => {
-        if (key === 'id') {
-          return 'id'
+        if (name === '_id') {
+          return name
         } else {
-          return definitions_by_id[key].name;
+          return definitions_by_name[name]._id;
         }
       })
-    })
+    }).map(this.add_id).value();
   }
 
-  schema () {
+  public records () {
+    return _.map(this.record_data, this.translate_record.bind(this))
+  }
+
+  public schema () {
     // TEMP!! (?)
-    return this.schema_data
+    return this.definitions
   }
 
-  search (match_text : string) : ReferenceQueryResult[] {
-    let names = _(this.schema_data).filter((definition) => {
-      return(['string', 'text_area', 'select_one'].includes(definition.type))
+  public search (match_text : string) : ReferenceQueryResult[] {
+    let ids = _(this.definitions).filter((definition) => {
+      return(this.description_types.includes(definition.type))
     }).map((definition) => {
-      return(definition.name)
+      return(definition._id)
     }).value()
 
-    let definitions_by_id = _.keyBy(this.schema, 'id')
-
-    let fuse = new Fuse(this.records(), {keys: names})
+    let fuse = new Fuse(this.record_data, {keys: ids})
 
     return _.map(fuse.search(match_text), (result : any) => {
-      return { sheet: this.name, id: result.id, description_data: _.pick(result, names) }
+      return { sheet: this, id: result._id, record: this.translate_record(result) }
     })
   }
 
-  add_column () {
-    this.schema_data.push(this.add_id({name: '', type: 'string'}))
+  public find_by_id (id : string) {
+    return _.find(this ? this.record_data : [], {_id: id})
   }
 
-  add_row () {
-    this.record_data.push({})
+  public add_column () {
+    let number = this.definitions.length + 1
+    this.definitions.push(this.add_id({name: `Column #${number}`, type: 'string'}))
   }
 
-  json_data () {
-    // TEMP!!  Need to include schema in json_data
-    this.records()
+  public add_row () {
+    this.record_data.push(this.add_id({}));
+  }
+
+  public translate_record(record : any) : any {
+    let definitions_by_id = _.keyBy(this.definitions, '_id');
+
+    return _.mapKeys(record, (_, key) => {
+      if (key === '_id') {
+        return '_id'
+      } else {
+        return definitions_by_id[key].name;
+      }
+    })
+  }
+
+  public record_values(translated_record : any) : any {
+    let field = this.unique_id_field()
+    let result : any = {};
+    result[field] = translated_record[field];
+    return result
+  }
+
+  public unique_id_field() : string {
+    let definition = _(this.definitions).find({unique_id: true})
+
+    return(definition ? definition.name : '_id')
+  }
+
+  public json_data () {
+    return({
+      _id: this._id,
+      name: this.name,
+      hex_color: this.hex_color,
+      definitions: this.definitions,
+    })
   }
 
   // private
-  add_id (object : any) : any {
-    return _.assign(object, {id: `id_${new Date().getTime()}`})
+  private add_id (object : any) : any {
+    if (object['_id']) {
+      return(object);
+    } else {
+      return _.assign(object, {_id: uuidv1()})
+    }
   }
+
 }
 
 export class Database {
@@ -93,27 +149,76 @@ export class Database {
     this.sheets = sheets;
   }
 
-  search (match_text : string) : ReferenceQueryResult[] {
+  public add_sheet (sheet : Sheet) : void {
+    this.sheets.push(sheet)
+  }
+
+  public search (match_text : string) : ReferenceQueryResult[] {
     return _.flatMap(this.sheets, (sheet : Sheet) => {
       return sheet.search(match_text)
     })
   }
 
-  fetch_record (sheet_name : string, record_id : string) {
+  public fetch_record (reference : Reference) : ReferenceQueryResult | null {
     let sheet = _.find(this.sheets, (sheet : Sheet) => {
-      return(sheet.name === sheet_name)
+      return(sheet._id === reference.sheet_id)
     })
-    if (sheet === undefined) { debugger }
 
-    return _.find(sheet ? sheet.records() : [], (record : any) => {
-      return(record.id === record_id)
-    })
+    if (!sheet) { return(null) }
+
+    let result = sheet.find_by_id(reference.record_id)
+
+    if (!result) { return(null) }
+
+    return { sheet: sheet, id: reference.record_id, record: sheet.translate_record(result) }
   }
 
-  json_data () {
-    return _.map(this.sheets, (sheet : Sheet) => {
-      return(sheet.json_data())
-    })
+  public find_sheet (id : string) : Sheet | undefined {
+    return _.find(this.sheets, {_id: id})
+  }
+
+  public json_data () {
+    let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      result[sheet._id] = sheet.json_data()
+      return(result);
+    }, {})
+
+    let sheet_unique_ids = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      return(_.set(result, sheet._id, _.find(sheet.definitions, {unique_id: true})))
+    }, {})
+
+    let records_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      let reference_definitions = _.filter(sheet.definitions, (definition : Definition) => {
+        return(definition.type == 'references')
+      })
+
+      result[sheet.name] = _.map(sheet.records(), (record) => {
+        return _.reduce(reference_definitions, (result : any, definition : Definition) => {
+          let references = result[definition.name];
+          // debugger
+          if (references && references.length) {
+            result[definition.name] = _.map(references, (reference) => {
+              let reference_result = this.fetch_record(reference);
+              if (reference_result) {
+                reference = _.set(reference, 'sheet_name', reference_result.sheet.name)
+
+                let unique_id_definition : Definition = sheet_unique_ids[reference_result.sheet._id]
+                if (unique_id_definition) {
+                  reference = _.set(reference, unique_id_definition.name, reference_result.record[unique_id_definition.name])
+                }
+
+                return(reference)
+              }
+              return(reference)
+            })
+          }
+          return(result);
+        }, record)
+      })
+      return(result);
+    }, {})
+
+    return {sheets: sheets_data, records: records_data}
   }
 }
 

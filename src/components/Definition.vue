@@ -3,18 +3,26 @@
     <div class="row">
       <div class="col col-md-9">
         {{value.name}}
+        <span v-if="value.unique_id">✨</span>
       </div>
       <div class="col col-md-3">
-        <b-button v-b-modal="'modal-' + value.id">Edit</b-button>
+        <b-button v-b-modal="'modal-' + value._id">Edit</b-button>
       </div>
     </div>
 
 
-    <b-modal v-bind:id="'modal-' + value.id" title="BootstrapVue">
+    <b-modal v-bind:id="'modal-' + value._id" title="BootstrapVue">
       <div class="form-group">
         <label>
           Name
           <input class="form-control" v-model="value.name"/>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Unique ID?
+          <input type="checkbox" id="unique_id" v-model="value.unique_id">
         </label>
       </div>
 
@@ -27,7 +35,7 @@
             <option value="text_area">Text Area</option>
             <option value="integer">Integer</option>
             <option value="select_one">Select One</option>
-            <option value="reference">Reference</option>
+            <option value="references">References</option>
           </select>
         </label>
       </div>

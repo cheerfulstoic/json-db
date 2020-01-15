@@ -22,5 +22,9 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
+.input-group {
+  width: 150px;
+}
+
 </style>
 
