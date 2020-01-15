@@ -6,14 +6,9 @@ set -e
 # build
 yarn build
 
-# navigate into the build output directory
-cd dist
-
-git init
-git add -A
+git add dist
 git commit -m 'deploy'
 
-git push -f git@github.com:<USERNAME>/<REPO>.git master:gh-pages
-cd -
+git push
 
 
