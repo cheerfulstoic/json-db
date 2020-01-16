@@ -97,6 +97,12 @@ export class Sheet {
     this.record_data.push(this.add_id({}));
   }
 
+  public remove_row (id : string) {
+    this.record_data = _.reject(this.record_data, (record : any) => {
+      return(record._id === id);
+    })
+  }
+
   public translate_record(record : any) : any {
     let definitions_by_id = _.keyBy(this.definitions, '_id');
 

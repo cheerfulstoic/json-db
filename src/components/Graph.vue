@@ -74,6 +74,10 @@ export default Vue.extend({
   methods: {
     toggle () {
       this.show_body = !this.show_body;
+      if (this.show_body) {
+        this.sheet_names = _.map(this.database.sheets, 'name');
+        this.refresh()
+      }
     },
     refresh () {
       let sheet = this.database.sheets[0]

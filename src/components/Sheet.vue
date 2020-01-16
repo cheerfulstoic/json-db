@@ -10,6 +10,7 @@
           <th v-for="(definition, index) in sheet.definitions" v-bind:key="definition._id">
             <Definition v-model="sheet.definitions[index]"/>
           </th>
+          <th>&nbsp;</th>
         </tr>
       </thead>
 
@@ -22,6 +23,9 @@
             <References v-if="definition.type === 'references'" v-model="record[definition._id]"
                         v-bind:database="database" v-bind:record_id="record._id" />
             <SelectOne v-if="definition.type === 'select_one'" v-model="record[definition._id]" v-bind:definition="definition" />
+          </td>
+          <td>
+            <a v-on:click="remove(record._id)" class="remove">🗑</a>
           </td>
         </tr>
       </template>
@@ -94,6 +98,9 @@ export default Vue.extend({
     record_focused (record : any) {
       if (!this.current_focus) { return(false) }
       return(record._id === this.current_focus.record_id)
+    },
+    remove (id : string) : void {
+      this.sheet.remove_row(id);
     }
   },
 });
