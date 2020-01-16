@@ -30,7 +30,7 @@
         </tr>
       </template>
     </table>
-    <button class="btn btn-primary" v-on:click="sheet.add_row()">Add Row</button>
+    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row()">Add Row</button>
 
 
     <b-modal v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
@@ -114,6 +114,10 @@ tr {
 
 tr.selected td {
   background-color: rgba(0,0,0,0.075);
+}
+
+.btn {
+  margin: 1em;
 }
 
 </style>

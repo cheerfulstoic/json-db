@@ -1,9 +1,11 @@
 <template>
   <div id="app">
-    <div id="file-upload" v-cloak v-on:drop.prevent="upload" v-on:dragover.prevent>
-      Drag here to upload file
-    </div>
-    <a v-bind:href="json_file_data_url()" v-bind:download="project_name + '.db.json'">Save JSON</a>
+    <a v-if="database.sheets.length" v-bind:href="json_file_data_url()" v-bind:download="project_name + '.db.json'">Save JSON</a>
+
+    <Graph id="graph"
+           v-bind:database="database"
+           v-bind:current_focus="current_focus"
+           v-on:focus_record="focus_record" />
 
     <div class="form-group">
       <input type="text" v-model="project_name" />
@@ -29,12 +31,18 @@
              v-on:focus_record="focus_record" v-bind:current_focus="current_focus" />
     </div>
 
-    <Graph id="graph"
-           v-bind:database="database"
-           v-bind:current_focus="current_focus"
-           v-on:focus_record="focus_record" />
+    <div id="file-upload" v-cloak v-if="!database.sheets.length"
+      v-on:drop.prevent="upload"
+      v-on:dragover.prevent="highlight_upload"
+      v-on:dragleave.prevent="unhighlight_upload"
+      v-bind:class="{hover: upload_highlighted}">
+      Drag here to upload file
+    </div>
 
-    <pre class="json-output">{{json()}}</pre>
+    <hr/>
+
+    <button class="btn btn-primary toggle-json-btn" v-on:click="taggle_json">Toggle JSON</button>
+    <pre v-if="show_json" class="json-output">{{json()}}</pre>
   </div>
 
 </template>
@@ -92,16 +100,20 @@ export default Vue.extend({
     Graph,
     Sheet,
   },
-  data () : { database: db.Database, current_sheet_id: string, current_focus: {sheet_id: string, record_id: string} | null, project_name: string } {
+  data () : { database: db.Database, current_sheet_id: string, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
     return {
       database: new db.Database([]),
       current_sheet_id: database.sheets[0]._id,
       current_focus: null,
-      project_name: 'Project Name'
+      project_name: 'Project Name',
+      upload_highlighted: false,
+      show_json: false
     }
   },
   methods: {
     upload (event : any) {
+      this.upload_highlighted = false;
+
       if (event.dataTransfer.files.length > 1) {
         alert('You cannot upload more than one file')
       }
@@ -123,8 +135,16 @@ export default Vue.extend({
         })
 
         this.database = new db.Database(sheets)
+
+        this.current_sheet_id = this.database.sheets[0]._id;
       };
       reader.readAsText(file);
+    },
+    highlight_upload () {
+      this.upload_highlighted = true;
+    },
+    unhighlight_upload () {
+      this.upload_highlighted = false;
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
@@ -144,6 +164,9 @@ export default Vue.extend({
       let file = new Blob([this.json()], {type: 'application/json'});
       return(URL.createObjectURL(file))
     },
+    taggle_json () {
+      this.show_json = !this.show_json;
+    }
   },
   computed: {
   }
@@ -167,6 +190,10 @@ export default Vue.extend({
   margin: 2em;
   width: 350px;
 
+  &.hover {
+    background-color: #BBB;
+  }
+
   &:drop {
     background-color: purple;
   }
@@ -188,7 +215,14 @@ ul.nav.nav-tabs {
   margin-left: 2em;
 }
 
+.toggle-json-btn {
+  margin: 2em 0 0 2em;
+}
+
 .json-output {
+  border: 1px solid #333;
+  padding: 1em;
+  margin: 2em;
   text-align: left;
 }
 
