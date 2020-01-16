@@ -118,12 +118,13 @@ export default Vue.extend({
             schema._id,
             schema.hex_color,
             schema.definitions,
-            result.records[schema._id]
+            result.records[schema.name]
           ))
         })
 
         this.database = new db.Database(sheets)
       };
+      reader.readAsText(file);
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
