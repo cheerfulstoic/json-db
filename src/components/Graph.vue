@@ -7,6 +7,8 @@
     </a>
 
     <div v-if="show_body">
+      <div ref="mynetwork" id="mynetwork" class="vis-graph"></div>
+
       <div class="top">
         <span class="sheet-option" v-for="sheet in this.database.sheets" v-bind:key="sheet._id"
              v-bind:style="'color:' + sheet.hex_color">
@@ -16,7 +18,6 @@
           </label>
         </span>
       </div>
-      <div ref="mynetwork" id="mynetwork" class="vis-graph"></div>
 
       <!--
       <h2>Nodes</h2>
@@ -164,8 +165,9 @@ export default Vue.extend({
 <style scoped lang="scss">
 
 .top {
-  height: 50px;
+  height: 100px;
   padding-top: 10px;
+  width: 600px;
 }
 .vis-graph {
   width: 600px;

@@ -239,10 +239,7 @@ ul.nav.nav-tabs {
 
 #graph {
   position: fixed;
-  /*
-  width: 650px;
-  height: 450px;
-  */
+  z-index: 2;
   top: 20px;
   right: 20px;
   background-color: white;
