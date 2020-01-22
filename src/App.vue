@@ -200,7 +200,12 @@ export default Vue.extend({
   border-radius: 0.4em;
   padding: 2em;
   margin: 2em;
-  width: 350px;
+  width: 800px;
+  height: 600px;
+
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
 
   &.hover {
     background-color: #BBB;
