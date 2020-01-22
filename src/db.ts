@@ -93,8 +93,12 @@ export class Sheet {
     this.definitions.push(this.add_id({name: `Column #${number}`, type: 'string'}))
   }
 
-  public add_row () {
-    this.record_data.push(this.add_id({}));
+  public add_row (position : string) {
+    if (position == 'top') {
+      this.record_data.unshift(this.add_id({}));
+    } else {
+      this.record_data.push(this.add_id({}));
+    }
   }
 
   public remove_row (id : string) {

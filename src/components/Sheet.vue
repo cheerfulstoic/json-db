@@ -4,6 +4,9 @@
 
     <button class="btn btn-primary" v-on:click="sheet.add_column()">Add Column</button>
 
+    <br/>
+
+    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('top')">Add Row</button>
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
         <tr>
@@ -36,7 +39,7 @@
         </tr>
       </template>
     </table>
-    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row()">Add Row</button>
+    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('bottom')">Add Row</button>
 
 
     <b-modal v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
