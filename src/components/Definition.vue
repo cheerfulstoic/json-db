@@ -1,9 +1,8 @@
 <template>
   <div>
-    {{value.name}}
     <a v-b-modal="'modal-' + value._id">✏️</a>
+    {{value.name}}
     <span v-if="value.unique_id">✨</span>
-
 
     <b-modal v-bind:id="'modal-' + value._id" title="BootstrapVue">
       <div class="form-group">

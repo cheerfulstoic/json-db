@@ -137,6 +137,23 @@ export class Sheet {
     })
   }
 
+  public delete_definition (definition_id : string) {
+    let definition = this.find_definition(definition_id);
+
+    this.record_data = this.record_data.map((record) => {
+      return(_.omit(record, definition._id))
+    })
+    _.pull(this.definitions, definition)
+  }
+
+  private find_definition (definition_id : string) : Definition {
+    let definition = _.find(this.definitions, {_id: definition_id});
+
+    if (!definition) { throw `Unable to find definition: ${definition_id}` }
+
+    return(definition)
+  }
+
   // private
   private add_id (object : any) : any {
     if (object['_id']) {

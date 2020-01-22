@@ -8,7 +8,9 @@
       <thead class="thead-light">
         <tr>
           <th v-for="(definition, index) in sheet.definitions" v-bind:key="definition._id">
-            <Definition v-model="sheet.definitions[index]"/>
+            <Definition v-model="sheet.definitions[index]" style="float: left" />
+
+            <a v-on:click="remove_column(definition)" class="remove">🗑</a>
           </th>
           <th>&nbsp;</th>
         </tr>
@@ -106,6 +108,11 @@ export default Vue.extend({
     },
     remove (id : string) : void {
       this.sheet.remove_row(id);
+    },
+    remove_column (definition : db.Definition) : void {
+      if(confirm(`Do you really want to delete the column ${definition.name}?`)){
+        this.sheet.delete_definition(definition._id);
+      }
     }
   },
 });
