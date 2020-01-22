@@ -52,7 +52,7 @@ export class Sheet {
 
     this.record_data = _(record_data).map((record) => {
       return _.mapKeys(record, (_, name) => {
-        if (name === '_id') {
+        if (name[0] === "_") { // like `_id` or `_expressions'
           return name
         } else {
           return definitions_by_name[name]._id;
@@ -107,8 +107,8 @@ export class Sheet {
     let definitions_by_id = _.keyBy(this.definitions, '_id');
 
     return _.mapKeys(record, (_, key) => {
-      if (key === '_id') {
-        return '_id'
+      if (key[0] === "_") { // like `_id` or `_expressions'
+        return key
       } else {
         return definitions_by_id[key].name;
       }
@@ -150,9 +150,11 @@ export class Sheet {
 
 export class Database {
   sheets: Sheet[];
+  global_variables: any;
 
-  constructor(sheets : Sheet[]) {
+  constructor(sheets : Sheet[], global_variables : object) {
     this.sheets = sheets;
+    this.global_variables = global_variables;
   }
 
   public add_sheet (sheet : Sheet) : void {
@@ -185,7 +187,7 @@ export class Database {
 
   public json_data () {
     let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
-      result[sheet._id] = sheet.json_data()
+      result[sheet.name] = sheet.json_data()
       return(result);
     }, {})
 
@@ -201,7 +203,7 @@ export class Database {
       result[sheet.name] = _.map(sheet.records(), (record) => {
         return _.reduce(reference_definitions, (result : any, definition : Definition) => {
           let references = result[definition.name];
-          // debugger
+
           if (references && references.length) {
             result[definition.name] = _.map(references, (reference) => {
               let reference_result = this.fetch_record(reference);
@@ -224,7 +226,11 @@ export class Database {
       return(result);
     }, {})
 
-    return {sheets: sheets_data, records: records_data}
+    return({
+      global_variables: this.global_variables,
+      sheets: sheets_data,
+      records: records_data,
+    })
   }
 }
 

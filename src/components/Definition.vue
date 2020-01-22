@@ -1,14 +1,8 @@
 <template>
   <div>
-    <div class="row">
-      <div class="col col-md-9">
-        {{value.name}}
-        <span v-if="value.unique_id">✨</span>
-      </div>
-      <div class="col col-md-3">
-        <b-button v-b-modal="'modal-' + value._id">Edit</b-button>
-      </div>
-    </div>
+    {{value.name}}
+    <a v-b-modal="'modal-' + value._id">✏️</a>
+    <span v-if="value.unique_id">✨</span>
 
 
     <b-modal v-bind:id="'modal-' + value._id" title="BootstrapVue">
@@ -36,6 +30,7 @@
             <option value="integer">Integer</option>
             <option value="select_one">Select One</option>
             <option value="references">References</option>
+            <option value="expression">Expression</option>
           </select>
         </label>
       </div>

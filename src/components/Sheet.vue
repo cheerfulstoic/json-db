@@ -20,9 +20,13 @@
             <String v-if="definition.type === 'string'" v-model="record[definition._id]" />
             <TextArea v-if="definition.type === 'text_area'" v-model="record[definition._id]" />
             <Integer v-if="definition.type === 'integer'" v-model="record[definition._id]" />
+            <SelectOne v-if="definition.type === 'select_one'" v-model="record[definition._id]" v-bind:definition="definition" />
             <References v-if="definition.type === 'references'" v-model="record[definition._id]"
                         v-bind:database="database" v-bind:record_id="record._id" />
-            <SelectOne v-if="definition.type === 'select_one'" v-model="record[definition._id]" v-bind:definition="definition" />
+            <Expression v-if="definition.type === 'expression'"
+                        v-model="record[definition._id]"
+                        v-bind:definition="definition"
+                        v-bind:global_variables="database.global_variables"/>
           </td>
           <td>
             <a v-on:click="remove(record._id)" class="remove">🗑</a>
@@ -55,6 +59,7 @@
 import Vue from 'vue';
 import Definition from './Definition.vue';
 
+import Expression from './types/Expression.vue';
 import Integer from './types/Integer.vue';
 import References from './types/References.vue';
 import SelectOne from './types/SelectOne.vue';
@@ -72,8 +77,8 @@ export default Vue.extend({
   name: 'Sheet',
   components: {
     Definition,
+    Expression,
     Integer,
-    // RecordResult,
     References,
     SelectOne,
     String,
@@ -86,7 +91,7 @@ export default Vue.extend({
   props: {
     sheet: db.Sheet,
     database: db.Database,
-    current_focus: Object // db.Reference
+    current_focus: Object, // db.Reference
   },
   methods: {
     update_color (colors : {hex: string}) {

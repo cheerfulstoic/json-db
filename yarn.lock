@@ -2143,6 +2143,13 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
+chai-match-pattern@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chai-match-pattern/-/chai-match-pattern-1.1.0.tgz#4ccf7a1900ca03f994ca5a704c92a2646d0241d3"
+  integrity sha1-TM96GQDKA/mUylpwTJKiZG0CQdM=
+  dependencies:
+    lodash-match-pattern "^2.0.1"
+
 chai@^4.1.2:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/chai/-/chai-4.2.0.tgz#760aa72cf20e3795e84b12877ce0e83737aa29e5"
@@ -2197,6 +2204,14 @@ check-types@^8.0.3:
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-8.0.3.tgz#3356cca19c889544f2d7a95ed49ce508a0ecf552"
   integrity sha512-YpeKZngUmG65rLudJ4taU7VLkOCTMhNl/u4ctNC56LQS/zJTyNH0Lrtwm1tfTsbLlwvlfsA2d1c8vCf/Kh2KwQ==
+
+checkit@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/checkit/-/checkit-0.7.0.tgz#14979abc93018346bfcfdcbabc19ab54c0bfd74a"
+  integrity sha1-FJeavJMBg0a/z9y6vBmrVMC/10o=
+  dependencies:
+    inherits "^2.0.1"
+    lodash "^4.0.0"
 
 "chokidar@>=2.0.0 <4.0.0":
   version "3.3.1"
@@ -3591,6 +3606,11 @@ expand-brackets@^2.1.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
+expr-eval@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/expr-eval/-/expr-eval-2.0.2.tgz#fa6f044a7b0c93fde830954eb9c5b0f7fbc7e201"
+  integrity sha512-4EMSHGOPSwAfBiibw3ndnP0AvjDWLsMvGOvWEZ2F96IGk0bIVdjQisOHxReSkE13mHcfbuCiXw+G4y0zv6N8Eg==
+
 express@^4.16.3, express@^4.17.1:
   version "4.17.1"
   resolved "https://registry.yarnpkg.com/express/-/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
@@ -4283,7 +4303,7 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-he@1.2.0, he@1.2.x, he@^1.1.0:
+he@1.2.0, he@1.2.x, he@^1.1.0, he@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
@@ -5253,6 +5273,23 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
+lodash-checkit@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/lodash-checkit/-/lodash-checkit-2.3.2.tgz#ff2b5924faec1b1a354d488eca6b85b026dfc5e0"
+  integrity sha512-6ye0MEIYJHl7XMRCIE1sggtTHmTd4xHqZPiGjZVm9DQOFU8k3pMGzOAzC6L7boFFJJI4sRodHR+nU6Z4f+0aeQ==
+  dependencies:
+    checkit "^0.7.0"
+    lodash "^4.17.15"
+
+lodash-match-pattern@^2.0.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/lodash-match-pattern/-/lodash-match-pattern-2.1.1.tgz#498fd23ca1e77996a0b00f2aadbadca0cbcb09a1"
+  integrity sha512-uSECNe5YP6etrEhrnAeL6K2Bmy+sJOvNZeEXW5xROULu0WLf9ns1eVTdr8NFsh+5npNJ+ZqO2BocDQM6i5Q6mA==
+  dependencies:
+    chalk "^2.4.2"
+    he "^1.2.0"
+    lodash-checkit "^2.3.2"
+
 lodash.defaultsdeep@^4.6.1:
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/lodash.defaultsdeep/-/lodash.defaultsdeep-4.6.1.tgz#512e9bd721d272d94e3d3a63653fa17516741ca6"
@@ -5298,7 +5335,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4:
+lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==

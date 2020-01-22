@@ -9,6 +9,8 @@
 
     <div class="form-group">
       <input type="text" v-model="project_name" />
+
+      <b-button v-b-modal.global-variables-modal variant="primary">Edit Global Variables</b-button>
     </div>
 
     <ul class="nav nav-tabs">
@@ -43,6 +45,11 @@
 
     <button class="btn btn-primary toggle-json-btn" v-on:click="taggle_json">Toggle JSON</button>
     <pre v-if="show_json" class="json-output">{{json()}}</pre>
+
+
+    <b-modal id="global-variables-modal" title="Global Variables">
+      <VariableEditor v-bind:variables="database.global_variables" v-on:update="update_global_variables" />
+    </b-modal>
   </div>
 
 </template>
@@ -52,6 +59,7 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue'
 
 import Sheet from './components/Sheet.vue';
+import VariableEditor from './components/VariableEditor.vue';
 import Graph from './components/Graph.vue';
 
 import _ from 'lodash';
@@ -91,26 +99,30 @@ let sheet2 = new db.Sheet('Influencers',
       influencable: [{ sheet_id: "sheet_1", record_id: 'hhh123' }]},
   ])
 
-let database = new db.Database([sheet1, sheet2])
+let database = new db.Database([sheet1, sheet2], {})
 // ^^^ TEMP ^^^
 
 export default Vue.extend({
   name: 'app',
   components: {
     Graph,
+    VariableEditor,
     Sheet,
   },
   data () : { database: db.Database, current_sheet_id: string, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
     return {
-      database: new db.Database([]),
+      database: new db.Database([], {}),
       current_sheet_id: database.sheets[0]._id,
       current_focus: null,
       project_name: 'Project Name',
       upload_highlighted: false,
-      show_json: false
+      show_json: false,
     }
   },
   methods: {
+    update_global_variables (key : string, value : any) {
+      Vue.set(this.database.global_variables, key, value);
+    },
     upload (event : any) {
       this.upload_highlighted = false;
 
@@ -134,7 +146,7 @@ export default Vue.extend({
           ))
         })
 
-        this.database = new db.Database(sheets)
+        this.database = new db.Database(sheets, result.global_variables)
 
         this.current_sheet_id = this.database.sheets[0]._id;
       };
