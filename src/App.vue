@@ -146,7 +146,7 @@ export default Vue.extend({
           ))
         })
 
-        this.database = new db.Database(sheets, result.global_variables)
+        this.database = new db.Database(sheets, result.global_variables || {})
 
         this.current_sheet_id = this.database.sheets[0]._id;
       };
