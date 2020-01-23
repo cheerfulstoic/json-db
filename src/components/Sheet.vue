@@ -114,10 +114,12 @@ export default Vue.extend({
       return(record._id === this.current_focus.record_id)
     },
     remove (id : string) : void {
-      this.sheet.remove_row(id);
+      if(confirm(`Do you really want to delete this row?`)) {
+        this.sheet.remove_row(id);
+      }
     },
     remove_column (definition : db.Definition) : void {
-      if(confirm(`Do you really want to delete the column ${definition.name}?`)){
+      if(confirm(`Do you really want to delete the column ${definition.name}?`)) {
         this.sheet.delete_definition(definition._id);
       }
     },
