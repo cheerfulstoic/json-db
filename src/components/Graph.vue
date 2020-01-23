@@ -134,10 +134,12 @@ export default Vue.extend({
       if (!element) { return(null) }
 
       this.network = new Network(element, graph_data, {
-        layout: {randomSeed: 135321527275125},
+        layout: {randomSeed: 135321527275125, improvedLayout: false},
         interaction: {
           zoomView: false
         },
+        nodes: { shapeProperties: {interpolation: false}},
+        physics: {stabilization: false},
       });
       this.network.on('click', (obj : any) : void => {
         let node_id = obj.nodes[0];
