@@ -1,7 +1,8 @@
 <template>
   <div class="record-result">
     <span class="sheet" v-bind:style="'background-color:' + result.sheet.hex_color">{{result.sheet.name}}</span> »
-    <span v-for="(value, key) in result.sheet.record_values(result.record)" v-bind:key="key" class="property">
+    <span v-for="(value, key) in result.sheet.record_values(result.record)" v-bind:key="key" class="property"
+          v-on:click.prevent="$emit('focus-sheet-and-record', result.sheet._id, result.id)">
       <span class="key">{{key}}</span>
       <span class="value">{{value}}</span>
     </span>

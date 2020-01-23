@@ -2,7 +2,8 @@
   <div class="input-group referenced-object">
     <div v-for="result in referenced_records()" v-bind:key="result.id">
       <a v-on:click="remove(result)" class="remove">🗑</a>
-      <RecordResult v-bind:result="result" v-bind:database="database" />
+      <RecordResult v-bind:result="result" v-bind:database="database"
+      v-on:focus-sheet-and-record="focus_sheet_and_record" />
     </div>
 
     <div class="search">
@@ -84,6 +85,9 @@ export default Vue.extend({
       this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
         return(reference.record_id == result.id)
       }))
+    },
+    focus_sheet_and_record (sheet_id : string, record_id : string) {
+      this.$emit('focus-sheet-and-record', sheet_id, record_id);
     }
   }
 });

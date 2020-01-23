@@ -5,7 +5,7 @@
     <Graph id="graph"
            v-bind:database="database"
            v-bind:current_focus="current_focus"
-           v-on:focus_record="focus_record" />
+           v-on:focus-sheet-and-record="focus_sheet_and_record" />
 
     <div class="form-group">
       <input type="text" v-model="project_name" />
@@ -30,7 +30,7 @@
 
     <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
       <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet" v-bind:database="database"
-             v-on:focus_record="focus_record" v-bind:current_focus="current_focus" />
+             v-bind:current_focus="current_focus" v-on:focus-sheet-and-record="focus_sheet_and_record" />
     </div>
 
     <div id="file-upload" v-cloak v-if="!database.sheets.length"
@@ -165,9 +165,17 @@ export default Vue.extend({
     change_sheet (id : string) {
       this.current_sheet_id = id;
     },
-    focus_record (sheet_id : string, record_id : string) {
+    focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.current_focus = {sheet_id: sheet_id, record_id: record_id};
       this.current_sheet_id = sheet_id;
+      window.setTimeout(() => {
+        console.log('scrolling')
+        let record_element = document.getElementById(`record-${record_id}`);
+
+        if (record_element) {
+          record_element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 1)
     },
     json () {
       return JSON.stringify(this.database.json_data(), null, 2)
@@ -178,7 +186,19 @@ export default Vue.extend({
     },
     taggle_json () {
       this.show_json = !this.show_json;
-    }
+    },
+    // focus_sheet_and_record (sheet_id : string, record_id : string) {
+    //   let sheet = this.database.find_sheet (sheet_id);
+
+    //   if (sheet) {
+    //     let record = sheet.find_by_id(record_id);
+
+    //     if (record) {
+    //       debugger
+    //       // this.current_focus.record_id = record._id
+    //     }
+    //   }
+    // },
   },
   computed: {
   }

@@ -20,14 +20,18 @@
       </thead>
 
       <template v-for="record in sheet.record_data">
-        <tr v-on:click="focus_record(record._id)" v-bind:key="record._id" v-bind:class="{selected: record_focused(record)}">
+        <tr v-bind:key="record._id"
+            v-bind:class="{selected: record_focused(record)}"
+            v-bind:id="'record-' + record._id"
+            v-on:click="focus_sheet_and_record(sheet._id, record._id)">
           <td v-for="definition in sheet.definitions" v-bind:key="definition._id">
             <String v-if="definition.type === 'string'" v-model="record[definition._id]" />
             <TextArea v-if="definition.type === 'text_area'" v-model="record[definition._id]" />
             <Integer v-if="definition.type === 'integer'" v-model="record[definition._id]" />
             <SelectOne v-if="definition.type === 'select_one'" v-model="record[definition._id]" v-bind:definition="definition" />
             <References v-if="definition.type === 'references'" v-model="record[definition._id]"
-                        v-bind:database="database" v-bind:record_id="record._id" />
+                        v-bind:database="database" v-bind:record_id="record._id"
+                        v-on:focus-sheet-and-record="focus_sheet_and_record" />
             <Expression v-if="definition.type === 'expression'"
                         v-model="record[definition._id]"
                         v-bind:definition="definition"
@@ -103,7 +107,7 @@ export default Vue.extend({
       this.sheet.hex_color = colors.hex;
     },
     focus_record (record_id : string) {
-      this.$emit('focus_record', this.sheet._id, record_id);
+      this.$emit('focus-sheet-and-record', this.sheet._id, record_id);
     },
     record_focused (record : any) {
       if (!this.current_focus) { return(false) }
@@ -116,6 +120,9 @@ export default Vue.extend({
       if(confirm(`Do you really want to delete the column ${definition.name}?`)){
         this.sheet.delete_definition(definition._id);
       }
+    },
+    focus_sheet_and_record (sheet_id : string, record_id : string) {
+      this.$emit('focus-sheet-and-record', sheet_id, record_id);
     }
   },
 });
