@@ -169,7 +169,6 @@ export default Vue.extend({
       this.current_focus = {sheet_id: sheet_id, record_id: record_id};
       this.current_sheet_id = sheet_id;
       window.setTimeout(() => {
-        console.log('scrolling')
         let record_element = document.getElementById(`record-${record_id}`);
 
         if (record_element) {
