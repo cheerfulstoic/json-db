@@ -7,11 +7,21 @@
     <br/>
 
     <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('top')">Add Row</button>
+
+    <h3>Columns to Display</h3>
+    <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+      <label>
+        <input type="checkbox" id="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
+        {{definition.name}}
+      </label>
+    </div>
+
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
         <tr>
-          <th v-for="(definition, index) in sheet.definitions" v-bind:key="definition._id">
-            <Definition v-model="sheet.definitions[index]" style="float: left" />
+          <th v-for="(definition, index) in definitions_to_display"
+              v-bind:key="definition._id" >
+            <Definition v-model="definitions_to_display[index]" style="float: left" />
 
             <a v-on:click="remove_column(definition)" class="remove">🗑</a>
           </th>
@@ -24,7 +34,8 @@
             v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
             v-on:click="focus_sheet_and_record(sheet._id, record._id)">
-          <td v-for="definition in sheet.definitions" v-bind:key="definition._id">
+          <td v-for="definition in definitions_to_display"
+              v-bind:key="definition._id">
             <String v-if="definition.type === 'string'" v-model="record[definition._id]" />
             <TextArea v-if="definition.type === 'text_area'" v-model="record[definition._id]" />
             <Integer v-if="definition.type === 'integer'" v-model="record[definition._id]" />
@@ -101,6 +112,13 @@ export default Vue.extend({
     sheet: db.Sheet,
     database: db.Database,
     current_focus: Object, // db.Reference
+  },
+  computed: {
+    definitions_to_display () : db.Definition[] {
+      return(_.filter(this.sheet.definitions, (definition) => {
+        return(this.sheet.definition_ids_to_display.includes(definition._id))
+      }))
+    },
   },
   methods: {
     update_color (colors : {hex: string}) {

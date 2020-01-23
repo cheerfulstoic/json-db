@@ -34,16 +34,24 @@ export class Sheet {
   public hex_color: string;
   public definitions: Definition[];
   public record_data: object[];
+  public definition_ids_to_display : string[];
 
   private description_types : string[] = ['string', 'text_area', 'select_one'];
 
   static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425'];
   static last_used_hex_color = -1;
 
-  constructor(name: string, id: string | null, hex_color: string | null, definitions: object[], record_data: object[]) {
+  constructor(name: string,
+              id: string | null,
+              hex_color: string | null,
+              definitions: object[],
+              definition_ids_to_display: string[] | null,
+              record_data: object[]) {
     this._id = id || uuidv1();
     this.name = name;
     this.definitions = _.map(definitions, this.add_id);
+
+    this.definition_ids_to_display = definition_ids_to_display || _.map(definitions, '_id')
 
     Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1;
     this.hex_color = hex_color || Sheet.hex_colors[Sheet.last_used_hex_color];
@@ -90,7 +98,9 @@ export class Sheet {
 
   public add_column () {
     let number = this.definitions.length + 1
-    this.definitions.push(this.add_id({name: `Column #${number}`, type: 'string'}))
+    let definition = this.add_id({name: `Column #${number}`, type: 'string'})
+    this.definitions.push(definition);
+    this.definition_ids_to_display.push(definition._id);
   }
 
   public add_row (position : string) {
@@ -138,6 +148,7 @@ export class Sheet {
       name: this.name,
       hex_color: this.hex_color,
       definitions: this.definitions,
+      definition_ids_to_display: this.definition_ids_to_display,
     })
   }
 
@@ -150,7 +161,7 @@ export class Sheet {
     _.pull(this.definitions, definition)
   }
 
-  private find_definition (definition_id : string) : Definition {
+  public find_definition (definition_id : string) : Definition {
     let definition = _.find(this.definitions, {_id: definition_id});
 
     if (!definition) { throw `Unable to find definition: ${definition_id}` }

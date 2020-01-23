@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container-fluid">
     <a v-if="database.sheets.length" v-bind:href="json_file_data_url()" v-bind:download="project_name + '.db.json'">Save JSON</a>
 
     <Graph id="graph"
@@ -69,39 +69,6 @@ Vue.use(BootstrapVue)
 
 import * as db from './db';
 
-// vvv TEMP vvv
-let sheet1 = new db.Sheet('Test',
-  'sheet_1', null,
-  [
-    { name: 'id', type: 'string', unique_id: true },
-    { name: 'msg', type: 'text_area' },
-    { name: 'foo', type: 'integer' },
-    { name: 'bar', type: 'references' },
-  ], [
-    {id: 'unreferenced', msg: 'Fun', foo: 6},
-    {_id: 'ggg123', id: 'blah', msg: 'Hello', foo: 2},
-    {_id: 'hhh123', id: 'bloh', msg: 'Hullo', bar: [{ sheet_id: "sheet_1", record_id: 'ggg123' }]},
-    {_id: 'abc123', id: 'blum', msg: 'Heja', bar: [
-      { sheet_id: 'sheet_1', record_id: 'hhh123' },
-      { sheet_id: 'sheet_2', record_id: 'flub' }
-    ]}
-  ])
-
-let sheet2 = new db.Sheet('Influencers',
-  'sheet_2', null,
-  [
-    { name: 'label', type: 'string', unique_id: true },
-    { name: 'description', type: 'text_area' },
-    { name: 'influencable', type: 'references' },
-  ],
-  [
-    {_id: 'flub', label: 'Huh', description: 'Something long, preferably',
-      influencable: [{ sheet_id: "sheet_1", record_id: 'hhh123' }]},
-  ])
-
-let database = new db.Database([sheet1, sheet2], {})
-// ^^^ TEMP ^^^
-
 export default Vue.extend({
   name: 'app',
   components: {
@@ -109,10 +76,11 @@ export default Vue.extend({
     VariableEditor,
     Sheet,
   },
-  data () : { database: db.Database, current_sheet_id: string, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
+  data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
+    let database = new db.Database([], {});
     return {
-      database: new db.Database([], {}),
-      current_sheet_id: database.sheets[0]._id,
+      database: database,
+      current_sheet_id: null,
       current_focus: null,
       project_name: 'Project Name',
       upload_highlighted: false,
@@ -142,6 +110,7 @@ export default Vue.extend({
             schema._id,
             schema.hex_color,
             schema.definitions,
+            schema.definition_ids_to_display,
             result.records[schema.name]
           ))
         })
@@ -160,7 +129,9 @@ export default Vue.extend({
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
-      this.database.add_sheet(new db.Sheet(`Sheet #${number}`, null, null, [], []))
+      let sheet = new db.Sheet(`Sheet #${number}`, null, null, [], null, []);
+      this.database.add_sheet(sheet);
+      this.current_sheet_id = sheet._id;
     },
     change_sheet (id : string) {
       this.current_sheet_id = id;

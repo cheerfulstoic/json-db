@@ -10,7 +10,7 @@ const uuid_regex = /([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}
 //  constructor(sheets : Sheet[]) {
 describe('db.Database', () => {
   it('works with an empty database', () => {
-    let sheet = new db.Sheet('empty', null, null, [], [])
+    let sheet = new db.Sheet('empty', null, null, [], null, [])
     let database = new db.Database([], {})
     chai.expect(database.json_data()).to.deep.equal({
       global_variables: {},
@@ -22,7 +22,7 @@ describe('db.Database', () => {
   it('outputs expressions correctly', () => {
     let sheet = new db.Sheet('just_an_expression', null, null, [
       { name: 'age', type: 'expression' },
-    ], [
+    ], null, [
       { age: 30,
         _expressions: { age: 'base_age + 22' } }
     ])
