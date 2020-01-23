@@ -138,7 +138,6 @@ export default Vue.extend({
         interaction: {
           zoomView: false
         },
-        nodes: { shapeProperties: {interpolation: false}},
         physics: {stabilization: false},
       });
       this.network.on('click', (obj : any) : void => {
@@ -146,7 +145,7 @@ export default Vue.extend({
 
         if (node_id) {
           let [sheet_id, record_id] : string[] = node_id.split('|');
-          this.$emit('focus_record', sheet_id, record_id);
+          this.$emit('focus-sheet-and-record', sheet_id, record_id);
         }
       })
 
