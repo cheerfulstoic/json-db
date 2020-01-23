@@ -58,6 +58,17 @@ export default Vue.extend({
     margin-right: 0.5em;
 
     background-color: white;
+
+  }
+
+  &:hover {
+    .key {
+      background-color: #4294C5;
+    }
+
+    .value {
+      background-color: #CCC;
+    }
   }
 }
 
