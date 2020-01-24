@@ -217,6 +217,33 @@ export class Database {
     return _.find(this.sheets, {_id: id})
   }
 
+  public referencers () {
+    let output : any = {}
+
+    this.sheets.forEach((sheet) => {
+      let references_definitions = _.filter(sheet.definitions, (definition : Definition) => {
+        return(definition.type == 'references')
+      })
+
+      sheet.record_data.forEach((record : any) => {
+        references_definitions.forEach((definition) => {
+          (record[definition._id] || []).forEach((reference : Reference) => {
+            let result = this.fetch_record(reference);
+
+            if (result) {
+              let key = `${result.sheet._id}|${result.id}`;
+              if (!output[key]) { output[key] = {} }
+              if (!output[key][definition.name]) { output[key][definition.name] = [] }
+              output[key][definition.name].push(this.fetch_record({sheet_id: sheet._id, record_id: record._id}));
+            }
+          })
+        })
+      })
+    })
+
+    return(output);
+  }
+
   public json_data () {
     let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
       result[sheet.name] = sheet.json_data()

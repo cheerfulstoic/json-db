@@ -1,6 +1,9 @@
 <template>
   <div class="record-result">
-    <span class="sheet" v-bind:style="'background-color:' + result.sheet.hex_color">{{result.sheet.name}}</span> »
+    <span class="sheet">
+      <span class="sheet_name" v-bind:style="'background-color:' + result.sheet.hex_color">{{result.sheet.name}}</span>
+      <span v-if="definition_name" class="definition_name">{{definition_name}}</span>
+    </span> »
     <span v-for="(value, key) in result.sheet.record_values(result.record)" v-bind:key="key" class="property"
           v-on:click.prevent="$emit('focus-sheet-and-record', result.sheet._id, result.id)">
       <span class="key">{{key}}</span>
@@ -19,6 +22,7 @@ export default Vue.extend({
   props: {
     result: Object,
     database: db.Database,
+    definition_name: { type: String, require: false, default: null },
   },
 });
 </script>
@@ -28,13 +32,29 @@ export default Vue.extend({
 .record-result {
   font-size: 0.8em;
   padding: 1em 0;
+  white-space: nowrap;
+
+
 }
 
 .sheet {
-  border: 1px solid black;
-  padding: 0.4em;
-  background-color: white;
+  margin: 0;
+  padding: 0;
   font-weight: bold;
+
+  .sheet_name {
+    padding: 0.4em;
+    margin: 0;
+    border: 1px solid black;
+  }
+
+  .definition_name {
+    border: 1px solid black;
+    border-left: 0;
+    padding: 0.4em;
+    background-color: white;
+    margin: 0;
+  }
 }
 
 .property {

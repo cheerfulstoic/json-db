@@ -25,6 +25,7 @@
 
             <a v-on:click="remove_column(definition)" class="remove">🗑</a>
           </th>
+          <th>Referencers</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
@@ -47,6 +48,14 @@
                         v-model="record[definition._id]"
                         v-bind:definition="definition"
                         v-bind:global_variables="database.global_variables"/>
+          </td>
+          <td>
+            <div v-for="entry in referencers_for(sheet, record)" v-bind:key="entry.result.id">
+              <RecordResult v-bind:result="entry.result"
+                            v-bind:database="database"
+                            v-bind:definition_name="entry.definition_name"
+                            v-on:focus-sheet-and-record="focus_sheet_and_record" />
+            </div>
           </td>
           <td>
             <a v-on:click="remove(record._id)" class="remove">🗑</a>
@@ -86,7 +95,7 @@ import SelectOne from './types/SelectOne.vue';
 import String from './types/String.vue';
 import TextArea from './types/TextArea.vue';
 
-// import RecordResult from './RecordResult.vue';
+import RecordResult from './RecordResult.vue';
 
 import { Chrome } from 'vue-color'
 
@@ -103,6 +112,7 @@ export default Vue.extend({
     SelectOne,
     String,
     TextArea,
+    RecordResult,
     ChromePicker: Chrome
   },
   data () {
@@ -143,6 +153,15 @@ export default Vue.extend({
     },
     focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
+    },
+    referencers_for (sheet : db.Sheet, record : any) {
+      // TODO: Access via a function in Database
+      let key = `${sheet._id}|${record._id}`
+      return _.flatMap(this.database.referencers()[key], (results, definition_name) => {
+        return _.map(results, (result) => {
+          return { result: result, definition_name: definition_name }
+        })
+      })
     }
   },
 });
@@ -152,6 +171,10 @@ export default Vue.extend({
 
 tr {
   transition: all .5s ease-in-out;
+}
+
+td {
+  overflow: hidden;
 }
 
 tr.selected td {
