@@ -25,7 +25,7 @@ describe('db.Database', () => {
     it('outputs expressions correctly', () => {
       let sheet = new db.Sheet('just_an_expression', null, null, [
         { name: 'age', type: 'expression' },
-      ], null, [
+      ], null, true, [
         { age: 30,
           _expressions: { age: 'base_age + 22' } }
       ])
@@ -39,6 +39,7 @@ describe('db.Database', () => {
             name: 'just_an_expression',
             hex_color: /^#[0-9A-F]{6}$/,
             definition_ids_to_display: [ uuid_regex ],
+            display_referencers: true,
             definitions: [
               { _id: uuid_regex, name: 'age', type: 'expression' },
             ]
@@ -64,7 +65,7 @@ describe('db.Database', () => {
       let sheet = new db.Sheet('references', 'sheet_id', null, [
         { _id: 'the_refs_id', name: 'the_refs', type: 'references' },
         { _id: 'the_other_refs_id', name: 'the_other_refs', type: 'references' },
-      ], null, [
+      ], null, true, [
         { _id: 'abc123', the_refs: [] },
         { _id: 'def456', the_refs: [{record_id: 'abc123', sheet_id: 'sheet_id'}] },
         {

@@ -14,7 +14,7 @@ describe('db.Sheet', () => {
       let sheet = new db.Sheet('a_few_values', null, null, [
         { _id: 'abc123', name: 'name', type: 'string' },
         { name: 'age', type: 'integer' },
-      ], null, [
+      ], null, true, [
         { name: 'Caravan', age: 32 },
         { name: 'Palace', age: 35 },
       ])
@@ -26,6 +26,7 @@ describe('db.Sheet', () => {
         name: 'a_few_values',
         hex_color: /^#[0-9A-F]{6}$/,
         definition_ids_to_display: [ 'abc123', uuid_regex ],
+        display_referencers: true,
         definitions: [
           { _id: uuid_regex, name: 'age', type: 'integer' },
         ]

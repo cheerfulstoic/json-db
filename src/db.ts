@@ -35,6 +35,7 @@ export class Sheet {
   public definitions: Definition[];
   public record_data: object[];
   public definition_ids_to_display : string[];
+  public display_referencers : boolean;
 
   private description_types : string[] = ['string', 'text_area', 'select_one'];
 
@@ -46,12 +47,14 @@ export class Sheet {
               hex_color: string | null,
               definitions: object[],
               definition_ids_to_display: string[] | null,
+              display_referencers: boolean,
               record_data: object[]) {
     this._id = id || uuidv1();
     this.name = name;
     this.definitions = _.map(definitions, this.add_id);
 
     this.definition_ids_to_display = definition_ids_to_display || _.map(definitions, '_id')
+    this.display_referencers = (display_referencers == null) ? true : display_referencers;
 
     Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1;
     this.hex_color = hex_color || Sheet.hex_colors[Sheet.last_used_hex_color];
@@ -149,6 +152,7 @@ export class Sheet {
       hex_color: this.hex_color,
       definitions: this.definitions,
       definition_ids_to_display: this.definition_ids_to_display,
+      display_referencers: this.display_referencers,
     })
   }
 

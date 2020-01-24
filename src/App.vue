@@ -111,6 +111,7 @@ export default Vue.extend({
             schema.hex_color,
             schema.definitions,
             schema.definition_ids_to_display,
+            schema.display_referencers,
             result.records[schema.name]
           ))
         })
@@ -129,7 +130,7 @@ export default Vue.extend({
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
-      let sheet = new db.Sheet(`Sheet #${number}`, null, null, [], null, []);
+      let sheet = new db.Sheet(`Sheet #${number}`, null, null, [], null, true, []);
       this.database.add_sheet(sheet);
       this.current_sheet_id = sheet._id;
     },

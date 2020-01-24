@@ -11,8 +11,16 @@
     <h3>Columns to Display</h3>
     <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
       <label>
-        <input type="checkbox" id="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
+        <input type="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
         {{definition.name}}
+      </label>
+
+    </div>
+
+    <div class="form-check form-check-inline">
+      <label>
+        <input type="checkbox" class="form-check-input" v-model="sheet.display_referencers">
+        Referencers
       </label>
     </div>
 
@@ -25,7 +33,7 @@
 
             <a v-on:click="remove_column(definition)" class="remove">🗑</a>
           </th>
-          <th>Referencers</th>
+          <th v-if="sheet.display_referencers">Referencers</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
@@ -49,7 +57,7 @@
                         v-bind:definition="definition"
                         v-bind:global_variables="database.global_variables"/>
           </td>
-          <td>
+          <td v-if="sheet.display_referencers">
             <div v-for="entry in referencers_for(sheet, record)" v-bind:key="entry.result.id">
               <RecordResult v-bind:result="entry.result"
                             v-bind:database="database"
