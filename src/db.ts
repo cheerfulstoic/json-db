@@ -88,7 +88,13 @@ export class Sheet {
       return(definition._id)
     }).value()
 
-    let fuse = new Fuse(this.record_data, {keys: ids})
+    let fuse = new Fuse(this.record_data, {
+      shouldSort: true,
+      tokenize: true,
+      matchAllTokens: true,
+      minMatchCharLength: 2,
+      keys: ids
+    })
 
     return _.map(fuse.search(match_text), (result : any) => {
       return { sheet: this, id: result._id, record: this.translate_record(result) }

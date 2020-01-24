@@ -182,7 +182,7 @@ tr {
 }
 
 td {
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 tr.selected td {
