@@ -149,9 +149,7 @@ export default Vue.extend({
       }
     },
     remove_column (definition : db.Definition) : void {
-      if(confirm(`Do you really want to delete the column ${definition.name}?`)) {
-        this.sheet.delete_definition(definition._id);
-      }
+      this.sheet.delete_definition(definition._id);
     },
     focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);

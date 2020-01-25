@@ -33,7 +33,7 @@
       <div class="form-group" v-if="value.type == 'select_one'">
         <label>
           <b-list-group>
-            <b-list-group-item v-for="option in options()" v-bind:key="option">
+            <b-list-group-item v-for="option in options" v-bind:key="option">
               {{option}}
               <b-button v-on:click="remove_option(option, $event)" class="float-right">Remove</b-button>
             </b-list-group-item>
@@ -74,26 +74,27 @@ export default Vue.extend({
     modal_dom_id () {
       return 'edit-definition-modal-' + this.value._id;
     },
-  },
-  methods: {
     options () {
       return this.value.options || [];
     },
+  },
+  methods: {
     add_option () {
-      let new_options = this.options();
+      let new_options = this.options;
       new_options.push(this.option_to_add);
       this.value.options = _.uniq(new_options);
       this.option_to_add = null;
     },
     remove_option (option_to_remove:string, event:object) {
-      this.value.options = _.reject(this.options(), (option) => {
+      this.value.options = _.reject(this.options, (option) => {
         return option == option_to_remove
       })
     },
     remove () {
-      this.$bvModal.hide(this.modal_dom_id)
-      // this.$refs[this.modal_dom_id].hide()
-      this.$emit('remove', this.definition);
+      if(confirm(`Do you really want to delete the column ${this.definition.name}?`)) {
+        this.$bvModal.hide(this.modal_dom_id)
+        this.$emit('remove', this.definition);
+      }
     }
   }
 });
