@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <a class="btn btn-primary" v-on:click="toggle">
+  <div style="display: fixed">
+    <button class="btn btn-primary" v-on:click="toggle">
       <span v-show="!show_body">Show</span>
       <span v-show="show_body">Hide</span>
        Graph
-    </a>
+    </button>
 
     <div v-if="show_body">
       <div ref="mynetwork" id="mynetwork" class="vis-graph"></div>
@@ -163,7 +163,7 @@ export default Vue.extend({
 
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 
 .top {
   height: 100px;

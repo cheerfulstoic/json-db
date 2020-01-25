@@ -1,10 +1,6 @@
 <template>
   <div>
-    <a v-b-modal="'modal-' + value._id">✏️</a>
-    {{value.name}}
-    <span v-if="value.unique_id">✨</span>
-
-    <b-modal v-bind:id="'modal-' + value._id" title="BootstrapVue">
+    <b-modal v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
       <div class="form-group">
         <label>
           Name
@@ -47,7 +43,14 @@
           <b-button v-on:click="add_option">Add Option</b-button>
         </label>
       </div>
+
+      <button class="btn btn-danger" v-on:click="remove">Delete Column</button>
     </b-modal>
+
+    {{value.name}}
+    <br/>
+    <span v-if="value.unique_id">✨</span>
+    <a v-b-modal="modal_dom_id">✏️</a>
   </div>
 </template>
 
@@ -64,6 +67,14 @@ export default Vue.extend({
   props: {
     value: Object,
   },
+  computed: {
+    definition () {
+      return this.value;
+    },
+    modal_dom_id () {
+      return 'edit-definition-modal-' + this.value._id;
+    },
+  },
   methods: {
     options () {
       return this.value.options || [];
@@ -78,6 +89,11 @@ export default Vue.extend({
       this.value.options = _.reject(this.options(), (option) => {
         return option == option_to_remove
       })
+    },
+    remove () {
+      this.$bvModal.hide(this.modal_dom_id)
+      // this.$refs[this.modal_dom_id].hide()
+      this.$emit('remove', this.definition);
     }
   }
 });

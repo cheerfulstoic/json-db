@@ -168,7 +168,8 @@ export class Sheet {
     this.record_data = this.record_data.map((record) => {
       return(_.omit(record, definition._id))
     })
-    _.pull(this.definitions, definition)
+    _.pull(this.definition_ids_to_display, definition._id);
+    _.pull(this.definitions, definition);
   }
 
   public find_definition (definition_id : string) : Definition {

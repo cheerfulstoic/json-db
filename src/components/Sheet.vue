@@ -4,8 +4,6 @@
 
     <button class="btn btn-primary" v-on:click="sheet.add_column()">Add Column</button>
 
-    <br/>
-
     <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('top')">Add Row</button>
 
     <h3>Columns to Display</h3>
@@ -26,12 +24,10 @@
 
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
-        <tr>
-          <th v-for="(definition, index) in definitions_to_display"
+        <tr class="table-header sticky-top" style="top: 52px;">
+          <th v-for="(definition, index) in definitions_to_display()"
               v-bind:key="definition._id" >
-            <Definition v-model="definitions_to_display[index]" style="float: left" />
-
-            <a v-on:click="remove_column(definition)" class="remove">🗑</a>
+            <Definition v-model="definitions_to_display()[index]" v-on:remove="remove_column(definition)" />
           </th>
           <th v-if="sheet.display_referencers">Referencers</th>
           <th>&nbsp;</th>
@@ -43,7 +39,7 @@
             v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
             v-on:click="focus_sheet_and_record(sheet._id, record._id)">
-          <td v-for="definition in definitions_to_display"
+          <td v-for="definition in definitions_to_display()"
               v-bind:key="definition._id">
             <String v-if="definition.type === 'string'" v-model="record[definition._id]" />
             <TextArea v-if="definition.type === 'text_area'" v-model="record[definition._id]" />
@@ -66,7 +62,7 @@
             </div>
           </td>
           <td>
-            <a v-on:click="remove(record._id)" class="remove">🗑</a>
+            <a v-on:click="remove_row(record._id)" class="remove">🗑</a>
           </td>
         </tr>
       </template>
@@ -131,14 +127,12 @@ export default Vue.extend({
     database: db.Database,
     current_focus: Object, // db.Reference
   },
-  computed: {
+  methods: {
     definitions_to_display () : db.Definition[] {
       return(_.filter(this.sheet.definitions, (definition) => {
         return(this.sheet.definition_ids_to_display.includes(definition._id))
       }))
     },
-  },
-  methods: {
     update_color (colors : {hex: string}) {
       this.sheet.hex_color = colors.hex;
     },
@@ -149,7 +143,7 @@ export default Vue.extend({
       if (!this.current_focus) { return(false) }
       return(record._id === this.current_focus.record_id)
     },
-    remove (id : string) : void {
+    remove_row (id : string) : void {
       if(confirm(`Do you really want to delete this row?`)) {
         this.sheet.remove_row(id);
       }
@@ -176,6 +170,10 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
+
+.table-header {
+  z-index: 50;
+}
 
 tr {
   transition: all .5s ease-in-out;

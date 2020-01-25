@@ -1,55 +1,62 @@
 <template>
-  <div id="app" class="container-fluid">
-    <a v-if="database.sheets.length" v-bind:href="json_file_data_url()" v-bind:download="project_name + '.db.json'">Save JSON</a>
+  <div id="app">
+    <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+      <input id="project_name" class="form-control mx-2" type="text" v-model="project_name" />
 
-    <Graph id="graph"
-           v-bind:database="database"
-           v-bind:current_focus="current_focus"
-           v-on:focus-sheet-and-record="focus_sheet_and_record" />
+      <b-button
+        v-b-modal.global-variables-modal
+        class="btn mx-2"
+        variant="primary">Edit Global Variables</b-button>
 
-    <div class="form-group">
-      <input type="text" v-model="project_name" />
+      <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
-      <b-button v-b-modal.global-variables-modal variant="primary">Edit Global Variables</b-button>
+      <button class="btn btn-primary mx-2"
+         v-if="database.sheets.length"
+         v-bind:href="json_file_data_url()"
+         v-bind:download="project_name + '.db.json'">Save JSON</button>
+
+      <Graph id="graph"
+             v-bind:database="database"
+             v-bind:current_focus="current_focus"
+             v-on:focus-sheet-and-record="focus_sheet_and_record" />
+    </nav>
+
+    <div class="container-fluid">
+      <ul class="nav nav-tabs">
+        <li class="nav-item"
+            v-for="sheet in database.sheets"
+            v-bind:key="sheet._id">
+          <a v-bind:class="['nav-link', 'active', {selected: current_sheet_id === sheet._id}]"
+             v-on:click="change_sheet(sheet._id)">
+            <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
+            {{sheet.name}}
+          </a>
+        </li>
+      </ul>
+
+      <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
+        <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet" v-bind:database="database"
+               v-bind:current_focus="current_focus" v-on:focus-sheet-and-record="focus_sheet_and_record" />
+      </div>
+
+      <div id="file-upload" v-cloak v-if="!database.sheets.length"
+        v-on:drop.prevent="upload"
+        v-on:dragover.prevent="highlight_upload"
+        v-on:dragleave.prevent="unhighlight_upload"
+        v-bind:class="{hover: upload_highlighted}">
+        Drag here to upload file
+      </div>
+
+      <hr/>
+
+      <button class="btn btn-primary toggle-json-btn" v-on:click="taggle_json">Toggle JSON</button>
+      <pre v-if="show_json" class="json-output">{{json()}}</pre>
+
+
+      <b-modal id="global-variables-modal" title="Global Variables">
+        <VariableEditor v-bind:variables="database.global_variables" v-on:update="update_global_variables" />
+      </b-modal>
     </div>
-
-    <ul class="nav nav-tabs">
-      <li class="nav-item"
-          v-for="sheet in database.sheets"
-          v-bind:key="sheet._id">
-        <a v-bind:class="['nav-link', 'active', {selected: current_sheet_id === sheet._id}]"
-           v-on:click="change_sheet(sheet._id)">
-          <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
-          {{sheet.name}}
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="btn btn-primary add-sheet-btn" v-on:click="add_sheet">Add Sheet</a>
-      </li>
-    </ul>
-
-    <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
-      <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet" v-bind:database="database"
-             v-bind:current_focus="current_focus" v-on:focus-sheet-and-record="focus_sheet_and_record" />
-    </div>
-
-    <div id="file-upload" v-cloak v-if="!database.sheets.length"
-      v-on:drop.prevent="upload"
-      v-on:dragover.prevent="highlight_upload"
-      v-on:dragleave.prevent="unhighlight_upload"
-      v-bind:class="{hover: upload_highlighted}">
-      Drag here to upload file
-    </div>
-
-    <hr/>
-
-    <button class="btn btn-primary toggle-json-btn" v-on:click="taggle_json">Toggle JSON</button>
-    <pre v-if="show_json" class="json-output">{{json()}}</pre>
-
-
-    <b-modal id="global-variables-modal" title="Global Variables">
-      <VariableEditor v-bind:variables="database.global_variables" v-on:update="update_global_variables" />
-    </b-modal>
   </div>
 
 </template>
@@ -183,7 +190,10 @@ export default Vue.extend({
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+#project_name {
+  width: 200px;
 }
 
 #file-upload {
@@ -219,10 +229,6 @@ ul.nav.nav-tabs {
   }
 }
 
-.add-sheet-btn {
-  margin-left: 2em;
-}
-
 .toggle-json-btn {
   margin: 2em 0 0 2em;
 }
@@ -247,8 +253,8 @@ ul.nav.nav-tabs {
 
 #graph {
   position: fixed;
-  z-index: 2;
-  top: 20px;
+  z-index: 100;
+  top: 5px;
   right: 20px;
   background-color: white;
   border: 1px solid #444;
