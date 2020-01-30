@@ -37,8 +37,6 @@ export class Sheet {
   public definition_ids_to_display : string[];
   public display_referencers : boolean;
 
-  private description_types : string[] = ['string', 'text_area', 'select_one'];
-
   static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425'];
   static last_used_hex_color = -1;
 
@@ -79,26 +77,6 @@ export class Sheet {
   public schema () {
     // TEMP!! (?)
     return this.definitions
-  }
-
-  public search (match_text : string) : ReferenceQueryResult[] {
-    let ids = _(this.definitions).filter((definition) => {
-      return(this.description_types.includes(definition.type))
-    }).map((definition) => {
-      return(definition._id)
-    }).value()
-
-    let fuse = new Fuse(this.record_data, {
-      shouldSort: true,
-      tokenize: true,
-      matchAllTokens: true,
-      minMatchCharLength: 2,
-      keys: ids
-    })
-
-    return _.map(fuse.search(match_text), (result : any) => {
-      return { sheet: this, id: result._id, record: this.translate_record(result) }
-    })
   }
 
   public find_by_id (id : string) {
@@ -204,11 +182,45 @@ export class Database {
     this.sheets.push(sheet)
   }
 
+  private description_types : string[] = ['string', 'text_area', 'select_one'];
+
+  // public search (match_text : string) : ReferenceQueryResult[] {
+  //   return _.flatMap(this.sheets, (sheet : Sheet) => {
+  //     return sheet.search(match_text)
+  //   })
+  // }
   public search (match_text : string) : ReferenceQueryResult[] {
-    return _.flatMap(this.sheets, (sheet : Sheet) => {
-      return sheet.search(match_text)
+    let search_keys = _(this.sheets).flatMap((sheet) => {
+      return sheet.definitions
+    }).filter((definition) => {
+      return(this.description_types.includes(definition.type))
+    }).map((definition) => {
+      return(`record.${definition._id}`)
+    }).value()
+
+    let search_data : any[] = _.flatMap(this.sheets, (sheet) => {
+      return _.map(sheet.record_data, (record) => {
+        return {record: record, sheet: sheet}
+      })
+    })
+    let fuse = new Fuse(search_data, {
+      //shouldSort: true,
+      // tokenize: true,
+      // matchAllTokens: true,
+      //minMatchCharLength: 2,
+      keys: search_keys,
+      threshold: 0.3
+    })
+
+    return _.map(fuse.search(match_text), (result : any) => {
+      return {
+        sheet: result.sheet,
+        id: result.record._id,
+        record: result.sheet.translate_record(result.record)
+      }
     })
   }
+
 
   public fetch_record (reference : Reference) : ReferenceQueryResult | null {
     let sheet = _.find(this.sheets, (sheet : Sheet) => {

@@ -1,7 +1,7 @@
 <template>
-  <div class="input-group referenced-object">
-    <div v-for="result in referenced_records()" v-bind:key="result.id">
-      <a v-on:click="remove(result)" class="remove">🗑</a>
+  <div class="input-group referenced-results">
+    <div v-for="result in referenced_records()" v-bind:key="result.id" class="referenced-result">
+      <a v-on:click="remove(result)" class="remove"><v-icon name="trash-2"/></a>
       <RecordResult v-bind:result="result" v-bind:database="database"
       v-on:focus-sheet-and-record="focus_sheet_and_record" />
     </div>
@@ -58,11 +58,7 @@ export default Vue.extend({
       let currently_referenced_ids = _.map(this.value, 'record_id')
 
       return _(this.database.search(`${this.match_text}`)).map((result) => {
-        return({
-          id: result.id,
-          sheet: result.sheet,
-          record: result.sheet.record_values(result.record)
-        })
+        return(_.extend(result, {record: result.sheet.record_values(result.record)}))
       }).reject((result) => {
         return(result.id === this.record_id ||
                 currently_referenced_ids.includes(result.id));
@@ -100,9 +96,13 @@ export default Vue.extend({
   margin: 0.8em 0.8em 0 0.8em;
 }
 
-.referenced-object {
+.referenced-results {
   display: block;
   text-align: left;
+}
+
+.referenced-result {
+  white-space: nowrap;
 }
 
 .search {

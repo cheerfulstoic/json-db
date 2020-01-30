@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <b-modal v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
       <div class="form-group">
         <label>
@@ -51,7 +51,7 @@
     <br/>
     <span v-if="value.unique_id">✨</span>
     <a v-b-modal="modal_dom_id">✏️</a>
-  </div>
+  </span>
 </template>
 
 <script lang="ts">

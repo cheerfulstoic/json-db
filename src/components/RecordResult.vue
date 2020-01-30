@@ -30,6 +30,7 @@ export default Vue.extend({
 <style scoped lang="scss">
 
 .record-result {
+  display: inline-block;
   font-size: 0.8em;
   padding: 1em 0;
   white-space: nowrap;

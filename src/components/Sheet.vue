@@ -6,35 +6,58 @@
 
     <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('top')">Add Row</button>
 
-    <h3>Columns to Display</h3>
-    <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
-      <label>
-        <input type="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
-        {{definition.name}}
-      </label>
-
-    </div>
-
-    <div class="form-check form-check-inline">
-      <label>
-        <input type="checkbox" class="form-check-input" v-model="sheet.display_referencers">
-        Referencers
-      </label>
-    </div>
 
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
+        <tr>
+          <th v-bind:colspan="definitions_to_display().length + 2">
+            <h4>
+              {{total_count}} total rows
+              <span v-bind:class="{'filter-display': true, 'filter-has-limited-rows': filter_has_limited_rows}">
+                (filtered to {{records_to_display.length}} record(s))
+              </span>
+            </h4>
+          </th>
+        </tr>
+
+        <tr>
+          <th v-bind:colspan="definitions_to_display().length + 2">
+            <h3>Columns to Display</h3>
+            <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+              <label>
+                <input type="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
+                {{definition.name}}
+              </label>
+
+            </div>
+
+            <div class="form-check form-check-inline">
+              <label>
+                <input type="checkbox" class="form-check-input" v-model="sheet.display_referencers">
+                Referencers
+              </label>
+            </div>
+          </th>
+        </tr>
+
+
         <tr class="table-header sticky-top" style="top: 52px;">
           <th v-for="(definition, index) in definitions_to_display()"
               v-bind:key="definition._id" >
             <Definition v-model="definitions_to_display()[index]" v-on:remove="remove_column(definition)" />
+
+            <DefinitionFilter
+               v-on:input="set_filter"
+               v-bind:definition="definition"
+               v-bind:values="values_for(definition)"
+               v-bind:database="database" />
           </th>
           <th v-if="sheet.display_referencers">Referencers</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
 
-      <template v-for="record in sheet.record_data">
+      <template v-for="record in records_to_display">
         <tr v-bind:key="record._id"
             v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
@@ -91,6 +114,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Definition from './Definition.vue';
+import DefinitionFilter from './DefinitionFilter.vue';
 
 import Expression from './types/Expression.vue';
 import Integer from './types/Integer.vue';
@@ -110,6 +134,7 @@ export default Vue.extend({
   name: 'Sheet',
   components: {
     Definition,
+    DefinitionFilter,
     Expression,
     Integer,
     References,
@@ -120,12 +145,28 @@ export default Vue.extend({
     ChromePicker: Chrome
   },
   data () {
-    return({colors: { hex: this.sheet.hex_color}})
+    return({
+      colors: { hex: this.sheet.hex_color },
+      filters: {},
+    })
   },
   props: {
     sheet: db.Sheet,
     database: db.Database,
     current_focus: Object, // db.Reference
+  },
+  computed: {
+    records_to_display () : any[] {
+      return _(this.filters).values().reduce((result, fn) : any[] => {
+        return _.filter(result, fn)
+      }, this.sheet.record_data)
+    },
+    total_count () : number {
+      return(this.sheet.record_data.length);
+    },
+    filter_has_limited_rows () : boolean {
+      return(this.records_to_display.length !== this.total_count);
+    },
   },
   methods: {
     definitions_to_display () : db.Definition[] {
@@ -162,7 +203,13 @@ export default Vue.extend({
           return { result: result, definition_name: definition_name }
         })
       })
-    }
+    },
+    set_filter (definition_id : string, value : (record: any) => boolean) {
+      Vue.set(this.filters, definition_id, value);
+    },
+    values_for (definition : db.Definition) {
+      return(_(this.sheet.record_data).flatMap(definition._id).compact().value())
+    },
   },
 });
 </script>
@@ -178,7 +225,7 @@ tr {
 }
 
 td {
-  /* overflow: hidden; */
+  overflow-x: hidden;
 }
 
 tr.selected td {
@@ -189,4 +236,12 @@ tr.selected td {
   margin: 1em;
 }
 
+.filter-display {
+  display: none;
+
+  &.filter-has-limited-rows {
+    display: inline;
+    color: red;
+  }
+}
 </style>

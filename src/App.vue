@@ -64,6 +64,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue'
+import Feather from 'vue-icon'
 
 import Sheet from './components/Sheet.vue';
 import VariableEditor from './components/VariableEditor.vue';
@@ -72,7 +73,8 @@ import Graph from './components/Graph.vue';
 import _ from 'lodash';
 import Fuse from 'fuse.js';
 
-Vue.use(BootstrapVue)
+Vue.use(BootstrapVue);
+Vue.use(Feather, 'v-icon');
 
 import * as db from './db';
 
@@ -260,6 +262,15 @@ ul.nav.nav-tabs {
   border: 1px solid #444;
   border-radius: 2em;
   overflow: hidden;
+}
+
+.icon {
+  width: 20px;
+
+  &.notice {
+    font-weight: bold;
+    color: red;
+  }
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';
