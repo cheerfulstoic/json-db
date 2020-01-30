@@ -6,6 +6,8 @@
        Graph
     </button>
 
+    <button v-if="show_body" class="btn btn-primary ml-3" v-on:click="clear_focus">Clear focus</button>
+
     <div v-if="show_body">
       <div ref="mynetwork" id="mynetwork" class="vis-graph"></div>
 
@@ -47,13 +49,14 @@ export default Vue.extend({
   mounted () {
     this.refresh()
   },
-  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean} {
+  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any} {
     return({
       sheet_names: _.map(this.database.sheets, 'name'),
       nodes_array: [],
       edges_array: [],
       network: null,
-      show_body: false
+      show_body: false,
+      neighbors: {}
     })
   },
   watch: {
@@ -69,7 +72,7 @@ export default Vue.extend({
       }
     },
     current_focus: {
-      handler(new_val, _old_val) { this.focus() }
+      handler(new_val, _old_val) { this.refresh() }
     }
   },
   methods: {
@@ -80,6 +83,24 @@ export default Vue.extend({
         setTimeout(this.refresh.bind(this), 1);
       }
     },
+    clear_focus () {
+      this.current_focus = null;
+    },
+    displayed_on_focus (record : any) {
+      if (this.current_focus) {
+        return(this.current_focus.record_id == record._id ||
+               this.neighbors[this.current_focus.record_id].includes(record._id));
+      } else {
+        return(true);
+      }
+    },
+    add_neighbors (id1 : string, id2 : string) {
+      if (this.neighbors[id1] == null) { this.neighbors[id1] = [] }
+      if (this.neighbors[id2] == null) { this.neighbors[id2] = [] }
+
+      this.neighbors[id1].push(id2);
+      this.neighbors[id2].push(id1);
+    },
     refresh () {
       let sheet = this.database.sheets[0]
       if (!sheet) { return(null) }
@@ -87,25 +108,7 @@ export default Vue.extend({
       let record : any = _.last(sheet.record_data);
       if (!record) { return(null) }
 
-      let test = JSON.stringify(record)
-      this.nodes_array = _.flatMap(this.database.sheets, (sheet : db.Sheet) => {
-        if (this.sheet_names.includes(sheet.name)) {
-          let unique_id_field = sheet.unique_id_field();
-
-          return _.map(sheet.records(), (record) => {
-            return({
-              id: `${sheet._id}|${record._id}`,
-              label: record[unique_id_field],
-              color: sheet.hex_color
-            })
-          })
-        } else {
-          return([])
-        }
-      })
-
-      let nodes = new DataSet(this.nodes_array);
-
+      this.neighbors = {} // Uggggly
       this.edges_array = _.flatMap(this.database.sheets, (sheet : db.Sheet) => {
         let reference_definitions = _.filter(sheet.definitions, (definition : db.Definition) => {
           return(definition.type == 'references')
@@ -114,6 +117,8 @@ export default Vue.extend({
         return _.flatMap(sheet.record_data, (record : any) => {
           return _.flatMap(reference_definitions, (definition) => {
             return _.map(record[definition._id], (reference_info) => {
+              this.add_neighbors(record._id, reference_info.record_id);
+
               return({
                 from: `${sheet._id}|${record._id}`,
                 to: `${reference_info.sheet_id}|${reference_info.record_id}`,
@@ -124,8 +129,26 @@ export default Vue.extend({
           })
         })
       })
-
       let edges = new DataSet(this.edges_array);
+
+      this.nodes_array = _.flatMap(this.database.sheets, (sheet : db.Sheet) => {
+        if (this.sheet_names.includes(sheet.name)) {
+          let unique_id_field = sheet.unique_id_field();
+
+          return _(sheet.records()).filter((record) => {
+            return(this.displayed_on_focus(record))
+          }).map((record) => {
+            return({
+              id: `${sheet._id}|${record._id}`,
+              label: record[unique_id_field],
+              color: sheet.hex_color
+            })
+          }).value()
+        } else {
+          return([])
+        }
+      })
+      let nodes = new DataSet(this.nodes_array);
 
       let graph_data = { nodes: nodes, edges: edges };
 
