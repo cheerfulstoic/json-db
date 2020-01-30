@@ -39,7 +39,7 @@ export default Vue.extend({
   },
   props: {
     record: Object,
-    definition: db.Definition,
+    definition: Object,
     database: db.Database,
   },
   methods: {
