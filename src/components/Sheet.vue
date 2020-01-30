@@ -10,7 +10,7 @@
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
         <tr>
-          <th v-bind:colspan="definitions_to_display().length + 2">
+          <th colspan="100%">
             <h4>
               {{total_count}} total rows
               <span v-bind:class="{'filter-display': true, 'filter-has-limited-rows': filter_has_limited_rows}">
@@ -21,7 +21,7 @@
         </tr>
 
         <tr>
-          <th v-bind:colspan="definitions_to_display().length + 2">
+          <th colspan="100%">
             <h3>Columns to Display</h3>
             <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
               <label>
