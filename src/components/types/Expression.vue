@@ -48,8 +48,6 @@ export default Vue.extend({
     update_value (expression_string : string) {
       let calculated_value;
 
-      console.log(_.trim(expression_string))
-      console.log(_.trim(expression_string) === '')
       if (_.trim(expression_string) === '') {
         calculated_value = null;
         this.error = null;

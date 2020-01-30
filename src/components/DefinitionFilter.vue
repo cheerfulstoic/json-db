@@ -84,7 +84,6 @@ export default Vue.extend({
       this.match_text = null;
     },
     remove (item : db.ReferenceQueryResult) {
-      console.log('remove');
       _.pull(this.items, item);
       this.emit_input();
     },
