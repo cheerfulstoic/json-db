@@ -67,7 +67,7 @@
             <b-button class="btn btn-primary" v-b-modal="'record-modal-' + record._id">Edit</b-button>
           </td>
 
-          <b-modal v-bind:id="'record-modal-' + record._id" title="Edit Sheet">
+          <b-modal ok-only v-bind:id="'record-modal-' + record._id" title="Edit Sheet">
             <div class="form-group" v-for="definition in sheet.definitions" v-bind:key="definition._id">
               <label>
                 <strong>{{definition.name}}</strong>
@@ -98,7 +98,7 @@
     <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('bottom')">Add Row</button>
 
 
-    <b-modal v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
+    <b-modal ok-only v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
       <div class="form-group">
         <label>
           Name

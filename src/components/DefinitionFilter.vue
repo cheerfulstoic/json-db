@@ -4,7 +4,7 @@
       <v-icon v-bind:class="{notice: items.length}" v-b-modal="modal_dom_id()" name="filter"></v-icon>
     </span>
 
-    <b-modal v-bind:id="modal_dom_id()" v-bind:title="'Filter ' + definition.name">
+    <b-modal ok-only v-bind:id="modal_dom_id()" v-bind:title="'Filter ' + definition.name">
       <div v-if="definition.type === 'references'">
         {{values.length}} references used
 

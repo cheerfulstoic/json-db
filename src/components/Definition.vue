@@ -1,6 +1,6 @@
 <template>
   <span>
-    <b-modal v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
+    <b-modal ok-only v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
       <div class="form-group">
         <label>
           Name
