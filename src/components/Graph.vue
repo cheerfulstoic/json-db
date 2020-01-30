@@ -77,7 +77,7 @@ export default Vue.extend({
       this.show_body = !this.show_body;
       if (this.show_body) {
         this.sheet_names = _.map(this.database.sheets, 'name');
-        this.refresh()
+        setTimeout(this.refresh.bind(this), 1);
       }
     },
     refresh () {
@@ -134,11 +134,15 @@ export default Vue.extend({
       if (!element) { return(null) }
 
       this.network = new Network(element, graph_data, {
-        layout: {randomSeed: 135321527275125, improvedLayout: false},
+        layout: {randomSeed: 135321527275125}, // , improvedLayout: false},
         interaction: {
           zoomView: false
         },
-        physics: {stabilization: false},
+        physics: {
+          stabilization: {
+            onlyDynamicEdges: true
+          }
+        },
       });
       this.network.on('click', (obj : any) : void => {
         let node_id = obj.nodes[0];
@@ -155,7 +159,7 @@ export default Vue.extend({
       if (this.current_focus) {
         let node_id = `${this.current_focus.sheet_id}|${this.current_focus.record_id}`;
         this.network.selectNodes([node_id]);
-        this.network.focus(node_id, {scale: 1.0, animation: true});
+        this.network.focus(node_id, {scale: 1.0, animation: { duration: 100 }});
       }
     }
   }
