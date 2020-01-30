@@ -49,8 +49,8 @@
 
     {{value.name}}
     <br/>
-    <span v-if="value.unique_id">✨</span>
-    <a v-b-modal="modal_dom_id">✏️</a>
+    <span v-if="value.unique_id"><v-icon name="zap" style="color: red"/></span>
+    <a v-b-modal="modal_dom_id"><v-icon name="edit"/></a>
   </span>
 </template>
 

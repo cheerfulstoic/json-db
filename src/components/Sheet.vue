@@ -42,6 +42,7 @@
 
 
         <tr class="table-header sticky-top" style="top: 52px;">
+          <th>&nbsp;</th>
           <th v-for="(definition, index) in definitions_to_display()"
               v-bind:key="definition._id" >
             <Definition v-model="definitions_to_display()[index]" v-on:remove="remove_column(definition)" />
@@ -62,19 +63,23 @@
             v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
             v-on:click="focus_sheet_and_record(sheet._id, record._id)">
+          <td>
+            <b-button class="btn btn-primary" v-b-modal="'record-modal-' + record._id">Edit</b-button>
+          </td>
+
+          <b-modal v-bind:id="'record-modal-' + record._id" title="Edit Sheet">
+            <div class="form-group" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+              <label>
+                <strong>{{definition.name}}</strong>
+                <Field v-bind:record="record" v-bind:definition="definition" v-bind:database="database"/>
+              </label>
+            </div>
+
+          </b-modal>
+
           <td v-for="definition in definitions_to_display()"
               v-bind:key="definition._id">
-            <String v-if="definition.type === 'string'" v-model="record[definition._id]" />
-            <TextArea v-if="definition.type === 'text_area'" v-model="record[definition._id]" />
-            <Integer v-if="definition.type === 'integer'" v-model="record[definition._id]" />
-            <SelectOne v-if="definition.type === 'select_one'" v-model="record[definition._id]" v-bind:definition="definition" />
-            <References v-if="definition.type === 'references'" v-model="record[definition._id]"
-                        v-bind:database="database" v-bind:record_id="record._id"
-                        v-on:focus-sheet-and-record="focus_sheet_and_record" />
-            <Expression v-if="definition.type === 'expression'"
-                        v-model="record[definition._id]"
-                        v-bind:definition="definition"
-                        v-bind:global_variables="database.global_variables"/>
+            <Field v-bind:record="record" v-bind:definition="definition" v-bind:database="database"/>
           </td>
           <td v-if="sheet.display_referencers">
             <div v-for="entry in referencers_for(sheet, record)" v-bind:key="entry.result.id">
@@ -85,7 +90,7 @@
             </div>
           </td>
           <td>
-            <a v-on:click="remove_row(record._id)" class="remove">🗑</a>
+            <a v-on:click="remove_row(record._id)" class="remove"><v-icon name="trash-2"/></a>
           </td>
         </tr>
       </template>
@@ -116,14 +121,9 @@ import Vue from 'vue';
 import Definition from './Definition.vue';
 import DefinitionFilter from './DefinitionFilter.vue';
 
-import Expression from './types/Expression.vue';
-import Integer from './types/Integer.vue';
-import References from './types/References.vue';
-import SelectOne from './types/SelectOne.vue';
-import String from './types/String.vue';
-import TextArea from './types/TextArea.vue';
-
 import RecordResult from './RecordResult.vue';
+
+import Field from './Field.vue';
 
 import { Chrome } from 'vue-color'
 
@@ -135,13 +135,8 @@ export default Vue.extend({
   components: {
     Definition,
     DefinitionFilter,
-    Expression,
-    Integer,
-    References,
-    SelectOne,
-    String,
-    TextArea,
     RecordResult,
+    Field,
     ChromePicker: Chrome
   },
   data () {

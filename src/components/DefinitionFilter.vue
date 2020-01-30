@@ -9,11 +9,11 @@
         {{values.length}} references used
 
         <div v-for="item in items" v-bind:key="item.id">
-          <RecordResult v-bind:result="item" v-bind:database="database" />
-
-          <span v-on:click="remove(item)">
+          <a class="remove" v-on:click="remove(item)">
             <v-icon name="trash-2"/>
-          </span>
+          </a>
+
+          <RecordResult v-bind:result="item" v-bind:database="database" />
         </div>
 
         <b-input-group prepend="🔎">
@@ -104,6 +104,10 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
+
+.remove {
+  margin: 0.8em 0.8em 0 0.8em;
+}
 
 .search {
   display: block;
