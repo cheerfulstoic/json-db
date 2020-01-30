@@ -44,7 +44,7 @@
         <tr class="table-header sticky-top" style="top: 52px;">
           <th>&nbsp;</th>
           <th v-for="(definition, index) in definitions_to_display()"
-              v-bind:key="definition._id" >
+              v-bind:key="definition._id" class="field-cell">
             <Definition v-model="definitions_to_display()[index]" v-on:remove="remove_column(definition)" />
 
             <DefinitionFilter
@@ -52,6 +52,15 @@
                v-bind:definition="definition"
                v-bind:values="values_for(definition)"
                v-bind:database="database" />
+
+            <span v-if="sortable(definition)">
+              <a v-on:click="sort(definition, 'desc')">
+                <v-icon name="chevron-down"/>
+              </a>
+              <a v-on:click="sort(definition, 'asc')">
+                <v-icon name="chevron-up"/>
+              </a>
+            </span>
           </th>
           <th v-if="sheet.display_referencers">Referencers</th>
           <th>&nbsp;</th>
@@ -205,6 +214,14 @@ export default Vue.extend({
     values_for (definition : db.Definition) {
       return(_(this.sheet.record_data).flatMap(definition._id).compact().value())
     },
+    sortable (definition : db.Definition) {
+      return(definition.type !== 'references');
+    },
+    sort (definition : db.Definition, direction : string) {
+      let result = _(this.sheet.record_data).sortBy(definition._id);
+      if (direction === 'desc') { result = result.reverse() }
+      this.sheet.record_data = result.value();
+    },
   },
 });
 </script>
@@ -221,6 +238,11 @@ tr {
 
 td {
   overflow-x: hidden;
+
+}
+
+.field-cell {
+  white-space: nowrap;
 }
 
 tr.selected td {
