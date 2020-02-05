@@ -49,14 +49,15 @@ export default Vue.extend({
   mounted () {
     this.refresh()
   },
-  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any} {
+  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any, focused: boolean} {
     return({
       sheet_names: _.map(this.database.sheets, 'name'),
       nodes_array: [],
       edges_array: [],
       network: null,
       show_body: false,
-      neighbors: {}
+      neighbors: {},
+      focused: !!this.current_focus,
     })
   },
   watch: {
@@ -84,7 +85,7 @@ export default Vue.extend({
       }
     },
     clear_focus () {
-      this.current_focus = null;
+      this.focused = false;
     },
     displayed_on_focus (record : any) {
       if (this.current_focus) {
