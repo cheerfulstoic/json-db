@@ -34,8 +34,10 @@
         <label>
           <b-list-group>
             <b-list-group-item v-for="option in options" v-bind:key="option">
+              <a v-on:click="remove_option(option, $event)" class="float-right">
+                <v-icon name="trash-2"/>
+              </a>
               {{option}}
-              <b-button v-on:click="remove_option(option, $event)" class="float-right">Remove</b-button>
             </b-list-group-item>
           </b-list-group>
 
@@ -86,9 +88,11 @@ export default Vue.extend({
       this.option_to_add = null;
     },
     remove_option (option_to_remove:string, event:object) {
-      this.value.options = _.reject(this.options, (option) => {
-        return option == option_to_remove
-      })
+      if(confirm(`Do you really want to remove the option \`${option_to_remove}\`?`)) {
+        this.value.options = _.reject(this.options, (option) => {
+          return option == option_to_remove
+        })
+      }
     },
     remove () {
       if(confirm(`Do you really want to delete the column ${this.definition.name}?`)) {
