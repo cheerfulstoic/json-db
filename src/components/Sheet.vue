@@ -161,9 +161,10 @@ export default Vue.extend({
   },
   computed: {
     records_to_display () : any[] {
-      return _(this.filters).values().reduce((result, fn) : any[] => {
-        return _.filter(result, fn)
-      }, this.sheet.record_data)
+      return(_(this.filters).values().compact()
+        .reduce((records, fn : (records:any[]) => any[]) : any[] => {
+        return fn(records)
+      }, this.sheet.record_data))
     },
     total_count () : number {
       return(this.sheet.record_data.length);

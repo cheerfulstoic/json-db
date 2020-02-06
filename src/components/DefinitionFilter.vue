@@ -1,38 +1,36 @@
 <template>
   <span>
-    <span v-if="definition.type === 'references'">
-      <v-icon v-bind:class="{notice: items.length}" v-b-modal="modal_dom_id()" name="filter"></v-icon>
-    </span>
+    <v-icon v-bind:class="{notice: currently_filtering}" v-b-modal="modal_dom_id" name="filter"></v-icon>
 
-    <b-modal ok-only v-bind:id="modal_dom_id()" v-bind:title="'Filter ' + definition.name">
-      <div v-if="definition.type === 'references'">
-        {{values.length}} references used
+    <b-modal ok-only v-bind:id="modal_dom_id" v-bind:title="'Filter ' + definition.name">
+      <References
+         v-if="definition.type === 'references'"
+         v-on:input="handle_input"
+         v-bind:definition="definition"
+         v-bind:values="values"
+         v-bind:database="database" />
 
-        <div v-for="item in items" v-bind:key="item.id">
-          <a class="remove" v-on:click="remove(item)">
-            <v-icon name="trash-2"/>
-          </a>
+      <SelectOne
+         v-if="definition.type === 'select_one'"
+         v-on:input="handle_input"
+         v-bind:definition="definition"
+         v-bind:values="values"
+         v-bind:database="database" />
 
-          <RecordResult v-bind:result="item" v-bind:database="database" />
-        </div>
+      <Stringy
+         v-if="['string', 'text_area'].includes(definition.type)"
+         v-on:input="handle_input"
+         v-bind:definition="definition"
+         v-bind:values="values"
+         v-bind:database="database" />
 
-        <b-input-group prepend="🔎">
-          <input class="form-control" type="text" v-model="match_text" />
-        </b-input-group>
+      <Integer
+         v-if="definition.type === 'integer'"
+         v-on:input="handle_input"
+         v-bind:definition="definition"
+         v-bind:values="values"
+         v-bind:database="database" />
 
-        <div v-if="match_text" class="results">
-          <b-list-group>
-            {{search_results[0]}}
-            <b-list-group-item button v-for="item in search_results()" v-bind:key="item.id"
-              variant="secondary"
-              v-on:click="choose(item, $event)"
-              class="search_result">
-
-              <RecordResult v-bind:result="item" v-bind:database="database" />
-            </b-list-group-item>
-          </b-list-group>
-        </div>
-      </div>
     </b-modal>
   </span>
 </template>
@@ -43,62 +41,39 @@ import Vue from 'vue';
 import * as db from '../db';
 import _ from 'lodash';
 
-import RecordResult from './RecordResult.vue';
+import Integer from './DefinitionFilter/Integer.vue';
+import References from './DefinitionFilter/References.vue';
+import SelectOne from './DefinitionFilter/SelectOne.vue';
+import Stringy from './DefinitionFilter/Stringy.vue';
 
 export default Vue.extend({
   name: 'DefinitionFilter',
   components: {
-    RecordResult,
+    Integer,
+    References,
+    SelectOne,
+    Stringy
+  },
+  data () {
+    return({
+      currently_filtering: false,
+    });
   },
   props: {
     definition: Object,
     database: db.Database,
     values: Array,
   },
-  data () : { items: db.ReferenceQueryResult[], match_text: null | string } {
-    return({
-      match_text: null,
-      items: [],
-    })
-  },
-  methods: {
+  computed: {
     modal_dom_id () {
       return `definition-filter-modal-${this.definition._id}`;
     },
-    search_results () {
-      if (!this.match_text) { return([]) }
-
-      let currently_referenced_ids = _.map(this.values, 'record_id')
-      let currently_filtered_ids = _.map(this.items, 'id')
-
-      return _(this.database.search(`${this.match_text}`)).map((result) => {
-        return(_.extend(result, {record: result.sheet.record_values(result.record)}))
-      }).filter((result) => {
-        return(currently_referenced_ids.includes(result.id) &&
-               !currently_filtered_ids.includes(result.id));
-      }).value()
+  },
+  methods: {
+    handle_input (definition_id : string, value : (record : any) => boolean) {
+      this.currently_filtering = value != null
+      this.$emit('input', definition_id, value);
     },
-    choose (item : db.ReferenceQueryResult, event : any) {
-      this.items.push(item);
-      this.emit_input();
-      this.match_text = null;
-    },
-    remove (item : db.ReferenceQueryResult) {
-      _.pull(this.items, item);
-      this.emit_input();
-    },
-
-    emit_input () {
-      let ids = _.map(this.items, 'id')
-      let def = this.definition;
-      this.$emit('input', this.definition._id,
-                 (record : any) => {
-                   if (ids.length === 0) { return(true) }
-
-                   let referenced_ids = _.map(record[def._id] || [], 'record_id')
-                   return(_.intersection(ids, referenced_ids).length > 0)
-                 })
-    }
   },
 });
 </script>

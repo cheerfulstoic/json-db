@@ -1,0 +1,60 @@
+<template>
+  <span>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" v-model="search_query" />
+
+      <div class="input-group-append">
+        <button type="button" class="btn btn-primary" v-on:click="clear">Clear</button>
+      </div>
+    </div>
+  </span>
+</template>
+
+<script lang="ts">
+import Vue from 'vue';
+
+import * as db from '../../db';
+import _ from 'lodash';
+import Fuse from 'fuse.js';
+
+export default Vue.extend({
+  name: 'Text',
+  props: ['definition', 'database', 'values'],
+  data () {
+    return({
+      search_query: ''
+    })
+  },
+  watch: {
+    search_query: {
+      handler (new_search_query : string, _old_search_query : string) {
+        if (_.trim(this.search_query) === '') {
+          this.$emit('input', this.definition._id, null);
+        } else {
+          this.$emit('input', this.definition._id, (records : any[]) => {
+            let fuse = new Fuse(records, {
+              shouldSort: false,
+              keys: [this.definition._id],
+              threshold: 0.5
+            })
+
+            return(fuse.search(this.search_query));
+          });
+        }
+      }
+    },
+  },
+  methods: {
+    clear () {
+      this.search_query = '';
+    }
+  }
+});
+</script>
+
+<style scoped lang="scss">
+
+
+</style>
+
+
