@@ -1,7 +1,7 @@
 <template>
-  <div class="input-group">
+  <span class="input-group">
     <input type="number" class="form-control" :value="value" ref="the_input" v-on:input="update_value">
-  </div>
+  </span>
 </template>
 
 <script lang="ts">

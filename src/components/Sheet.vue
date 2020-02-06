@@ -76,8 +76,8 @@
             <b-button class="btn btn-primary" v-b-modal="'record-modal-' + record._id">Edit</b-button>
           </td>
 
-          <b-modal ok-only v-bind:id="'record-modal-' + record._id" title="Edit Sheet">
-            <div class="form-group" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+          <b-modal ok-only size="lg" v-bind:id="'record-modal-' + record._id" modal-class="record-modal" title="Edit Sheet">
+            <div class="form-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
               <label>
                 <strong>{{definition.name}}</strong>
                 <Field v-bind:record="record" v-bind:definition="definition" v-bind:database="database"/>
@@ -260,6 +260,17 @@ tr.selected td {
   &.filter-has-limited-rows {
     display: inline;
     color: red;
+  }
+  
+}
+
+.record-modal {
+  .form-inline {
+    margin-bottom: 0.6em;
+    padding-bottom: 0.6em;
+    border-bottom: 1px solid black;
+
+    strong { width: 200px }
   }
 }
 </style>
