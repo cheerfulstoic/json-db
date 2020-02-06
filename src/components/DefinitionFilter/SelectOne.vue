@@ -40,7 +40,7 @@ export default Vue.extend({
         } else {
           this.$emit('input', this.definition._id,
                      (records : any[]) => {
-                       return _.filter(records, (record) {
+                       return _.filter(records, (record) => {
                          return(this.items.includes(record[this.definition._id]));
                        })
                      })
