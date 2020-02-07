@@ -272,5 +272,16 @@ tr.selected td {
 
     strong { width: 200px }
   }
+
+  label {
+    width: 100%;
+    text-align: left;
+    display: block;
+
+    strong {
+      display: inline-block;
+      float: left;
+    }
+  }
 }
 </style>
