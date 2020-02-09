@@ -12,22 +12,26 @@
       <div ref="mynetwork" id="mynetwork" class="vis-graph"></div>
 
       <div class="top">
-        <span class="sheet-option" v-for="sheet in this.database.sheets" v-bind:key="sheet._id"
-             v-bind:style="'color:' + sheet.hex_color">
-          <label>
-            <input type="checkbox" id="checkbox" v-bind:value="sheet.name" v-model="sheet_names">
-            {{sheet.name}}
-          </label>
-        </span>
+        <div class="row">
+          <div class="col-4 sheet-option" v-for="sheet in this.database.sheets" v-bind:key="sheet._id">
+            <label v-bind:style="'color:' + sheet.hex_color">
+              <input type="checkbox" id="checkbox" v-bind:value="sheet.name" v-model="sheet_names">
+              {{sheet.name}}
+            </label>
+
+            <div v-for="definition in references_for(sheet)" v-bind:key="definition._id">
+              <label class="ml-4">
+                <input type="checkbox"
+                       id="checkbox"
+                       v-bind:disabled="!sheet_names.includes(sheet.name)"
+                       v-bind:value="definition._id"
+                       v-model="selected_references[sheet._id]">
+                {{definition.name}}
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!--
-      <h2>Nodes</h2>
-      <pre>{{nodes_array}}</pre>
-
-      <h2>Edges</h2>
-      <pre>{{edges_array}}</pre>
-      -->
     </div>
   </div>
 </template>
@@ -49,19 +53,27 @@ export default Vue.extend({
   mounted () {
     this.refresh()
   },
-  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any, focused: boolean} {
+  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any, focused: boolean, selected_references: any} {
     return({
       sheet_names: _.map(this.database.sheets, 'name'),
       nodes_array: [],
       edges_array: [],
       network: null,
-      show_body: false,
+      //show_body: false,
+      show_body: true,
       neighbors: {},
       focused: !!this.current_focus,
+      selected_references: this.default_selected_references(),
     })
   },
   watch: {
     database: {
+      handler(_new_val, _old_val) {
+        this.refresh()
+      },
+      deep: true,
+    },
+    selected_references: {
       handler(_new_val, _old_val) {
         this.refresh()
       },
@@ -77,10 +89,22 @@ export default Vue.extend({
     }
   },
   methods: {
+    default_selected_references () {
+      return(_.reduce(this.database.sheets, (result, sheet) => {
+        return _.reduce(this.references_for(sheet), (sub_result, definition) => {
+          if (sub_result[sheet._id] == null) { sub_result[sheet._id] = [] }
+
+          sub_result[sheet._id].push(definition._id);
+
+          return(sub_result);
+        }, result)
+      }, {}))
+    },
     toggle () {
       this.show_body = !this.show_body;
       if (this.show_body) {
         this.sheet_names = _.map(this.database.sheets, 'name');
+        this.selected_references = this.default_selected_references();
         setTimeout(this.refresh.bind(this), 1);
       }
     },
@@ -102,6 +126,12 @@ export default Vue.extend({
       this.neighbors[id1].push(id2);
       this.neighbors[id2].push(id1);
     },
+    relationships () {
+      return([]);
+    },
+    references_for (sheet : db.Sheet) : db.Definition {
+      return _.filter(sheet.definitions, {type: 'references'})
+    },
     refresh () {
       let sheet = this.database.sheets[0]
       if (!sheet) { return(null) }
@@ -111,12 +141,14 @@ export default Vue.extend({
 
       this.neighbors = {} // Uggggly
       this.edges_array = _.flatMap(this.database.sheets, (sheet : db.Sheet) => {
-        let reference_definitions = _.filter(sheet.definitions, (definition : db.Definition) => {
-          return(definition.type == 'references')
-        })
+        let reference_definitions = this.references_for(sheet);
 
         return _.flatMap(sheet.record_data, (record : any) => {
           return _.flatMap(reference_definitions, (definition) => {
+            if ( !this.selected_references[sheet._id].includes(definition._id) ) {
+              return([]);
+            }
+
             return _.map(record[definition._id], (reference_info) => {
               this.add_neighbors(record._id, reference_info.record_id);
 
@@ -194,7 +226,6 @@ export default Vue.extend({
 <style lang="scss">
 
 .top {
-  height: 100px;
   padding-top: 10px;
   width: 600px;
 }
@@ -206,7 +237,10 @@ export default Vue.extend({
 
 .sheet-option {
   text-align: left;
-  margin: 0 2em;
+  margin: 0 2em 0.5em 2em;
+  width: 100%;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 </style>
