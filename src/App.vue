@@ -10,10 +10,10 @@
 
       <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
-      <button class="btn btn-primary mx-2"
+      <a class="btn btn-primary mx-2"
          v-if="database.sheets.length"
          v-bind:href="json_file_data_url()"
-         v-bind:download="project_name + '.db.json'">Save JSON</button>
+         v-bind:download="project_name + '.db.json'">Save JSON</a>
 
       <Graph id="graph"
              v-bind:database="database"
