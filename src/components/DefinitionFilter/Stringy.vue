@@ -18,7 +18,7 @@ import _ from 'lodash';
 import Fuse from 'fuse.js';
 
 export default Vue.extend({
-  name: 'Text',
+  name: 'Stringy',
   props: ['definition', 'database', 'values'],
   data () {
     return({
