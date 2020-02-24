@@ -53,7 +53,7 @@ export default Vue.extend({
   mounted () {
     this.refresh()
   },
-  data () : {sheet_names: string[], nodes_array: any[], edges_array: any[], network: any, show_body: boolean, neighbors: any, focused: boolean, selected_references: any} {
+  data () {
     return({
       sheet_names: _.map(this.database.sheets, 'name'),
       nodes_array: [],

@@ -54,7 +54,10 @@
 
 
       <b-modal id="global-variables-modal" title="Global Variables">
-        <VariableEditor v-bind:variables="database.global_variables" v-on:update="update_global_variables" />
+        <VariableEditor
+          v-bind:variables="database.global_variables"
+          v-on:update="update_global_variables"
+          v-on:delete="delete_global_variables_key" />
       </b-modal>
     </div>
   </div>
@@ -99,6 +102,9 @@ export default Vue.extend({
   methods: {
     update_global_variables (key : string, value : any) {
       Vue.set(this.database.global_variables, key, value);
+    },
+    delete_global_variables_key (key : string) {
+      Vue.delete(this.database.global_variables, key);
     },
     upload (event : any) {
       this.upload_highlighted = false;

@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div v-for="(val, key) in variables" v-bind:key="key" class="form-group row">
-      <label v-bind:for="'input-' + key" class="col-sm-2 col-form-label">{{key}}</label>
+    <div v-for="(val, key) in variables" v-bind:key="key" class="row">
+      <label v-bind:for="'input-' + key" class="col">
+        {{key}}
+        <span v-on:click="delete_variable(key)">
+          <v-icon name="x"/>
+        </span>
+      </label>
 
-      <input v-bind:id="'input-' + key" type="number" v-bind:value="val" v-on:input="update_variable(key, $event)"/>
+      <input v-bind:id="'input-' + key" class="col" type="number" v-bind:value="val" v-on:input="update_variable(key, $event)"/>
 
     </div>
     <input type="text" v-model="new_key"/>
@@ -31,6 +36,9 @@ export default Vue.extend({
     },
     update_variable (key : string, event : any) {
       this.$emit('update', key, event.target.value)
+    },
+    delete_variable(key) {
+      this.$emit('delete', key)
     },
   },
 });
