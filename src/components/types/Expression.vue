@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="form-group">
-      <input class="form-control" v-bind:value="value && value.expression_string" ref="the_input" v-on:input="update_value_event">
+      <input class="form-control"
+             v-bind:value="value && value.expression_string"
+             ref="the_input"
+             v-on:input="update_value_event">
     </div>
 
     <div class="form-group">
@@ -43,6 +46,7 @@ export default Vue.extend({
     update_value_event (event : any) {
       let expression_string = event.target.value;
 
+      console.log('update_value_event', expression_string);
       this.update_value(expression_string);
     },
     update_value (expression_string : string) {
@@ -63,11 +67,11 @@ export default Vue.extend({
           calculated_value = null;
           this.error = err;
         }
-        this.$emit('input', {
-          expression_string: expression_string,
-          calculated_value: calculated_value
-        });
       }
+      this.$emit('input', {
+        expression_string: expression_string,
+        calculated_value: calculated_value
+      });
     },
   }
 });
