@@ -37,7 +37,7 @@ export default Vue.extend({
     update_variable (key : string, event : any) {
       this.$emit('update', key, event.target.value)
     },
-    delete_variable(key) {
+    delete_variable(key : string) {
       this.$emit('delete', key)
     },
   },

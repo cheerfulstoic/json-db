@@ -53,7 +53,7 @@ export default Vue.extend({
   mounted () {
     this.refresh()
   },
-  data () {
+  data () : any {
     return({
       sheet_names: _.map(this.database.sheets, 'name'),
       nodes_array: [],
@@ -91,7 +91,7 @@ export default Vue.extend({
   methods: {
     default_selected_references () {
       return(_.reduce(this.database.sheets, (result, sheet) => {
-        return _.reduce(this.references_for(sheet), (sub_result, definition) => {
+        return _.reduce(this.references_for(sheet), (sub_result : any, definition) => {
           if (sub_result[sheet._id] == null) { sub_result[sheet._id] = [] }
 
           sub_result[sheet._id].push(definition._id);
@@ -129,7 +129,7 @@ export default Vue.extend({
     relationships () {
       return([]);
     },
-    references_for (sheet : db.Sheet) : db.Definition {
+    references_for (sheet : db.Sheet) : db.Definition[] {
       return _.filter(sheet.definitions, {type: 'references'})
     },
     refresh () {
@@ -212,7 +212,7 @@ export default Vue.extend({
       this.focus()
     },
     focus () {
-      if (this.current_focus) {
+      if (this.current_focus && this.network != null) {
         let node_id = `${this.current_focus.sheet_id}|${this.current_focus.record_id}`;
         this.network.selectNodes([node_id]);
         this.network.focus(node_id, {scale: 1.0, animation: { duration: 100 }});
