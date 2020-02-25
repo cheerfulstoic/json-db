@@ -63,7 +63,7 @@ export default Vue.extend({
       show_body: true,
       neighbors: {},
       focused: !!this.current_focus,
-      selected_references: this.default_selected_references(),
+      selected_references: (this as any).default_selected_references(),
     })
   },
   watch: {
@@ -183,7 +183,7 @@ export default Vue.extend({
       })
       let nodes = new DataSet(this.nodes_array);
 
-      let graph_data = { nodes: nodes, edges: edges };
+      let graph_data : any = { nodes: nodes, edges: edges };
 
       let element = document.getElementById("mynetwork")
 
