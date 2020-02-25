@@ -46,7 +46,6 @@ export default Vue.extend({
     update_value_event (event : any) {
       let expression_string = event.target.value;
 
-      console.log('update_value_event', expression_string);
       this.update_value(expression_string);
     },
     update_value (expression_string : string) {
