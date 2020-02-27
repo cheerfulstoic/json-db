@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>json-db</title>
+
+    <script>
+      window.onbeforeunload = function () {
+        return 'Are you sure want to close?  Changes since saving JSON will not be kept.';
+      }; 
+    </script>
   </head>
   <body>
     <noscript>
