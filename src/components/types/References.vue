@@ -111,7 +111,7 @@ export default Vue.extend({
 
   .results {
     position: absolute;
-    z-index: 1;
+    z-index: 5;
 
     .search_result {
       text-align: left

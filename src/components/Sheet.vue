@@ -237,11 +237,6 @@ tr {
   transition: all .5s ease-in-out;
 }
 
-td {
-  overflow-x: hidden;
-
-}
-
 .field-cell {
   white-space: nowrap;
 }
@@ -261,7 +256,6 @@ tr.selected td {
     display: inline;
     color: red;
   }
-  
 }
 
 .record-modal {
