@@ -172,6 +172,10 @@ export default Vue.extend({
     filter_has_limited_rows () : boolean {
       return(this.records_to_display.length !== this.total_count);
     },
+    // To cache, for now...
+    database_referencers () : any {
+      return this.database.referencers()
+    },
   },
   methods: {
     definitions_to_display () : db.Definition[] {
@@ -203,7 +207,7 @@ export default Vue.extend({
     referencers_for (sheet : db.Sheet, record : any) {
       // TODO: Access via a function in Database
       let key = `${sheet._id}|${record._id}`
-      return _.flatMap(this.database.referencers()[key], (results, definition_name) => {
+      return _.flatMap(this.database_referencers[key], (results, definition_name) => {
         return _.map(results, (result) => {
           return { result: result, definition_name: definition_name }
         })
