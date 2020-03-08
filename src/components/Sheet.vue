@@ -41,7 +41,7 @@
         </tr>
 
 
-        <tr class="table-header sticky-top" style="top: 52px;">
+        <tr class="table-header">
           <th>&nbsp;</th>
           <th v-for="(definition, index) in definitions_to_display()"
               v-bind:key="definition._id" class="field-cell">
@@ -235,6 +235,12 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
+
+.table-header th {
+  position: sticky;
+  top: 92px;
+  z-index: 10;
+}
 
 .table-header {
   z-index: 50;

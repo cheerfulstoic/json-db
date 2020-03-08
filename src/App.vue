@@ -22,7 +22,7 @@
     </nav>
 
     <div class="container-fluid">
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-tabs sticky-top">
         <li class="nav-item"
             v-for="sheet in database.sheets"
             v-bind:key="sheet._id">
@@ -226,6 +226,8 @@ export default Vue.extend({
 }
 
 ul.nav.nav-tabs {
+  top: 53px;
+  background-color: white;
   margin-bottom: 2em;
 
   .nav-item a.active {
