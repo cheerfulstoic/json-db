@@ -88,7 +88,10 @@
 
           <td v-for="definition in definitions_to_display()"
               v-bind:key="definition._id">
-            <Field v-bind:record="record" v-bind:definition="definition" v-bind:database="database"/>
+            <Field v-bind:record="record"
+                   v-bind:definition="definition"
+                   v-bind:database="database"
+                   v-on:focus-sheet-and-record="focus_sheet_and_record" />
           </td>
           <td v-if="sheet.display_referencers">
             <div v-for="entry in referencers_for(sheet, record)" v-bind:key="entry.result.id">
@@ -186,9 +189,9 @@ export default Vue.extend({
     update_color (colors : {hex: string}) {
       this.sheet.hex_color = colors.hex;
     },
-    focus_record (record_id : string) {
-      this.$emit('focus-sheet-and-record', this.sheet._id, record_id);
-    },
+    // focus_record (record_id : string) {
+    //   this.$emit('focus-sheet-and-record', this.sheet._id, record_id);
+    // },
     record_focused (record : any) {
       if (!this.current_focus) { return(false) }
       return(record._id === this.current_focus.record_id)
