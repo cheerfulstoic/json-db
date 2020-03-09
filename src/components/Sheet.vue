@@ -124,6 +124,17 @@
           <ChromePicker v-bind:value="colors" v-on:input="update_color" />
         </label>
       </div>
+
+      <h1>Column order</h1>
+      <h2>(drag to reorder)</h2>
+      <draggable tag="ul" v-model="sheet.definitions">
+        <div v-for="definition in sheet.definitions"
+            class="list-group-item"
+            v-bind:key="definition._id">
+
+          {{definition.name}}
+        </div>
+      </draggable>
     </b-modal>
   </div>
 </template>
@@ -139,6 +150,9 @@ import Field from './Field.vue';
 
 import { Chrome } from 'vue-color'
 
+import draggable from 'vuedraggable'
+
+
 import * as db from '../db';
 import _ from 'lodash';
 
@@ -149,7 +163,9 @@ export default Vue.extend({
     DefinitionFilter,
     RecordResult,
     Field,
-    ChromePicker: Chrome
+
+    ChromePicker: Chrome,
+    draggable
   },
   data () {
     return({

@@ -26,7 +26,8 @@
     "vis-network": "^6.5.0",
     "vue": "^2.6.11",
     "vue-color": "^2.7.0",
-    "vue-icon": "^2.1.1"
+    "vue-icon": "^2.1.1",
+    "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.5",
