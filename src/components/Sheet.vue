@@ -45,7 +45,10 @@
           <th>&nbsp;</th>
           <th v-for="(definition, index) in definitions_to_display()"
               v-bind:key="definition._id" class="field-cell">
-            <Definition v-model="definitions_to_display()[index]" v-on:remove="remove_column(definition)" />
+            <Definition
+              v-model="definitions_to_display()[index]"
+              v-on:remove="remove_column(definition)"
+              v-on:transform-values="transform_values" />
 
             <DefinitionFilter
                v-on:input="set_filter"
@@ -245,6 +248,9 @@ export default Vue.extend({
       let result = _(this.sheet.record_data).sortBy(definition._id);
       if (direction === 'desc') { result = result.reverse() }
       this.sheet.record_data = result.value();
+    },
+    transform_values (definition : db.Definition, old_value : any, new_value : any) {
+      this.sheet.transform_values(definition._id, old_value, new_value);
     },
   },
 });

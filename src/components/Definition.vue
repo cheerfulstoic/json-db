@@ -46,6 +46,22 @@
         </label>
       </div>
 
+      <div class="form-group" v-if="value.type == 'select_one'">
+        <label>
+          Transform all
+          <select  v-model="old_value">
+            <option v-for="option in options" v-bind:key="option">{{option}}</option>
+          </select>
+          to:
+          <select  v-model="new_value">
+            <option v-for="option in options" v-bind:key="option">{{option}}</option>
+          </select>
+
+          <button class="btn btn-danger"
+                  v-on:click="$emit('transform-values', definition, old_value, new_value)">Change</button>
+        </label>
+      </div>
+
       <button class="btn btn-danger" v-on:click="remove">Delete Column</button>
     </b-modal>
 
@@ -99,7 +115,7 @@ export default Vue.extend({
         this.$bvModal.hide(this.modal_dom_id)
         this.$emit('remove', this.definition);
       }
-    }
+    },
   }
 });
 </script>

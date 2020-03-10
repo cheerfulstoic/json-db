@@ -158,6 +158,18 @@ export class Sheet {
     return(definition)
   }
 
+  public transform_values(definition_id : string, old_value : any, new_value : any) {
+
+    return this.record_data = this.record_data.map((record : any) => {
+      if ( record[definition_id] === old_value ) {
+        return(_.set(record, definition_id, new_value));
+      } else {
+        return(record);
+      }
+    })
+
+  }
+
   // private
   private add_id (object : any) : any {
     if (object['_id']) {
