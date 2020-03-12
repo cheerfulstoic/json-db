@@ -20,7 +20,7 @@
           </th>
         </tr>
 
-        <tr>
+        <tr class="columns-to-display">
           <th colspan="100%">
             <h3>Columns to Display</h3>
             <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
@@ -258,11 +258,14 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
+.columns-to-display th,
 .table-header th {
   position: sticky;
-  top: 92px;
   z-index: 10;
 }
+
+.columns-to-display th { top: 92px }
+.table-header th { top: 170px }
 
 .table-header {
   z-index: 50;
