@@ -48,7 +48,7 @@ export default Vue.extend({
   name: 'Graph',
   props: {
     database: db.Database,
-    current_focus: Object // db.Reference
+    current_focus: Object
   },
   mounted () {
     this.refresh()
@@ -135,20 +135,20 @@ export default Vue.extend({
       let sheet = this.database.sheets[0]
       if (!sheet) { return(null) }
 
-      let record : any = _.last(sheet.record_data);
+      let record : any = _.last(sheet.records);
       if (!record) { return(null) }
 
       this.neighbors = {} // Uggggly
       this.edges_array = _.flatMap(this.database.sheets, (sheet : db.Sheet) => {
         let reference_definitions = this.references_for(sheet);
 
-        return _.flatMap(sheet.record_data, (record : any) => {
+        return _.flatMap(sheet.records, (record : any) => {
           return _.flatMap(reference_definitions, (definition) => {
             if ( !this.selected_references[sheet._id].includes(definition._id) ) {
               return([]);
             }
 
-            return _.map(record[definition._id], (reference_info) => {
+            return _.map(record.value_for_definition(definition), (reference_info) => {
               this.add_neighbors(record._id, reference_info.record_id);
 
               return({
@@ -167,7 +167,7 @@ export default Vue.extend({
         if (this.sheet_names.includes(sheet.name)) {
           let unique_id_field = sheet.unique_id_field();
 
-          return _(sheet.records()).filter((record) => {
+          return _(sheet.records).invokeMap('values').filter((record) => {
             return(this.displayed_on_focus(record))
           }).map((record) => {
             return({

@@ -12,13 +12,19 @@
 
       <a class="btn btn-primary mx-2"
          v-if="database.sheets.length"
-         v-bind:href="json_file_data_url()"
-         v-bind:download="project_name + '.db.json'">Save JSON</a>
+         href="#"
+         v-bind:download="project_name + '.db.json'"
+         v-on:click.prevent="download_json_file_data"
+         >
+        Save JSON
+      </a>
 
+      <!--
       <Graph id="graph"
              v-bind:database="database"
              v-bind:current_focus="current_focus"
              v-on:focus-sheet-and-record="focus_sheet_and_record" />
+      -->
     </nav>
 
     <div class="container-fluid">
@@ -49,7 +55,7 @@
 
       <hr/>
 
-      <button class="btn btn-primary toggle-json-btn" v-on:click="taggle_json">Toggle JSON</button>
+      <button class="btn btn-primary toggle-json-btn" v-on:click="toggle_json">Toggle JSON</button>
       <pre v-if="show_json" class="json-output">{{json()}}</pre>
 
 
@@ -71,7 +77,7 @@ import Feather from 'vue-icon'
 
 import Sheet from './components/Sheet.vue';
 import VariableEditor from './components/VariableEditor.vue';
-import Graph from './components/Graph.vue';
+// import Graph from './components/Graph.vue';
 
 import _ from 'lodash';
 import Fuse from 'fuse.js';
@@ -84,12 +90,12 @@ import * as db from './db';
 export default Vue.extend({
   name: 'app',
   components: {
-    Graph,
+    // Graph,
     VariableEditor,
     Sheet,
   },
   data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
-    let database = new db.Database([], {});
+    let database = new db.Database({});
     return {
       database: database,
       current_sheet_id: null,
@@ -117,21 +123,7 @@ export default Vue.extend({
 
       var reader = new FileReader();
       reader.onload = (e : any) => {
-        let result = JSON.parse(e.target.result);
-
-        let sheets = _.map(result.sheets, (schema) => {
-          return(new db.Sheet(
-            schema.name,
-            schema._id,
-            schema.hex_color,
-            schema.definitions,
-            schema.definition_ids_to_display,
-            schema.display_referencers,
-            result.records[schema.name]
-          ))
-        })
-
-        this.database = new db.Database(sheets, result.global_variables || {})
+        this.database = db.Database.from_saved(JSON.parse(e.target.result));
 
         this.current_sheet_id = this.database.sheets[0]._id;
       };
@@ -145,8 +137,7 @@ export default Vue.extend({
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
-      let sheet = new db.Sheet(`Sheet #${number}`, null, null, [], null, true, []);
-      this.database.add_sheet(sheet);
+      let sheet = new db.Sheet(this.database, `Sheet #${number}`, null, null, [], null, true, []);
       this.current_sheet_id = sheet._id;
     },
     change_sheet (id : string) {
@@ -170,7 +161,15 @@ export default Vue.extend({
       let file = new Blob([this.json()], {type: 'application/json'});
       return(URL.createObjectURL(file))
     },
-    taggle_json () {
+    download_json_file_data () {
+      let blob = new Blob([this.json()], { type: 'application/json' })
+      let link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = this.project_name + '.db.json';
+      link.click()
+      URL.revokeObjectURL(link.href)
+    },
+    toggle_json () {
       this.show_json = !this.show_json;
     },
     // focus_sheet_and_record (sheet_id : string, record_id : string) {

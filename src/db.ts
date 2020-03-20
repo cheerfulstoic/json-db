@@ -1,14 +1,32 @@
 import _ from 'lodash';
 import Fuse from 'fuse.js';
 
-const uuidv1 = require('uuid/v1');
+const uuidv1 = require('uuid').v1;
 
-export interface Definition {
-  _id: string;
-  name: string;
-  type: string;
-  unique_id: boolean;
-  options?: string[];
+export class Definition {
+  public _id: string;
+  public name: string;
+  public type: string;
+  public unique_id: boolean;
+  public options?: string[];
+
+  constructor(data : any) {
+    this._id = data._id || uuidv1();
+    this.name = data.name;
+    this.type = data.type;
+    this.unique_id = data.unique_id;
+    this.options = data.options;
+  }
+}
+
+export class ReferencesDefinition extends Definition {
+  public definitions: Definition[];
+
+  constructor(data : any) {
+    super(data)
+
+    this.definitions = data.definitions || [];
+  }
 }
 
 export interface ReferenceQueryResult {
@@ -17,39 +35,162 @@ export interface ReferenceQueryResult {
   record: any;
 }
 
-export interface Reference {
+// DEPRECATED
+export interface DeprecatedReference {
   sheet_id: string;
   record_id: string;
 }
 
-// DEPRECATED
-export interface NameReference {
-  sheet: string;
-  id: string;
+// Helper functions
+
+// Adds an `_id` property to an object if it doesn't already exist
+const add_id = (object : any) : any => {
+  if (object['_id']) {
+    return(object);
+  } else {
+    return _.assign(object, {_id: uuidv1()})
+  }
+}
+
+const data_ids_to_names = (data : any, definitions : Definition[]) : any => {
+  return _.reduce(definitions, (result : any, definition : Definition) => {
+    return(_.set(result, definition.name, data[definition._id]))
+  }, {});
+}
+
+const data_names_to_ids = (data : any, definitions : Definition[]) : any => {
+  return _.reduce(definitions, (result : any, definition : Definition) => {
+    return(_.set(result, definition._id, data[definition.name]))
+  }, {});
+}
+
+
+class DataObject {
+  public data : any;
+
+  constructor(record_data : object) {
+    this.data = record_data;
+  }
+
+  public value_for_definition(definition : Definition) : any {
+    return this.data[definition._id]
+  }
+
+  public update_value(definition : Definition, value: any) : void {
+    this.data[definition._id] = value;
+  }
+}
+
+// The `Record` class is coupled with the Sheet class because it needs to see the definitions
+export class Record extends DataObject {
+  public sheet : Sheet;
+
+  constructor(record_data : object, sheet : Sheet) {
+    super(record_data);
+
+    this.data = _(record_data).mapKeys((_, name) => {
+      if (name[0] === "_") { // like `_id` or `_expressions'
+        return name
+      } else {
+        return sheet.definitions_by_name[name]._id;
+      }
+    }).tap(add_id).value();
+
+    this.sheet = sheet;
+  }
+
+  public get _id() {
+    return this.data._id;
+  }
+
+  public values() : any {
+    return _.mapKeys(this.data, (_, key) => {
+      if (key[0] === "_") { // like `_id` or `_expressions'
+        return key
+      } else {
+        return this.sheet.definitions_by_id[key].name;
+      }
+    })
+  }
+
+  public delete_definition(definition : Definition) : void {
+    _.set(this, 'data', _.omit(this.data, definition._id))
+  }
+
+  public delete_sub_definition(definition : ReferencesDefinition, sub_definition : Definition) : void {
+    this.transform_value(definition, (values) => {
+      return _.map(values, (value) => {
+        return _.set(value, 'data', _.omit(value.data, sub_definition._id))
+      })
+    })
+  }
+
+  public transform_value(definition : Definition, transform_fn : (value: any) => any) : void {
+    this.data[definition._id] = transform_fn(this.data[definition._id])
+  }
+
+  // Returns a POJO with keys / values which uniquely describe the object
+  public description_data() : any {
+    let field = this.sheet.unique_id_field()
+    // Currently we just return one field
+    let result : any = {};
+    result[field] = this.values()[field];
+    return result
+  }
+}
+
+export class Reference extends DataObject {
+  public record : Record;
+
+  constructor(record : Record, data : any) {
+    super(data);
+
+    this.record = record;
+  }
 }
 
 export class Sheet {
   public _id: string;
   public name: string;
   public hex_color: string;
-  public definitions: Definition[];
-  public record_data: object[];
+  public definitions: Definition[] | ReferencesDefinition[];
+  public records_data: object[]; // DEPRECATED
+  public records: Record[];
   public definition_ids_to_display : string[];
   public display_referencers : boolean;
 
   static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425'];
   static last_used_hex_color = -1;
 
-  constructor(name: string,
+  // Caches
+  public definitions_by_id : any;
+  public definitions_by_name : any;
+
+  public database : Database;
+
+  constructor(database : Database,
+              name: string,
               id: string | null,
               hex_color: string | null,
               definitions: object[],
               definition_ids_to_display: string[] | null,
               display_referencers: boolean,
-              record_data: object[]) {
+              records_data: object[]) {
+    this.database = database;
+    this.database.add_sheet(this)
+
     this._id = id || uuidv1();
     this.name = name;
-    this.definitions = _.map(definitions, this.add_id);
+
+    this.definitions = _.map(definitions, (definition_data : any) => {
+      if (definition_data.type == 'references') {
+        return new ReferencesDefinition(definition_data);
+      } else {
+        return new Definition(definition_data);
+      }
+    })
+
+    this.update_definition_caches();
 
     this.definition_ids_to_display = definition_ids_to_display || _.map(definitions, '_id')
     this.display_referencers = (display_referencers == null) ? true : display_referencers;
@@ -57,21 +198,18 @@ export class Sheet {
     Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1;
     this.hex_color = hex_color || Sheet.hex_colors[Sheet.last_used_hex_color];
 
-    let definitions_by_name = _.keyBy(this.definitions, 'name');
+    this.records_data = []; // TODO: Remove
+    // this.records_data = _(records_data).map((record) => {
+    //   return _.mapKeys(record, (_, name) => {
+    //     if (name[0] === "_") { // like `_id` or `_expressions'
+    //       return name
+    //     } else {
+    //       return this.definitions_by_name[name]._id;
+    //     }
+    //   })
+    // }).map(add_id).value();
 
-    this.record_data = _(record_data).map((record) => {
-      return _.mapKeys(record, (_, name) => {
-        if (name[0] === "_") { // like `_id` or `_expressions'
-          return name
-        } else {
-          return definitions_by_name[name]._id;
-        }
-      })
-    }).map(this.add_id).value();
-  }
-
-  public records () {
-    return _.map(this.record_data, this.translate_record.bind(this))
+    this.records = _.map(records_data, (record_data : object) : Record => { return(new Record(record_data, this)) })
   }
 
   public schema () {
@@ -79,31 +217,44 @@ export class Sheet {
     return this.definitions
   }
 
-  public find_by_id (id : string) {
-    return _.find(this ? this.record_data : [], {_id: id})
+  // DEPRECATED
+  public find_by_id (id : string) : any | undefined {
+    return _.find(this ? this.records_data : [], {_id: id})
   }
 
-  public add_column () {
+  public add_definition () {
     let number = this.definitions.length + 1
-    let definition = this.add_id({name: `Column #${number}`, type: 'string'})
+    let definition = add_id({name: `Column #${number}`, type: 'string'})
     this.definitions.push(definition);
+    this.update_definition_caches();
     this.definition_ids_to_display.push(definition._id);
+  }
+
+  private update_definition_caches () {
+    this.definitions_by_id = _.keyBy(this.definitions, '_id');
+    this.definitions_by_name = _.keyBy(this.definitions, 'name');
   }
 
   public add_row (position : string) {
     if (position == 'top') {
-      this.record_data.unshift(this.add_id({}));
+      // this.records_data.unshift(add_id({}));
+      this.records.unshift(new Record({}, this));
     } else {
-      this.record_data.push(this.add_id({}));
+      // this.records_data.push(add_id({}));
+      this.records.push(new Record({}, this));
     }
   }
 
   public remove_row (id : string) {
-    this.record_data = _.reject(this.record_data, (record : any) => {
+    // this.records_data = _.reject(this.records_data, (record : any) => {
+    //   return(record._id === id);
+    // })
+    this.records = _.reject(this.records, (record : Record) => {
       return(record._id === id);
     })
   }
 
+  // DEPRECATED!  Use Record.values()
   public translate_record(record : any) : any {
     let definitions_by_id = _.keyBy(this.definitions, '_id');
 
@@ -116,6 +267,7 @@ export class Sheet {
     })
   }
 
+  // DEPRECATED!  Use Record.description_data()
   public record_values(translated_record : any) : any {
     let field = this.unique_id_field()
     let result : any = {};
@@ -143,11 +295,18 @@ export class Sheet {
   public delete_definition (definition_id : string) {
     let definition = this.find_definition(definition_id);
 
-    this.record_data = this.record_data.map((record) => {
-      return(_.omit(record, definition._id))
-    })
+    // this.records_data = this.records_data.map((record) => {
+    //   return(_.omit(record, definition._id))
+    // })
+    _.each(this.records, (record) => { record.delete_definition(definition) })
+    // this.definition_ids_to_display.delete(definition._id);
     _.pull(this.definition_ids_to_display, definition._id);
     _.pull(this.definitions, definition);
+  }
+
+  public delete_sub_definition (definition : ReferencesDefinition, sub_definition : Definition) {
+    _.each(this.records, (record) => { record.delete_sub_definition(definition, sub_definition) })
+    _.set(definition, 'definitions', _.without(definition.definitions, sub_definition))
   }
 
   public find_definition (definition_id : string) : Definition {
@@ -158,9 +317,15 @@ export class Sheet {
     return(definition)
   }
 
+  public replace_definition (id : string, definition : Definition) : void {
+    let index = _.findIndex(this.definitions, {_id: id})
+
+    this.definitions[index] = definition;
+  }
+
   public transform_values(definition_id : string, old_value : any, new_value : any) {
 
-    return this.record_data = this.record_data.map((record : any) => {
+    return this.records_data = this.records_data.map((record : any) => {
       if ( record[definition_id] === old_value ) {
         return(_.set(record, definition_id, new_value));
       } else {
@@ -170,24 +335,67 @@ export class Sheet {
 
   }
 
-  // private
-  private add_id (object : any) : any {
-    if (object['_id']) {
-      return(object);
-    } else {
-      return _.assign(object, {_id: uuidv1()})
-    }
-  }
-
 }
 
 export class Database {
   sheets: Sheet[];
   global_variables: any;
 
-  constructor(sheets : Sheet[], global_variables : object) {
-    this.sheets = sheets;
+  constructor(global_variables : object) {
+    this.sheets = [];
+
     this.global_variables = global_variables;
+  }
+
+  public static from_saved (data : any) : Database {
+    let database = new Database(data.global_variables || {})
+
+    let sheets = _.map(data.sheets, (schema) => {
+      return(new Sheet(
+        database,
+        schema.name,
+        schema._id,
+        schema.hex_color,
+        schema.definitions,
+        schema.definition_ids_to_display,
+        schema.display_referencers,
+        data.records[schema.name]
+      ))
+    })
+
+    database.finalize_load()
+
+    return database;
+  }
+
+  private finalize_load () : void {
+    _.each(this.sheets, (sheet : Sheet) => {
+      _.each(sheet.records, (record : Record) => {
+        let reference_definitions : ReferencesDefinition[] = _.filter(sheet.definitions, {type: 'references'}) as ReferencesDefinition[];
+
+        _.each(reference_definitions, (definition : ReferencesDefinition) => {
+          record.transform_value(definition, (raw_references : any) => {
+            return _.compact(_.map(raw_references || [], ({sheet_id, record_id, data}) => {
+              let referenced_sheet = sheet.database.find_sheet(sheet_id);
+
+              if (referenced_sheet == undefined) {
+                throw `Could not find sheet ID: ${sheet_id}`
+              } else {
+                let referenced_record = _.find(referenced_sheet.records, {_id: record_id})
+
+                if (referenced_record == undefined) {
+                  // throw `Could not find record ID: ${record_id} for sheet ID: ${sheet_id}`
+                  return(null) // Ignore
+                } else {
+                  // if (definition.name === 'CanViralTransformTo' && record._id == '799da630-61d3-11ea-9572-277f6bf69e97') { debugger }
+                  return new Reference(referenced_record, data_names_to_ids(data, definition.definitions))
+                }
+              }
+            }))
+          })
+        })
+      })
+    })
   }
 
   public add_sheet (sheet : Sheet) : void {
@@ -196,25 +404,16 @@ export class Database {
 
   private description_types : string[] = ['string', 'text_area', 'select_one'];
 
-  // public search (match_text : string) : ReferenceQueryResult[] {
-  //   return _.flatMap(this.sheets, (sheet : Sheet) => {
-  //     return sheet.search(match_text)
-  //   })
-  // }
-  public search (match_text : string) : ReferenceQueryResult[] {
+  public search (match_text : string) : Record[] {
     let search_keys = _(this.sheets).flatMap((sheet) => {
       return sheet.definitions
     }).filter((definition) => {
       return(this.description_types.includes(definition.type))
     }).map((definition) => {
-      return(`record.${definition._id}`)
+      return(`data.${definition._id}`)
     }).value()
 
-    let search_data : any[] = _.flatMap(this.sheets, (sheet) => {
-      return _.map(sheet.record_data, (record) => {
-        return {record: record, sheet: sheet}
-      })
-    })
+    let search_data : any[] = _.flatMap(this.sheets, 'records')
     let fuse = new Fuse(search_data, {
       //shouldSort: true,
       // tokenize: true,
@@ -224,17 +423,11 @@ export class Database {
       threshold: 0.3
     })
 
-    return _.map(fuse.search(match_text), (result : any) => {
-      return {
-        sheet: result.sheet,
-        id: result.record._id,
-        record: result.sheet.translate_record(result.record)
-      }
-    })
+    return fuse.search(match_text)
   }
 
-
-  public fetch_record (reference : Reference) : ReferenceQueryResult | null {
+  // DEPRECATED!  Use .find_record
+  public fetch_record_reference (reference : DeprecatedReference) : ReferenceQueryResult | null {
     let sheet = _.find(this.sheets, (sheet : Sheet) => {
       return(sheet._id === reference.sheet_id)
     })
@@ -252,34 +445,26 @@ export class Database {
     return _.find(this.sheets, {_id: id})
   }
 
-  public referencers () {
-    let output : any = {}
+  public referencer_references () {
+    return _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      let references_definitions = _.filter(sheet.definitions, { type: 'references' })
 
-    this.sheets.forEach((sheet) => {
-      let references_definitions = _.filter(sheet.definitions, (definition : Definition) => {
-        return(definition.type == 'references')
-      })
-
-      sheet.record_data.forEach((record : any) => {
+      sheet.records.forEach((record : Record) => {
         references_definitions.forEach((definition) => {
-          (record[definition._id] || []).forEach((reference : Reference) => {
-            let result = this.fetch_record(reference);
-
-            if (result) {
-              let key = `${result.sheet._id}|${result.id}`;
-              if (!output[key]) { output[key] = {} }
-              if (!output[key][definition.name]) { output[key][definition.name] = [] }
-              output[key][definition.name].push(this.fetch_record({sheet_id: sheet._id, record_id: record._id}));
-            }
+          (record.value_for_definition(definition) || []).forEach((reference : Reference) => {
+            let key = `${reference.record.sheet._id}|${reference.record._id}`;
+            if (!result[key]) { result[key] = {} }
+            if (!result[key][definition._id]) { result[key][definition._id] = [] }
+            result[key][definition._id].push(new Reference(record, {}));
           })
         })
       })
-    })
 
-    return(output);
+      return(result)
+    }, {})
   }
 
-  public json_data () {
+  public json_data_bak () {
     let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
       result[sheet.name] = sheet.json_data()
       return(result);
@@ -294,13 +479,13 @@ export class Database {
         return(definition.type == 'references')
       })
 
-      result[sheet.name] = _.map(sheet.records(), (record) => {
+      result[sheet.name] = _.map(sheet.records, (record) => {
         return _.reduce(reference_definitions, (result : any, definition : Definition) => {
           let references = result[definition.name];
 
           if (references && references.length) {
             result[definition.name] = _.map(references, (reference) => {
-              let reference_result = this.fetch_record(reference);
+              let reference_result = this.fetch_record_reference(reference);
               if (reference_result) {
                 reference = _.set(reference, 'sheet_name', reference_result.sheet.name)
 
@@ -315,7 +500,7 @@ export class Database {
             })
           }
           return(result);
-        }, record)
+        }, record.values())
       })
       return(result);
     }, {})
@@ -326,6 +511,60 @@ export class Database {
       records: records_data,
     })
   }
+
+  public json_data () {
+    let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      result[sheet.name] = sheet.json_data()
+      return(result);
+    }, {})
+
+    let sheet_unique_ids = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      return(_.set(result, sheet._id, _.find(sheet.definitions, {unique_id: true})))
+    }, {})
+
+    let records_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+      let reference_definitions : ReferencesDefinition[] = _.filter(sheet.definitions, (definition : Definition) => {
+        return(definition.type == 'references')
+      }) as ReferencesDefinition[]
+
+      result[sheet.name] = _.map(sheet.records, (record) => {
+        return _.reduce(reference_definitions, (result : any, definition : ReferencesDefinition) => {
+          let references = result[definition.name];
+
+          if (references && references.length) {
+            result[definition.name] = _.map(references, (reference) => {
+              let referenced_record = reference.record;
+
+              // if (definition.name === 'CanViralTransformTo' && record._id == '799da630-61d3-11ea-9572-277f6bf69e97') { debugger }
+              let transformed_data = data_ids_to_names(reference.data, definition.definitions);
+              let reference_data = {
+                record_id: referenced_record._id,
+                sheet_id: referenced_record.sheet._id,
+                sheet_name: referenced_record.sheet.name,
+                data: transformed_data,
+              };
+
+              let unique_id_definition : Definition = sheet_unique_ids[referenced_record.sheet._id]
+              if (unique_id_definition) {
+                reference_data = _.set(reference_data, unique_id_definition.name, referenced_record.value_for_definition(unique_id_definition))
+              }
+
+              return(reference_data);
+            })
+          }
+          return(result);
+        }, record.values())
+      })
+      return(result);
+    }, {})
+
+    return({
+      global_variables: this.global_variables,
+      sheets: sheets_data,
+      records: records_data,
+    })
+  }
+
 }
 
 

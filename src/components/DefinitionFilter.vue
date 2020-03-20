@@ -2,7 +2,7 @@
   <span>
     <v-icon v-bind:class="{notice: currently_filtering}" v-b-modal="modal_dom_id" name="filter"></v-icon>
 
-    <b-modal ok-only v-bind:id="modal_dom_id" v-bind:title="'Filter ' + definition.name">
+    <b-modal ok-only v-bind:id="modal_dom_id" v-bind:static="true" v-bind:title="'Filter ' + definition.name">
       <References
          v-if="definition.type === 'references'"
          v-on:input="handle_input"
@@ -79,6 +79,10 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
+
+.modal-dialog {
+  z-index: 20;
+}
 
 .remove {
   margin: 0.8em 0.8em 0 0.8em;

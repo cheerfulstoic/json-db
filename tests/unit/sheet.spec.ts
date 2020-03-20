@@ -11,7 +11,8 @@ describe('db.Sheet', () => {
 
   describe('remove_column', () => {
     it('removes the sheet and record data', () => {
-      let sheet = new db.Sheet('a_few_values', null, null, [
+      let database = new db.Database({})
+      let sheet = new db.Sheet(database, 'a_few_values', null, null, [
         { _id: 'abc123', name: 'name', type: 'string' },
         { name: 'age', type: 'integer' },
       ], null, true, [
@@ -32,7 +33,7 @@ describe('db.Sheet', () => {
         ]
       })
 
-      chai.expect(sheet.records()).to.matchPattern([
+      chai.expect(_.invokeMap(sheet.records, 'values')).to.matchPattern([
         { _id: uuid_regex, age: 32 },
         { _id: uuid_regex, age: 35 },
       ])

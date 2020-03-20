@@ -41,7 +41,7 @@ export default Vue.extend({
           this.$emit('input', this.definition._id,
                      (records : any[]) => {
                        return _.filter(records, (record) => {
-                         return(this.items.includes(record[this.definition._id]));
+                         return(this.items.includes(record.value_for_definition(this.definition)));
                        })
                      })
         }

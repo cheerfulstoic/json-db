@@ -11,7 +11,7 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-  name: 'Reference',
+  name: 'SelectOne',
   data () {
     return {}
   },
