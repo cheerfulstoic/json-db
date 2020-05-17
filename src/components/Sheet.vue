@@ -47,10 +47,11 @@
             <th v-if="should_display_definition(definition)" class="field-cell" v-bind:key="definition._id">
               <Definition
                 v-bind:value="definition"
+                v-bind:database="database"
                 v-on:input="replace_definition(definition._id, $event)"
                 v-on:remove="remove_definition(definition)"
                 v-on:remove-sub-definition="remove_sub_definition"
-                v-on:transform-values="transform_values" />
+                v-on:transform-values="transform_values"/>
 
               <DefinitionFilter
                  v-on:input="set_filter"

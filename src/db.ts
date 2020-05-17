@@ -21,11 +21,13 @@ export class Definition {
 
 export class ReferencesDefinition extends Definition {
   public definitions: Definition[];
+  public referenceable_sheet_ids: string[];
 
   constructor(data : any) {
     super(data)
 
     this.definitions = data.definitions || [];
+    this.referenceable_sheet_ids = data.referenceable_sheet_ids || [];
   }
 }
 
@@ -65,7 +67,7 @@ const data_names_to_ids = (data : any, definitions : Definition[]) : any => {
 }
 
 
-class DataObject {
+export class DataObject {
   public data : any;
 
   constructor(record_data : object) {
@@ -78,6 +80,9 @@ class DataObject {
 
   public update_value(definition : Definition, value: any) : void {
     this.data[definition._id] = value;
+  }
+
+  public empty() {
   }
 }
 
@@ -404,7 +409,7 @@ export class Database {
 
   private description_types : string[] = ['string', 'text_area', 'select_one'];
 
-  public search (match_text : string) : Record[] {
+  public search (match_text : string, sheet_ids : Set<string>) : Record[] {
     let search_keys = _(this.sheets).flatMap((sheet) => {
       return sheet.definitions
     }).filter((definition) => {
@@ -413,7 +418,12 @@ export class Database {
       return(`data.${definition._id}`)
     }).value()
 
-    let search_data : any[] = _.flatMap(this.sheets, 'records')
+    let sheets : Sheet[] = this.sheets;
+    if (sheet_ids.size) {
+      sheets = _.filter(sheets, (sheet) => { return sheet_ids.has(sheet._id) })
+    }
+
+    let search_data : any[] = _.flatMap(sheets, 'records')
     let fuse = new Fuse(search_data, {
       //shouldSort: true,
       // tokenize: true,

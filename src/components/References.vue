@@ -1,12 +1,14 @@
 <template>
   <div class="input-group referenced-records">
-    <div v-for="reference_group in grouped_references()"
-         v-bind:key="reference_group[0].record.sheet._id"
-         class="sheet">
-      <span class="sheet-name" v-bind:style="'background-color:' + reference_group[0].record.sheet.hex_color">
-        {{reference_group[0].record.sheet.name}}
+    <div v-for="reference_group_info in grouped_references()"
+         v-bind:key="reference_group_info.sheet._id"
+         v-bind:class="{sheet: true, valid: valid_sheet(reference_group_info.sheet)}">
+      <span class="sheet-name" v-bind:style="'background-color:' + reference_group_info.sheet.hex_color">
+        {{reference_group_info.sheet.name}}
       </span>
-      <div v-for="reference in reference_group" v-bind:key="reference.record._id" class="referenced-record">
+      <div v-for="reference in reference_group_info.references"
+           v-bind:key="reference.record._id"
+           class="referenced-record">
         <a v-on:click.stop="remove(reference.record)" class="remove" v-if="changable">
           <v-icon name="trash-2"/>
         </a>
@@ -48,7 +50,7 @@
     </div>
 
     <div v-if="currently_edited_reference">
-      <b-modal ok-only v-bind:id="this.references_definition_edit_modal_id" title="Edit reference properties">
+      <b-modal ok-only v-bind:id="references_definition_edit_modal_id" title="Edit reference properties">
         <div v-for="references_definition in definition_definitions" v-bind:key="references_definition._id">
           {{references_definition.name}}
           <Field v-bind:record="currently_edited_reference" v-bind:definition="references_definition" v-bind:database="database"/>
@@ -74,20 +76,27 @@ export default Vue.extend({
     RecordResult: RecordResult,
     Field: () => import('./Field.vue') as any
   },
-  data () {
+  data () : any {
     return({
       match_text: null,
-      currently_edited_reference: {data: {}},
-      references_definition_edit_modal_id: 'references-definitions-edit-modal-' + this.record_id + this.definition_id,
+      currently_edited_reference: null,
     })
   },
   props: {
     value: Array,
     record_id: String,
     definition_definitions: Array,
-    definition_id: String,
+    definition: db.ReferencesDefinition,
     database: Object,
     changable: { type: Boolean, required: false, default: true },
+  },
+  computed: {
+    references_definition_edit_modal_id () : string {
+      return('references-definitions-edit-modal-' + this.record_id + this.definition._id);
+    },
+    definition_referenceable_sheet_ids_set () : Set<string> {
+      return(this.definition ? new Set(this.definition.referenceable_sheet_ids) : new Set());
+    },
   },
   methods: {
     search_results () : any[] {
@@ -95,7 +104,7 @@ export default Vue.extend({
 
       let currently_referenced_ids = _.map(this.value, 'record._id')
 
-      return _(this.database.search(`${this.match_text}`))
+      return _(this.database.search(`${this.match_text}`, this.definition_referenceable_sheet_ids_set))
         .reject((record) => {
             return(record._id === this.record_id || currently_referenced_ids.includes(record._id));
           })
@@ -108,29 +117,42 @@ export default Vue.extend({
         .sortBy((references : db.Reference[]) => {
           return references[0].record.sheet._id
         })
-        .map((references : db.Reference[]) => { return _.uniq(references) })
+        .map((references : db.Reference[]) => {
+          let sheet = references[0].record.sheet;
+          return {references: _.uniq(references),
+                  sheet: sheet }
+        })
         .value()
       )
     },
-    choose (record : db.Record, event : any) {
+    choose (record : db.Record, event : any) : void {
       this.$emit('input', (this.value || []).concat([new db.Reference(record, {})]))
       this.match_text = null;
     },
-    remove (record_to_remove : db.Record) {
+    remove (record_to_remove : db.Record) : void {
       this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
         return(reference.record._id == record_to_remove._id)
       }))
     },
-    focus_sheet_and_record (sheet_id : string, record_id : string) {
+    focus_sheet_and_record (sheet_id : string, record_id : string) : void {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
     },
     edit_properties (reference : db.Reference) : void {
       this.$bvModal.show(this.references_definition_edit_modal_id)
-      this.currently_edited_reference = reference;
-      if (this.currently_edited_reference.data == null) {
-        this.currently_edited_reference.data = {}
-      }
+      // Using Vue.set instead of straight assignment to get past typescript error
+      Vue.set(this, 'currently_edited_reference', reference);
+      // if ( this.currently_edited_reference.data == null ) {
+      //   this.currently_edited_reference = null
+      // }
     },
+    valid_sheet (sheet : db.Sheet) : boolean {
+      if (this.definition) {
+        return(this.definition_referenceable_sheet_ids_set.size == 0 ||
+               this.definition_referenceable_sheet_ids_set.has(sheet._id))
+      } else {
+        return(true)
+      }
+    }
   }
 });
 </script>
@@ -138,7 +160,12 @@ export default Vue.extend({
 <style scoped lang="scss">
 
 .sheet {
-  border: 1px solid black;
+  border: 5px solid red;
+
+  &.valid {
+    border: 1px solid black;
+  }
+
   overflow: hidden;
   border-radius: 1em 1em 0 0;
   margin-bottom: 1em;

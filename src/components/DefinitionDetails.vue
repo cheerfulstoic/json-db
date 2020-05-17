@@ -63,18 +63,27 @@
 
     <button class="btn btn-danger" v-on:click="emit_remove">Delete Definition</button>
 
-    <div class="mt-2">
-      <div class="form-group" v-if="value.type == 'references'">
+    <div class="mt-2" v-if="value.type == 'references'">
+      <div class="form-group">
+        <p>Limit sheets which can be referenced (select none to allow reference of any sheet):</p>
+
+        <label class="referenceable-sheet-option" v-for="sheet in database.sheets" v-bind:key="sheet._id">
+          <input type="checkbox" v-bind:value="sheet._id" v-model="value.referenceable_sheet_ids">
+          {{sheet.name}}
+        </label>
+      </div>
+
+      <div class="form-group">
         <a v-on:click="add_definition" class="btn btn-primary btn-block">Add sub-definition</a>
 
         <div class="references-definition mt-2"
               v-for="(references_definition, index) in value.definitions"
               v-bind:key="references_definition.name">
-          {{references_definition}}
           <DefinitionDetails
             v-model="definition.definitions[index]"
             v-bind:sub_definition="true"
-            v-on:remove="remove"/>
+            v-on:remove="remove"
+            v-bind:database="database" />
         </div>
       </div>
     </div>
@@ -100,6 +109,7 @@ export default Vue.extend({
   props: {
     value: Object,
     sub_definition: Boolean,
+    database: db.Database,
   },
   computed: {
     definition () {
@@ -149,6 +159,14 @@ export default Vue.extend({
   background-color: #CCC;
   padding: 0.5em;
 }
+
+.referenceable-sheet-option {
+  border: 1px solid #333;
+  padding: 0.3em;
+  border-radius: 0.7em;
+  margin: 0.3em;
+}
+
 </style>
 
 

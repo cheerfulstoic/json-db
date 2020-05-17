@@ -21,7 +21,7 @@
     <References v-if="definition.type === 'references' && record_value"
                 v-bind:value="record_value"
                 v-bind:record_id="record._id"
-                v-bind:definition_id="definition._id"
+                v-bind:definition="definition"
                 v-bind:definition_definitions="definition.definitions"
                 v-bind:database="database"
                 v-on:focus-sheet-and-record="focus_sheet_and_record"

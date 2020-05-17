@@ -5,7 +5,8 @@
         v-bind:value="value"
         v-on:input="update"
         v-on:remove="remove"
-        v-on:remove-sub-definition="remove_sub_definition"/>
+        v-on:remove-sub-definition="remove_sub_definition"
+        v-bind:database="database" />
     </b-modal>
 
     {{value.name}}
@@ -30,6 +31,7 @@ export default Vue.extend({
   },
   props: {
     value: Object,
+    database: db.Database,
   },
   watch: {
     value (new_value : any, _old_value : any) {
