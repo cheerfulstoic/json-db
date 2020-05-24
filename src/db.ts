@@ -79,7 +79,7 @@ export class DataObject {
   }
 
   public update_value(definition : Definition, value: any) : void {
-    this.data[definition._id] = value;
+    _.set(this.data, definition._id, value)
   }
 
   public empty() {

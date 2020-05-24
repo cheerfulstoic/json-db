@@ -18,8 +18,8 @@
     <span v-if="definition.type === 'references' && !Array.isArray(record_value) && record_value">
       {{Object.keys(record_value)}}
     </span>
-    <References v-if="definition.type === 'references' && record_value"
-                v-bind:value="record_value"
+    <References v-if="definition.type === 'references'"
+                v-bind:value="record_value || []"
                 v-bind:record_id="record._id"
                 v-bind:definition="definition"
                 v-bind:definition_definitions="definition.definitions"

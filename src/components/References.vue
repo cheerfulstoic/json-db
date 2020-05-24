@@ -126,7 +126,9 @@ export default Vue.extend({
       )
     },
     choose (record : db.Record, event : any) : void {
-      this.$emit('input', (this.value || []).concat([new db.Reference(record, {})]))
+      let arr = this.value || [];
+      this.$emit('input', _.set(arr, arr.length, new db.Reference(record, {})))
+
       this.match_text = null;
     },
     remove (record_to_remove : db.Record) : void {
