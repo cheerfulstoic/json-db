@@ -15,7 +15,7 @@ describe('db.Sheet', () => {
       let sheet = new db.Sheet(database, 'a_few_values', null, null, [
         { _id: 'abc123', name: 'name', type: 'string' },
         { name: 'age', type: 'integer' },
-      ], null, true, [
+      ], null, null, true, [
         { name: 'Caravan', age: 32 },
         { name: 'Palace', age: 35 },
       ])

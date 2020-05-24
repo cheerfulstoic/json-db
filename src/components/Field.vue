@@ -14,13 +14,14 @@
                v-bind:definition="definition"
                v-on:input="update_value" />
     <References v-if="definition.type === 'references'"
-                v-bind:value="record_value || []"
-                v-bind:record_id="record._id"
+                v-bind:value="record_value"
+                v-bind:record="record"
                 v-bind:definition="definition"
-                v-bind:definition_definitions="definition.definitions"
                 v-bind:database="database"
+                v-bind:sheet="reference_sheet"
                 v-on:focus-sheet-and-record="focus_sheet_and_record"
-                v-on:input="update_value" />
+                v-on:input="update_value"
+                v-on:add-reference="add_reference" />
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
                 v-bind:definition="definition"
@@ -69,10 +70,20 @@ export default Vue.extend({
 
       return this.record.value_for_definition(this.definition)
     },
+    reference_sheet (): db.Sheet | undefined {
+      if (this.record_value[0]) {
+        return(this.record_value[0].record.sheet)
+      } else {
+        return(undefined)
+      }
+    },
   },
   methods: {
     focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
+    },
+    add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
+      this.$emit('add-reference', source_record, definition, target_record);
     },
     update_value (new_value : any) {
       this.recompute = this.recompute + 1;

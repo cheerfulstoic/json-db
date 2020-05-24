@@ -29,6 +29,19 @@ export class ReferencesDefinition extends Definition {
     this.definitions = data.definitions || [];
     this.referenceable_sheet_ids = data.referenceable_sheet_ids || [];
   }
+
+  references_sheet(sheet : Sheet) {
+    return(
+      this.referenceable_sheet_ids.length === 0 ||
+      this.referenceable_sheet_ids.includes(sheet._id)
+    )
+  }
+
+}
+
+export interface ReferencesDefinitionResult {
+  sheet: Sheet;
+  definition: ReferencesDefinition;
 }
 
 export interface ReferenceQueryResult {
@@ -131,7 +144,7 @@ export class Record extends DataObject {
   }
 
   public transform_value(definition : Definition, transform_fn : (value: any) => any) : void {
-    this.data[definition._id] = transform_fn(this.data[definition._id])
+    _.set(this, ['data', definition._id], transform_fn(this.data[definition._id]))
   }
 
   // Returns a POJO with keys / values which uniquely describe the object
@@ -146,11 +159,23 @@ export class Record extends DataObject {
 
 export class Reference extends DataObject {
   public record : Record;
+  public source_record : Record;
+  public definition : ReferencesDefinition;
 
-  constructor(record : Record, data : any) {
+  constructor(record : Record, source_record : Record, definition : ReferencesDefinition, data : any) {
     super(data);
 
     this.record = record;
+    this.source_record = source_record;
+    this.definition = definition;
+  }
+
+  remove() : void {
+    this.source_record.transform_value(this.definition, (value) => {
+      return(_.reject(value, (reference : Reference) => {
+        return(reference.record._id == this.record._id)
+      }))
+    })
   }
 }
 
@@ -162,6 +187,7 @@ export class Sheet {
   public records_data: object[]; // DEPRECATED
   public records: Record[];
   public definition_ids_to_display : string[];
+  public definition_ids_referring_to_sheet_to_display : string[];
   public display_referencers : boolean;
 
   static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425'];
@@ -179,6 +205,7 @@ export class Sheet {
               hex_color: string | null,
               definitions: object[],
               definition_ids_to_display: string[] | null,
+              definition_ids_referring_to_sheet_to_display: string[] | null,
               display_referencers: boolean,
               records_data: object[]) {
     this.database = database;
@@ -188,7 +215,7 @@ export class Sheet {
     this.name = name;
 
     this.definitions = _.map(definitions, (definition_data : any) => {
-      if (definition_data.type == 'references') {
+      if (definition_data.type === 'references') {
         return new ReferencesDefinition(definition_data);
       } else {
         return new Definition(definition_data);
@@ -198,6 +225,7 @@ export class Sheet {
     this.update_definition_caches();
 
     this.definition_ids_to_display = definition_ids_to_display || _.map(definitions, '_id')
+    this.definition_ids_referring_to_sheet_to_display = definition_ids_referring_to_sheet_to_display || []
     this.display_referencers = (display_referencers == null) ? true : display_referencers;
 
     Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1;
@@ -293,6 +321,7 @@ export class Sheet {
       hex_color: this.hex_color,
       definitions: this.definitions,
       definition_ids_to_display: this.definition_ids_to_display,
+      definition_ids_referring_to_sheet_to_display: this.definition_ids_referring_to_sheet_to_display,
       display_referencers: this.display_referencers,
     })
   }
@@ -306,6 +335,10 @@ export class Sheet {
     _.each(this.records, (record) => { record.delete_definition(definition) })
     // this.definition_ids_to_display.delete(definition._id);
     _.pull(this.definition_ids_to_display, definition._id);
+    // Ugly?
+    this.database.sheets.forEach((sheet : Sheet) => {
+      _.pull(this.definition_ids_referring_to_sheet_to_display, definition._id)
+    })
     _.pull(this.definitions, definition);
   }
 
@@ -363,6 +396,7 @@ export class Database {
         schema.hex_color,
         schema.definitions,
         schema.definition_ids_to_display,
+        schema.definition_ids_referring_to_sheet_to_display,
         schema.display_referencers,
         data.records[schema.name]
       ))
@@ -392,8 +426,9 @@ export class Database {
                   // throw `Could not find record ID: ${record_id} for sheet ID: ${sheet_id}`
                   return(null) // Ignore
                 } else {
-                  // if (definition.name === 'CanViralTransformTo' && record._id == '799da630-61d3-11ea-9572-277f6bf69e97') { debugger }
-                  return new Reference(referenced_record, data_names_to_ids(data, definition.definitions))
+                  return new Reference(referenced_record,
+                                       record, definition,
+                                       data_names_to_ids(data, definition.definitions))
                 }
               }
             }))
@@ -455,23 +490,42 @@ export class Database {
     return _.find(this.sheets, {_id: id})
   }
 
-  public referencer_references () {
+  public referencer_reference_references () {
     return _.reduce(this.sheets, (result : any, sheet : Sheet) => {
       let references_definitions = _.filter(sheet.definitions, { type: 'references' })
 
       sheet.records.forEach((record : Record) => {
         references_definitions.forEach((definition) => {
           (record.value_for_definition(definition) || []).forEach((reference : Reference) => {
-            let key = `${reference.record.sheet._id}|${reference.record._id}`;
-            if (!result[key]) { result[key] = {} }
-            if (!result[key][definition._id]) { result[key][definition._id] = [] }
-            result[key][definition._id].push(new Reference(record, {}));
+            // let key = `${definition._id}|${reference.record._id}`;
+            let key = reference.record._id;
+            if (result[key] == null) { result[key] = {} }
+            if (result[key][definition._id] == null) { result[key][definition._id] = [] }
+
+            // CrimeDecreasedChart
+            // CanViralTransformTo
+            // if (record._id === '7784d0d0-9432-11ea-924d-43c66426590c' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') {
+            // if (reference.record._id === '7784d0d0-9432-11ea-924d-43c66426590c' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') {
+            //   debugger
+            // }
+            result[key][definition._id].push(reference);
           })
         })
       })
 
       return(result)
     }, {})
+  }
+
+
+  public definitions_referring_to (given_sheet : Sheet) : ReferencesDefinitionResult[] {
+    return _.flatMap(this.sheets, (sheet : Sheet) : ReferencesDefinitionResult[] => {
+      return(_(sheet.definitions).filter((definition : any) : boolean => {
+        return(!!definition.references_sheet && !!definition.references_sheet(given_sheet))
+      }).map((definition : any) : ReferencesDefinitionResult => {
+        return({ sheet: sheet, definition: definition })
+      }).value())
+    })
   }
 
   public json_data_bak () {

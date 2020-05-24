@@ -31,12 +31,13 @@
 
             </div>
 
-            <div class="form-check form-check-inline">
-              <label>
-                <input type="checkbox" class="form-check-input" v-model="sheet.display_referencers">
-                Referencers
-              </label>
+            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet" v-bind:key="definition_info.definition._id">
+              <input type="checkbox" class="form-check-input" v-bind:value="definition_info.definition._id" v-model="sheet.definition_ids_referring_to_sheet_to_display">
+              {{definition_info.sheet.name}}
+              -
+              {{definition_info.definition.name}}
             </div>
+
           </th>
         </tr>
 
@@ -69,20 +70,29 @@
               </span>
             </th>
           </template>
-          <th v-if="sheet.display_referencers">Referencers</th>
+
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet">
+            <th v-if="should_display_definition_referring_to_sheet(definition_info)" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+              {{definition_info.sheet.name}}
+              -
+              {{definition_info.definition.name}}
+            </th>
+          </template>
+
           <th>&nbsp;</th>
         </tr>
       </thead>
 
-      <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Sheet">
-        <div class="form-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
-          <label>
-            <strong>{{definition.name}}</strong>
-            <Field v-bind:record="currently_edited_record" v-bind:definition="definition" v-bind:database="database"/>
-          </label>
-        </div>
-
-      </b-modal>
+      <div v-if="currently_edited_record">
+        <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Sheet">
+          <div class="form-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+            <label>
+              <strong>{{definition.name}}</strong>
+              <Field v-bind:record="currently_edited_record" v-bind:definition="definition" v-bind:database="database"/>
+            </label>
+          </div>
+        </b-modal>
+      </div>
 
       <template v-for="record in records_to_display">
         <tr v-bind:key="record._id"
@@ -98,17 +108,25 @@
               <Field v-bind:record="record"
                      v-bind:definition="definition"
                      v-bind:database="database"
-                     v-on:focus-sheet-and-record="focus_sheet_and_record" />
+                     v-on:focus-sheet-and-record="focus_sheet_and_record"
+                     v-on:add-reference="add_reference" />
             </td>
           </template>
-          <td v-if="sheet.display_referencers">
-            <!-- Maybe like Field I should just pass in the `record`? -->
-            <References
-              v-bind:value="referencer_references_for(sheet, record)"
-              v-bind:changable="false"
-              v-bind:database="database"
-              v-on:focus-sheet-and-record="focus_sheet_and_record" />
-          </td>
+
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet">
+            <td v-if="should_display_definition_referring_to_sheet(definition_info)" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+              <References
+                v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
+                v-bind:database="database"
+                v-bind:definition="definition_info.definition"
+                v-bind:record="record"
+                v-bind:sheet="definition_info.sheet"
+                v-bind:use_source_record="true"
+                v-on:focus-sheet-and-record="focus_sheet_and_record"
+                v-on:add-reference="add_reference" />
+            </td>
+          </template>
+
           <td>
             <a v-on:click="remove_row(record._id)" class="remove"><v-icon name="trash-2"/></a>
           </td>
@@ -180,6 +198,7 @@ export default Vue.extend({
       colors: { hex: this.sheet.hex_color },
       filters: {},
       currently_edited_record: new db.Record({}, this.sheet),
+      recompute_database_reference_referencer_references: 0,
     })
   },
   props: {
@@ -201,19 +220,32 @@ export default Vue.extend({
       return(this.records_to_display.length !== this.total_count);
     },
     // To cache, for now...
-    database_referencer_references () : any {
-      return this.database.referencer_references()
+    database_reference_referencer_references () : any {
+      let dummy = this.recompute_database_reference_referencer_references;
+
+      return this.database.referencer_reference_references()
     },
+
     // For performance
     sheet_definition_ids_to_display_set () : Set<string> {
       return new Set(this.sheet.definition_ids_to_display);
-    }
+    },
+    sheet_definition_ids_referring_to_sheet_to_display_set () : Set<string> {
+      return new Set(this.sheet.definition_ids_referring_to_sheet_to_display);
+    },
+
+    definitions_referring_to_sheet () : { definition: db.Definition, sheet: db.Sheet }[] {
+      return(this.database.definitions_referring_to(this.sheet))
+    },
   },
   methods: {
     should_display_definition (definition : db.Definition) {
       // if (!this.sheet.definition_ids_to_display.has) { debugger }
       // return(this.sheet.definition_ids_to_display.includes(definition._id))
       return(this.sheet_definition_ids_to_display_set.has(definition._id));
+    },
+    should_display_definition_referring_to_sheet (definition_info : db.ReferencesDefinitionResult) {
+      return(this.sheet_definition_ids_referring_to_sheet_to_display_set.has(definition_info.definition._id));
     },
     update_color (colors : {hex: string}) {
       this.sheet.hex_color = colors.hex;
@@ -240,10 +272,20 @@ export default Vue.extend({
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
       event.stopPropagation()
     },
-    referencer_references_for (sheet : db.Sheet, record : any) {
-      let key = `${sheet._id}|${record._id}`
+    add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
+      source_record.transform_value(definition, (value) => {
+        return(_.set(value, value.length, new db.Reference(target_record, source_record, definition, {})))
+      })
+      this.recompute_database_reference_referencer_references = this.recompute_database_reference_referencer_references + 1;
+    },
+    referencer_reference_references_for (sheet : db.Sheet, definition : db.ReferencesDefinition, record : any) {
+      // let key = `${sheet._id}|${definition._id}|${record._id}`
+      // let key = `${definition._id}|${record._id}`
+      // let key = record._id;
 
-      return _.flatten(Object.values(this.database_referencer_references[key] || {}))
+      let test = this.database_reference_referencer_references[record._id];
+      // if (record._id === '33256380-9434-11ea-bebd-f9ab7e4fb49b' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') { debugger }
+      return test ? _.uniq(test[definition._id] || []) : []
     },
     set_filter (definition_id : string, value : (record: any) => boolean) {
       Vue.set(this.filters, definition_id, value);

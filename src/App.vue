@@ -137,7 +137,7 @@ export default Vue.extend({
     },
     add_sheet () {
       let number = this.database.sheets.length + 1
-      let sheet = new db.Sheet(this.database, `Sheet #${number}`, null, null, [], null, true, []);
+      let sheet = new db.Sheet(this.database, `Sheet #${number}`, null, null, [], null, null, true, []);
       this.current_sheet_id = sheet._id;
     },
     change_sheet (id : string) {
