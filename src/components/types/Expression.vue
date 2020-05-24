@@ -37,7 +37,9 @@ export default Vue.extend({
   watch: {
     global_variables: {
       handler(_new_val, _old_val) {
-        this.update_value(this.value.expression_string)
+        if (this.value) {
+          this.update_value(this.value.expression_string)
+        }
       },
       deep: true,
     },

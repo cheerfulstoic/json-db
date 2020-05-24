@@ -1,68 +1,12 @@
 <template>
   <span>
     <b-modal ok-only v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
-      <div class="form-group">
-        <label>
-          Name
-          <input class="form-control" v-model="value.name"/>
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label>
-          Unique ID?
-          <input type="checkbox" id="unique_id" v-model="value.unique_id">
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label>
-          Type
-          <select class="form-control" v-model="value.type">
-            <option disabled value="">Select one</option>
-            <option value="string">String</option>
-            <option value="text_area">Text Area</option>
-            <option value="integer">Integer</option>
-            <option value="select_one">Select One</option>
-            <option value="references">References</option>
-            <option value="expression">Expression</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="form-group" v-if="value.type == 'select_one'">
-        <label>
-          <b-list-group>
-            <b-list-group-item v-for="option in options" v-bind:key="option">
-              <a v-on:click="remove_option(option, $event)" class="float-right">
-                <v-icon name="trash-2"/>
-              </a>
-              {{option}}
-            </b-list-group-item>
-          </b-list-group>
-
-          <input class="form-control" v-model="option_to_add" placeholder="New option"/>
-          <b-button v-on:click="add_option">Add Option</b-button>
-        </label>
-      </div>
-
-      <div class="form-group" v-if="value.type == 'select_one'">
-        <label>
-          Transform all
-          <select  v-model="old_value">
-            <option v-for="option in options" v-bind:key="option">{{option}}</option>
-          </select>
-          to:
-          <select  v-model="new_value">
-            <option v-for="option in options" v-bind:key="option">{{option}}</option>
-          </select>
-
-          <button class="btn btn-danger"
-                  v-on:click="$emit('transform-values', definition, old_value, new_value)">Change</button>
-        </label>
-      </div>
-
-      <button class="btn btn-danger" v-on:click="remove">Delete Column</button>
+      <DefinitionDetails
+        v-bind:value="value"
+        v-on:input="update"
+        v-on:remove="remove"
+        v-on:remove-sub-definition="remove_sub_definition"
+        v-bind:database="database" />
     </b-modal>
 
     {{value.name}}
@@ -74,47 +18,41 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import DefinitionDetails from './DefinitionDetails.vue';
 
 import _ from 'lodash';
 
+import * as db from '../db';
+
 export default Vue.extend({
   name: 'Definition',
-  data () {
-    return({ option_to_add: null })
+  components: {
+    DefinitionDetails,
   },
   props: {
     value: Object,
+    database: db.Database,
   },
-  computed: {
-    definition () {
-      return this.value;
+  watch: {
+    value (new_value : any, _old_value : any) {
+      this.$emit('input', new_value)
     },
-    modal_dom_id () {
-      return 'edit-definition-modal-' + this.value._id;
-    },
-    options () {
-      return this.value.options || [];
-    },
+  },
+  data () {
+    return({
+      modal_dom_id: `edit-definition-modal-${this.value._id}`
+    })
   },
   methods: {
-    add_option () {
-      let new_options = this.options;
-      new_options.push(this.option_to_add);
-      this.value.options = _.uniq(new_options);
-      this.option_to_add = null;
+    remove (definition : db.Definition, event : Event) {
+      this.$bvModal.hide(this.modal_dom_id)
+      this.$emit('remove', definition, event);
     },
-    remove_option (option_to_remove:string, event:object) {
-      if(confirm(`Do you really want to remove the option \`${option_to_remove}\`?`)) {
-        this.value.options = _.reject(this.options, (option) => {
-          return option == option_to_remove
-        })
-      }
+    remove_sub_definition (definition : db.ReferencesDefinition, sub_definition : db.Definition, event : Event) {
+      this.$emit('remove-sub-definition', definition, sub_definition, event);
     },
-    remove () {
-      if(confirm(`Do you really want to delete the column ${this.definition.name}?`)) {
-        this.$bvModal.hide(this.modal_dom_id)
-        this.$emit('remove', this.definition);
-      }
+    update (new_value : any) {
+      this.$emit('input', new_value)
     },
   }
 });

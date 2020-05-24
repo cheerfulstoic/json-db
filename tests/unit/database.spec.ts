@@ -13,7 +13,7 @@ const uuid_regex = /([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}
 describe('db.Database', () => {
   describe('json_data', () => {
     it('works with an empty database', () => {
-      let database = new db.Database([], {})
+      let database = new db.Database({})
 
       chai.expect(database.json_data()).to.deep.equal({
         global_variables: {},
@@ -23,13 +23,13 @@ describe('db.Database', () => {
     })
 
     it('outputs expressions correctly', () => {
-      let sheet = new db.Sheet('just_an_expression', null, null, [
+      let database = new db.Database({ base_age: 18 })
+      let sheet = new db.Sheet(database, 'just_an_expression', null, null, [
         { name: 'age', type: 'expression' },
       ], null, true, [
         { age: 30,
           _expressions: { age: 'base_age + 22' } }
       ])
-      let database = new db.Database([sheet], { base_age: 18 })
 
       chai.expect(database.json_data()).to.matchPattern({
         global_variables: { base_age: 18 },
@@ -56,13 +56,14 @@ describe('db.Database', () => {
 
   describe('json_data', () => {
     it('works with an empty database', () => {
-      let database = new db.Database([], {})
+      let database = new db.Database({})
 
-      chai.expect(database.referencers()).to.deep.equal({})
+      chai.expect(database.referencer_references()).to.deep.equal({})
     })
 
     it('works with an database with references', () => {
-      let sheet = new db.Sheet('references', 'sheet_id', null, [
+      let database = new db.Database({})
+      let sheet = new db.Sheet(database, 'references', 'sheet_id', null, [
         { _id: 'the_refs_id', name: 'the_refs', type: 'references' },
         { _id: 'the_other_refs_id', name: 'the_other_refs', type: 'references' },
       ], null, true, [
@@ -78,10 +79,9 @@ describe('db.Database', () => {
           ]
         },
       ])
-      let records_by_id = _.keyBy(sheet.records(), '_id')
-      let database = new db.Database([sheet], {})
+      let records_by_id = _.keyBy(sheet.records, '_id')
 
-      chai.expect(database.referencers()).to.deep.equal({
+      chai.expect(database.referencer_references()).to.deep.equal({
         'sheet_id|abc123': {
           the_refs: [{ sheet: sheet, id: 'def456', record: records_by_id['def456'] }],
           the_other_refs: [{ sheet: sheet, id: 'ghi789', record: records_by_id['ghi789'] }],

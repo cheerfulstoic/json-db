@@ -57,7 +57,7 @@ export default Vue.extend({
       } else {
         this.$emit('input', this.definition._id, (records : any[]) => {
           return(_.filter(records, (record) => {
-            let value = record[this.definition._id];
+            let value = record.value_for_definition(this.definition);
 
             return(value >= min && value <= max);
           }))

@@ -31,11 +31,12 @@ export default Vue.extend({
         if (_.trim(this.search_query) === '') {
           this.$emit('input', this.definition._id, null);
         } else {
-          this.$emit('input', this.definition._id, (records : any[]) => {
+          this.$emit('input', this.definition._id, (records : db.Record[]) => {
             let fuse = new Fuse(records, {
               shouldSort: false,
-              keys: [this.definition._id],
-              threshold: 0.5
+              // TODO: Find a way so that we don't need to know about internal `data` field
+              keys: [`data.${this.definition._id}`],
+              threshold: 0.2
             })
 
             return(fuse.search(this.search_query));
