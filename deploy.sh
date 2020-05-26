@@ -4,7 +4,7 @@
 set -e
 
 # build
-yarn build
+npx yarn build
 
 git add dist
 git commit -m 'deploy'
