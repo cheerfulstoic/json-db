@@ -13,11 +13,6 @@
                v-bind:value="record_value"
                v-bind:definition="definition"
                v-on:input="update_value" />
-    <!-- Updating the value doesn't cause References to re-render (I think)
-         because it's a method call -->
-    <span v-if="definition.type === 'references' && !Array.isArray(record_value) && record_value">
-      {{Object.keys(record_value)}}
-    </span>
     <References v-if="definition.type === 'references'"
                 v-bind:value="record_value || []"
                 v-bind:record_id="record._id"
@@ -62,17 +57,25 @@ export default Vue.extend({
     definition: Object,
     database: db.Database,
   },
+  data () {
+    return({recompute: 0});
+  },
   computed: {
-    // So that it's only calculated once
-    record_value () {
+    record_value () : any {
+      // Doing this for now because doing `update_value` for expressions
+      // (which are objects) doesn't cause a re-rendering
+      // (I think it's becaues they are objects)
+      let dummy = this.recompute;
+
       return this.record.value_for_definition(this.definition)
-    }
+    },
   },
   methods: {
     focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
     },
     update_value (new_value : any) {
+      this.recompute = this.recompute + 1;
       this.record.update_value(this.definition, new_value);
     },
   }

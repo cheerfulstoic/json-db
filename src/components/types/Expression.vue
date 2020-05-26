@@ -51,7 +51,7 @@ export default Vue.extend({
       this.update_value(expression_string);
     },
     update_value (expression_string : string) {
-      let calculated_value;
+      let calculated_value = null;
 
       if (_.trim(expression_string) === '') {
         calculated_value = null;
