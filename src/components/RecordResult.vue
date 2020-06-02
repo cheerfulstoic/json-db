@@ -1,7 +1,7 @@
 <template>
   <div class="record-result">
     <span v-for="(value, key) in record.description_data()" v-bind:key="key" class="property"
-          v-on:click.prevent="$emit('focus-sheet-and-record', record.sheet._id, record._id)">
+          v-on:click.prevent="$emit('record-clicked', record)">
       <span class="key">{{key}}</span>
       <span class="value">{{value}}</span>
     </span>

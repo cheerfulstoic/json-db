@@ -19,7 +19,7 @@
                 v-bind:definition="definition"
                 v-bind:database="database"
                 v-bind:sheet="reference_sheet"
-                v-on:focus-sheet-and-record="focus_sheet_and_record"
+                v-on:record-clicked="record_clicked"
                 v-on:input="update_value"
                 v-on:add-reference="add_reference" />
     <Expression v-if="definition.type === 'expression'"
@@ -79,8 +79,8 @@ export default Vue.extend({
     },
   },
   methods: {
-    focus_sheet_and_record (sheet_id : string, record_id : string) {
-      this.$emit('focus-sheet-and-record', sheet_id, record_id);
+    record_clicked (record : db.Record) {
+      this.$emit('record-clicked', record);
     },
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
       this.$emit('add-reference', source_record, definition, target_record);

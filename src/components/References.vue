@@ -15,11 +15,11 @@
         </a>
         <span v-if="!use_source_record">
           <RecordResult v-bind:record="reference.record" v-bind:database="database"
-            v-on:focus-sheet-and-record="focus_sheet_and_record" />
+            v-on:record-clicked="record_clicked" />
         </span>
         <span v-if="use_source_record">
           <RecordResult v-bind:record="reference.source_record" v-bind:database="database"
-            v-on:focus-sheet-and-record="focus_sheet_and_record" />
+            v-on:record-clicked="record_clicked" />
         </span>
       </div>
     </div>
@@ -154,8 +154,8 @@ export default Vue.extend({
       //   return(reference.record._id == record_to_remove._id)
       // }))
     },
-    focus_sheet_and_record (sheet_id : string, record_id : string) : void {
-      this.$emit('focus-sheet-and-record', sheet_id, record_id);
+    record_clicked (record : db.Record) : void {
+      this.$emit('record-clicked', record);
     },
     edit_properties (reference : db.Reference) : void {
       this.$bvModal.show(this.references_definition_edit_modal_id)

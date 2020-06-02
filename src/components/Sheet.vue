@@ -84,8 +84,9 @@
       </thead>
 
       <div v-if="currently_edited_record">
-        <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Sheet">
-          <div class="form-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+        <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
+          <button v-on:click="focus_sheet_and_record(currently_edited_record.sheet._id, currently_edited_record._id)">Focus Record in Sheet</button>
+          <div class="form-inline" v-for="definition in currently_edited_record.sheet.definitions" v-bind:key="definition._id">
             <label>
               <strong>{{definition.name}}</strong>
               <Field v-bind:record="currently_edited_record" v-bind:definition="definition" v-bind:database="database"/>
@@ -98,7 +99,7 @@
         <tr v-bind:key="record._id"
             v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
-            v-on:click="focus_sheet_and_record(sheet._id, record._id, $event)">
+            >
           <td>
             <b-button class="btn btn-primary" v-on:click="edit_record(record)">Edit</b-button>
           </td>
@@ -108,7 +109,7 @@
               <Field v-bind:record="record"
                      v-bind:definition="definition"
                      v-bind:database="database"
-                     v-on:focus-sheet-and-record="focus_sheet_and_record"
+                     v-on:record-clicked="edit_record"
                      v-on:add-reference="add_reference" />
             </td>
           </template>
@@ -122,7 +123,7 @@
                 v-bind:record="record"
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
-                v-on:focus-sheet-and-record="focus_sheet_and_record"
+                v-on:record-clicked="edit_record"
                 v-on:add-reference="add_reference" />
             </td>
           </template>
@@ -270,7 +271,7 @@ export default Vue.extend({
     },
     focus_sheet_and_record (sheet_id : string, record_id : string, event : Event) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
-      event.stopPropagation()
+      this.currently_edited_record = new db.Record({}, this.sheet);
     },
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
       source_record.transform_value(definition, (value) => {
