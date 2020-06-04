@@ -118,13 +118,19 @@
             <td v-if="should_display_definition_referring_to_sheet(definition_info)" v-bind:key="'reverse-definition-' + definition_info.definition._id">
               <References
                 v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
-                v-bind:database="database"
-                v-bind:definition="definition_info.definition"
                 v-bind:record="record"
+                v-bind:definition="definition_info.definition"
+                v-bind:database="database"
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
-                v-on:record-clicked="edit_record"
-                v-on:add-reference="add_reference" />
+                v-on:record-clicked="edit_record" />
+              <ReferencesSearch v-bind:references_to_skip="referencer_reference_references_for(sheet, definition_info.definition, record)"
+                          v-bind:record="record"
+                          v-bind:definition="definition_info.definition"
+                          v-bind:database="database"
+                          v-bind:use_source_record="true"
+                          v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
+                          v-on:add-reference="add_reference" />
             </td>
           </template>
 
@@ -172,6 +178,7 @@ import Definition from './Definition.vue';
 import DefinitionFilter from './DefinitionFilter.vue';
 
 import References from './References.vue';
+import ReferencesSearch from './ReferencesSearch.vue';
 
 import Field from './Field.vue';
 
@@ -189,6 +196,7 @@ export default Vue.extend({
     Definition,
     DefinitionFilter,
     References,
+    ReferencesSearch,
     Field,
 
     ChromePicker: Chrome,
@@ -274,8 +282,11 @@ export default Vue.extend({
       this.currently_edited_record = new db.Record({}, this.sheet);
     },
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
-      source_record.transform_value(definition, (value) => {
-        return(_.set(value, value.length, new db.Reference(target_record, source_record, definition, {})))
+      source_record.transform_value(definition, (references) => {
+        let new_reference = new db.Reference(target_record, source_record, definition, {})
+        // return(_.set(references, references.length, new_reference))
+        references.splice(references.length, 1, new_reference)
+        return(references)
       })
       this.recompute_database_reference_referencer_references = this.recompute_database_reference_referencer_references + 1;
     },

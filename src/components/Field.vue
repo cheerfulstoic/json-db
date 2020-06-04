@@ -13,15 +13,22 @@
                v-bind:value="record_value"
                v-bind:definition="definition"
                v-on:input="update_value" />
-    <References v-if="definition.type === 'references'"
-                v-bind:value="record_value"
-                v-bind:record="record"
-                v-bind:definition="definition"
-                v-bind:database="database"
-                v-bind:sheet="reference_sheet"
-                v-on:record-clicked="record_clicked"
-                v-on:input="update_value"
-                v-on:add-reference="add_reference" />
+    <template v-if="definition.type === 'references' && record_value"> 
+      <div v-for="references_group in grouped_references()" v-bind:key="references_group.sheet._id">
+        <References v-bind:value="references_group.references"
+                    v-bind:record="record"
+                    v-bind:definition="definition"
+                    v-bind:database="database"
+                    v-bind:sheet="references_group.sheet"
+                    v-on:record-clicked="record_clicked" />
+      </div>
+      <ReferencesSearch v-bind:references_to_skip="record_value"
+                  v-bind:record="record"
+                  v-bind:definition="definition"
+                  v-bind:database="database"
+                  v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
+                  v-on:add-reference="add_reference" />
+    </template>
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
                 v-bind:definition="definition"
@@ -36,6 +43,7 @@ import Vue from 'vue';
 import Expression from './types/Expression.vue';
 import Integer from './types/Integer.vue';
 import References from './References.vue';
+import ReferencesSearch from './ReferencesSearch.vue';
 import SelectOne from './types/SelectOne.vue';
 import String from './types/String.vue';
 import TextArea from './types/TextArea.vue';
@@ -49,6 +57,7 @@ export default Vue.extend({
     Expression,
     Integer,
     References,
+    ReferencesSearch,
     SelectOne,
     String,
     TextArea,
@@ -71,7 +80,7 @@ export default Vue.extend({
       return this.record.value_for_definition(this.definition)
     },
     reference_sheet (): db.Sheet | undefined {
-      if (this.record_value[0]) {
+      if (this.record_value && this.record_value[0]) {
         return(this.record_value[0].record.sheet)
       } else {
         return(undefined)
@@ -88,6 +97,21 @@ export default Vue.extend({
     update_value (new_value : any) {
       this.recompute = this.recompute + 1;
       this.record.update_value(this.definition, new_value);
+    },
+    grouped_references () : any {
+      let groups : object = _.groupBy(this.record_value, 'record.sheet._id')
+
+      return(_(Object.values(groups))
+        .sortBy((references : db.Reference[]) => {
+          return references[0].record.sheet._id
+        })
+        .map((references : db.Reference[]) => {
+          let sheet = references[0].record.sheet;
+          return {references: _.uniq(references),
+                  sheet: sheet }
+        })
+        .value()
+      )
     },
   }
 });

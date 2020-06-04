@@ -24,35 +24,6 @@
       </div>
     </div>
 
-    <div class="search">
-      <b-input-group prepend="🔎">
-        <input class="form-control" type="text" v-model="match_text" />
-      </b-input-group>
-
-      <div v-if="match_text" class="results">
-        <b-list-group>
-          <b-list-group-item button v-for="record in search_results()" v-bind:key="record._id"
-            variant="secondary"
-            v-on:click.self="choose(record, $event)"
-            class="search_result">
-
-            <div class="record-result">
-              <span class="sheet-name" v-bind:style="'background-color:' + record.sheet.hex_color">
-                {{record.sheet.name}}
-              </span>
-              »
-
-              <span v-for="(value, key) in record.description_data()" v-bind:key="key" class="property"
-                    v-on:click.stop="choose(record, $event)">
-                <!-- <span class="key">{{key}}</span> -->
-                <span class="value">{{value}}</span>
-              </span>
-            </div>
-          </b-list-group-item>
-        </b-list-group>
-      </div>
-    </div>
-
     <div>
       <b-modal ok-only v-bind:id="references_definition_edit_modal_id" title="Edit reference properties">
         <div v-for="references_definition in definition.definitions" v-bind:key="references_definition._id">
@@ -112,41 +83,6 @@ export default Vue.extend({
   methods: {
     reference_key (reference : db.Reference) {
       return(this.use_source_record ? reference.source_record._id : reference.record._id)
-    },
-    search_results () : any[] {
-      if (!this.match_text) { return([]) }
-
-      let currently_referenced_ids = _.map(this.value, 'record._id')
-
-      return _(this.database.search(`${this.match_text}`, this.definition_referenceable_sheet_ids_set))
-        .reject((record) => {
-            return(record._id === this.record._id || currently_referenced_ids.includes(record._id));
-          })
-        .take(7).value()
-    },
-    // TO REMOVE! Don't group for now because we're not putting them all in one column
-    grouped_references () : any {
-      let groups : object = _.groupBy(this.value, 'record.sheet._id')
-
-      return(_(Object.values(groups))
-        .sortBy((references : db.Reference[]) => {
-          return references[0].record.sheet._id
-        })
-        .map((references : db.Reference[]) => {
-          let sheet = references[0].record.sheet;
-          return {references: _.uniq(references),
-                  sheet: sheet }
-        })
-        .value()
-      )
-    },
-    choose (record_to_reference : db.Record, event : any) : void {
-      if (this.use_source_record) {
-        this.$emit('add-reference', record_to_reference, this.definition, this.record);
-      } else {
-        this.$emit('add-reference', this.record, this.definition, record_to_reference);
-      }
-      this.match_text = null;
     },
     remove (reference_to_remove : db.Reference) : void {
       reference_to_remove.remove()
