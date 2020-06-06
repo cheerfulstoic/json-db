@@ -22,13 +22,15 @@
                     v-bind:sheet="references_group.sheet"
                     v-on:record-clicked="record_clicked" />
       </div>
-      <ReferencesSearch v-bind:references_to_skip="record_value"
-                  v-bind:record="record"
-                  v-bind:definition="definition"
-                  v-bind:database="database"
-                  v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
-                  v-on:add-reference="add_reference" />
     </template>
+    <ReferencesSearch v-if="definition.type === 'references'"
+                      v-bind:references_to_skip="record_value || []"
+                      v-bind:record="record"
+                      v-bind:definition="definition"
+                      v-bind:database="database"
+                      v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
+                      v-on:add-reference="add_reference" />
+
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
                 v-bind:definition="definition"

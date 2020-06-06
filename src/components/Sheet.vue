@@ -284,7 +284,7 @@ export default Vue.extend({
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
       source_record.transform_value(definition, (references) => {
         let new_reference = new db.Reference(target_record, source_record, definition, {})
-        // return(_.set(references, references.length, new_reference))
+        if (references == null) { references = [] }
         references.splice(references.length, 1, new_reference)
         return(references)
       })
