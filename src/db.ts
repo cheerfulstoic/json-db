@@ -270,11 +270,9 @@ export class Sheet {
 
   public add_row (position : string) {
     if (position == 'top') {
-      // this.records_data.unshift(add_id({}));
-      this.records.unshift(new Record({}, this));
+      this.records.splice(0, 0, new Record({}, this))
     } else {
-      // this.records_data.push(add_id({}));
-      this.records.push(new Record({}, this));
+      this.records.splice(this.records.length, 1, new Record({}, this))
     }
   }
 
