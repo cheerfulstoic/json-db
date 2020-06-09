@@ -9,7 +9,7 @@
         <b-list-group>
           <b-list-group-item button v-for="record in search_results()" v-bind:key="record._id"
             variant="secondary"
-            v-on:click.self="choose(record, $event)"
+            v-on:click.self.stop="choose(record, $event)"
             class="search_result">
 
             <div class="record-result">

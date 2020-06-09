@@ -5,6 +5,7 @@
     <References
       v-model="currently_filtered_records"
       v-on:input="emit_input"
+      v-bind:definition="definition"
       v-bind:database="database" />
   </span>
 </template>

@@ -23,7 +23,7 @@
         <tr class="columns-to-display">
           <th colspan="100%">
             <h3>Columns to Display</h3>
-            <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="definition._id">
+            <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="'column-to-display-' + definition._id">
               <label>
                 <input type="checkbox" class="form-check-input" v-bind:value="definition._id" v-model="sheet.definition_ids_to_display">
                 {{definition.name}}
@@ -31,7 +31,7 @@
 
             </div>
 
-            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet" v-bind:key="definition_info.definition._id">
+            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet" v-bind:key="'reverse-column-to-display-' + definition_info.definition._id">
               <input type="checkbox" class="form-check-input" v-bind:value="definition_info.definition._id" v-model="sheet.definition_ids_referring_to_sheet_to_display">
               {{definition_info.sheet.name}}
               -
@@ -89,7 +89,10 @@
           <div class="form-inline" v-for="definition in currently_edited_record.sheet.definitions" v-bind:key="definition._id">
             <label>
               <strong>{{definition.name}}</strong>
-              <Field v-bind:record="currently_edited_record" v-bind:definition="definition" v-bind:database="database"/>
+              <Field v-bind:record="currently_edited_record"
+                     v-bind:definition="definition"
+                     v-bind:database="database"
+                     v-on:add-reference="add_reference" />
             </label>
           </div>
         </b-modal>
