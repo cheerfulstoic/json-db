@@ -329,10 +329,10 @@ export default Vue.extend({
       return(definition.type !== 'references');
     },
     sort (definition : db.Definition, direction : string) : void {
-      // TODO: FIX TO USE records
-      let result = _(this.sheet.records_data).sortBy(definition._id);
+      // TODO: Sort within db.ts
+      let result = _(this.sheet.records).sortBy(record => { return(record.value_for_definition(definition)) });
       if (direction === 'desc') { result = result.reverse() }
-      this.sheet.records_data = result.value();
+      this.sheet.records = result.value();
     },
     transform_values (definition : db.Definition, old_value : any, new_value : any) : void {
       this.sheet.transform_values(definition._id, old_value, new_value);
