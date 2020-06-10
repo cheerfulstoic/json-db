@@ -91,6 +91,15 @@ export class DataObject {
     return this.data[definition._id]
   }
 
+  public sort_value_for_definition(definition : Definition) : any {
+    if (definition.type == 'expression') {
+      return this.data[definition._id] ? this.data[definition._id].calculated_value : null;
+    } else {
+      return this.value_for_definition(definition);
+    }
+  }
+
+
   public update_value(definition : Definition, value: any) : void {
     _.set(this.data, definition._id, value)
   }
