@@ -668,7 +668,6 @@ export class Database {
           return(values_result);
         }, values);
 
-        if ( Object.keys(values).length === 0 ) { debugger }
         return(values)
       })
       return(result);
