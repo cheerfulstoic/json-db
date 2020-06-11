@@ -34,7 +34,7 @@
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
                 v-bind:definition="definition"
-                v-bind:global_variables="database.global_variables"
+                v-bind:database="database"
                 v-on:input="update_value" />
   </span>
 </template>

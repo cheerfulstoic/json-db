@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Fuse from 'fuse.js';
+const Parser = require('expr-eval').Parser;
 
 const uuidv1 = require('uuid').v1;
 
@@ -49,6 +50,8 @@ export interface ReferenceQueryResult {
   id: string;
   record: any;
 }
+
+export type ExpressionResult = [number | null, Error | null];
 
 // DEPRECATED
 export interface DeprecatedReference {
@@ -420,30 +423,52 @@ export class Database {
         let reference_definitions : ReferencesDefinition[] = _.filter(sheet.definitions, {type: 'references'}) as ReferencesDefinition[];
 
         _.each(reference_definitions, (definition : ReferencesDefinition) => {
-          record.transform_value(definition, (raw_references : any) => {
-            return _.compact(_.map(raw_references || [], ({sheet_id, record_id, data}) => {
-              let referenced_sheet = sheet.database.find_sheet(sheet_id);
+          this.finalize_reference_record(record, definition);
+        })
 
-              if (referenced_sheet == undefined) {
-                throw `Could not find sheet ID: ${sheet_id}`
-              } else {
-                let referenced_record = _.find(referenced_sheet.records, {_id: record_id})
+        let expression_definitions : Definition[] = _.filter(sheet.definitions, {type: 'expression'}) as Definition[];
 
-                if (referenced_record == undefined) {
-                  // throw `Could not find record ID: ${record_id} for sheet ID: ${sheet_id}`
-                  return(null) // Ignore
-                } else {
-                  return new Reference(referenced_record,
-                                       record, definition,
-                                       data_names_to_ids(data, definition.definitions))
-                }
-              }
-            }))
-          })
+        _.each(expression_definitions, (definition : Definition) => {
+          this.finalize_expression_record(record, definition);
         })
       })
     })
   }
+
+  private finalize_reference_record (record : Record, definition : ReferencesDefinition) : void {
+    record.transform_value(definition, (raw_references : any) => {
+      return _.compact(_.map(raw_references || [], ({sheet_id, record_id, data}) => {
+        let referenced_sheet = record.sheet.database.find_sheet(sheet_id);
+
+        if (referenced_sheet == undefined) {
+          throw `Could not find sheet ID: ${sheet_id}`
+        } else {
+          let referenced_record = _.find(referenced_sheet.records, {_id: record_id})
+
+          if (referenced_record == undefined) {
+            // throw `Could not find record ID: ${record_id} for sheet ID: ${sheet_id}`
+            return(null) // Ignore
+          } else {
+            return new Reference(referenced_record,
+                                 record, definition,
+                                 data_names_to_ids(data, definition.definitions))
+          }
+        }
+      }))
+    })
+  }
+
+  private finalize_expression_record(record : Record, definition : Definition) : void {
+    record.transform_value(definition, (expression_data : any) => {
+      if (expression_data != null) {
+        return(expression_data.expression_string)
+      } else {
+        return(expression_data)
+      }
+    })
+  }
+
+
 
   public add_sheet (sheet : Sheet) : void {
     this.sheets.push(sheet)
@@ -598,15 +623,20 @@ export class Database {
         return(definition.type == 'references')
       }) as ReferencesDefinition[]
 
+      let expression_definitions : Definition[] = _.filter(sheet.definitions, (definition : Definition) => {
+        return(definition.type == 'expression')
+      }) as Definition[]
+
       result[sheet.name] = _.map(sheet.records, (record) => {
-        return _.reduce(reference_definitions, (result : any, definition : ReferencesDefinition) => {
-          let references = result[definition.name];
+        let values = record.values();
+
+        values = _.reduce(reference_definitions, (values_result : any, definition : ReferencesDefinition) => {
+          let references = values_result[definition.name];
 
           if (references && references.length) {
-            result[definition.name] = _.map(references, (reference) => {
+            values_result[definition.name] = _.map(references, (reference) => {
               let referenced_record = reference.record;
 
-              // if (definition.name === 'CanViralTransformTo' && record._id == '799da630-61d3-11ea-9572-277f6bf69e97') { debugger }
               let transformed_data = data_ids_to_names(reference.data, definition.definitions);
               let reference_data = {
                 record_id: referenced_record._id,
@@ -623,8 +653,23 @@ export class Database {
               return(reference_data);
             })
           }
-          return(result);
-        }, record.values())
+          return(values_result);
+        }, values)
+
+        values = _.reduce(expression_definitions, (values_result : any, definition : Definition) => {
+          let expression_result = this.evaluate_expression(values_result[definition.name])[0];
+
+          if (expression_result) {
+            values_result[definition.name] = {
+              expression_string: values_result[definition.name],
+              calculated_value: expression_result,
+            }
+          }
+          return(values_result);
+        }, values);
+
+        if ( Object.keys(values).length === 0 ) { debugger }
+        return(values)
       })
       return(result);
     }, {})
@@ -636,6 +681,25 @@ export class Database {
     })
   }
 
+  public evaluate_expression (expression_string : string) : ExpressionResult {
+    if (_.trim(expression_string) === '') {
+      return([null, null])
+    } else {
+      let value, error;
+      let parser = new Parser();
+
+      try {
+        value = parser.evaluate(expression_string, this.global_variables)
+        error = null;
+      }
+      catch (err) {
+        value = null;
+        error = err;
+      }
+
+      return([value, error])
+    }
+  }
 }
 
 
