@@ -2,15 +2,20 @@
   <div class="input-group referenced-records">
     <div class="search">
       <b-input-group prepend="🔎">
-        <input class="form-control" type="text" v-model="match_text" />
+        <input class="form-control"
+               type="text"
+               v-model="match_text"
+               v-on:keyup.up="move_highlight(-1)"
+               v-on:keyup.down="move_highlight(1)"
+               v-on:keyup.enter="choose_highlighted()"/>
       </b-input-group>
 
       <div v-if="match_text" class="results">
         <b-list-group>
-          <b-list-group-item button v-for="record in search_results()" v-bind:key="record._id"
+          <b-list-group-item button v-for="(record, index) in search_results()" v-bind:key="record._id"
             variant="secondary"
             v-on:click.self.stop="choose(record, $event)"
-            class="search_result">
+            v-bind:class="{search_result: true, highlighted: index == highlighted_index}">
 
             <div class="record-result">
               <span class="sheet-name" v-bind:style="'background-color:' + record.sheet.hex_color">
@@ -44,6 +49,7 @@ export default Vue.extend({
     return({
       match_text: null,
       currently_edited_reference: null,
+      highlighted_index: null,
     })
   },
   props: {
@@ -54,9 +60,20 @@ export default Vue.extend({
     use_source_record: Boolean,
     sheet_ids_to_search: Array,
   },
+  watch: {
+    match_text: {
+      handler (new_value, _old_value) {
+        if (new_value == null || new_value === '') {
+          this.highlighted_index = null;
+        }
+      }
+    }
+  },
   methods: {
     search_results () : any[] {
-      if (!this.match_text) { return([]) }
+      if (this.match_text == null ) {
+        return([])
+      }
 
       let currently_referenced_ids = _.map(this.references_to_skip, 'record._id')
 
@@ -73,6 +90,24 @@ export default Vue.extend({
         this.$emit('add-reference', this.record, this.definition, record_to_reference);
       }
       this.match_text = null;
+      this.highlighted_index = null;
+    },
+    choose_highlighted () : void {
+      this.choose(this.search_results()[this.highlighted_index]);
+    },
+    move_highlight (amount:number):void {
+      if ( this.match_text != null ) {
+        if ( this.highlighted_index == null ) {
+          this.highlighted_index = 0;
+        } else {
+          this.highlighted_index = this.highlighted_index + amount;
+
+          if ( this.highlighted_index < 0 ) { this.highlighted_index = 0 }
+
+          let result_length : number = this.search_results().length;
+          if ( this.highlighted_index >= result_length ) { this.highlighted_index = result_length - 1 }
+        }
+      }
     },
   }
 });
@@ -134,6 +169,10 @@ export default Vue.extend({
 
     .search_result {
       text-align: left
+
+    }
+    .search_result.highlighted {
+      background-color: #4294C5;
     }
   }
 }
