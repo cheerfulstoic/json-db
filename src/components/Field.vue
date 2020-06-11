@@ -95,10 +95,14 @@ export default Vue.extend({
     },
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
       this.$emit('add-reference', source_record, definition, target_record);
+      this.mark_for_recompute()
     },
     update_value (new_value : any) {
-      this.recompute = this.recompute + 1;
+      this.mark_for_recompute()
       this.record.update_value(this.definition, new_value);
+    },
+    mark_for_recompute () {
+      this.recompute = this.recompute + 1;
     },
     grouped_references () : any {
       let groups : object = _.groupBy(this.record_value, 'record.sheet._id')
