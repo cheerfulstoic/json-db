@@ -94,9 +94,9 @@ export class DataObject {
     return this.data[definition._id]
   }
 
-  public sort_value_for_definition(definition : Definition) : any {
+  public sort_value_for_definition(definition : Definition, database : Database) : any {
     if (definition.type == 'expression') {
-      return this.data[definition._id] ? this.data[definition._id].calculated_value : null;
+      return database.evaluate_expression(this.data[definition._id])[0]
     } else {
       return this.value_for_definition(definition);
     }

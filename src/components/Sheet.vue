@@ -330,7 +330,7 @@ export default Vue.extend({
     },
     sort (definition : db.Definition, direction : string) : void {
       // TODO: Sort within db.ts
-      let result = _(this.sheet.records).sortBy(record => { return(record.sort_value_for_definition(definition)) });
+      let result = _(this.sheet.records).sortBy(record => { return(record.sort_value_for_definition(definition, this.database)) });
       if (direction === 'desc') { result = result.reverse() }
       this.sheet.records = result.value();
     },
