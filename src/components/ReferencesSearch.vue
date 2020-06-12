@@ -75,7 +75,7 @@ export default Vue.extend({
         return([])
       }
 
-      let currently_referenced_ids = _.map(this.references_to_skip, 'record._id')
+      let currently_referenced_ids = _.map(this.references_to_skip, this.use_source_record ? 'source_record._id' : 'record._id');
 
       return _(this.database.search(`${this.match_text}`, new Set(this.sheet_ids_to_search)))
         .reject((record) => {
