@@ -19,6 +19,10 @@
         Save JSON
       </a>
 
+      <ReferencesSearch v-bind:record_ids_to_skip="[]"
+                        v-bind:database="database"
+                        v-bind:sheet_ids_to_search="[]"
+                        v-on:reference-record-selected="focus_record" />
       <!--
       <Graph id="graph"
              v-bind:database="database"
@@ -78,6 +82,7 @@ import Feather from 'vue-icon'
 import Sheet from './components/Sheet.vue';
 import VariableEditor from './components/VariableEditor.vue';
 // import Graph from './components/Graph.vue';
+import ReferencesSearch from './components/ReferencesSearch.vue';
 
 import _ from 'lodash';
 import Fuse from 'fuse.js';
@@ -93,6 +98,7 @@ export default Vue.extend({
     // Graph,
     VariableEditor,
     Sheet,
+    ReferencesSearch,
   },
   data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
     let database = new db.Database({});
@@ -143,6 +149,10 @@ export default Vue.extend({
     change_sheet (id : string) {
       this.current_sheet_id = id;
     },
+    focus_record (record : db.Record) {
+      this.focus_sheet_and_record(record.sheet._id, record._id)
+    },
+    // DEPRECATED?
     focus_sheet_and_record (sheet_id : string, record_id : string) {
       this.current_focus = {sheet_id: sheet_id, record_id: record_id};
       this.current_sheet_id = sheet_id;
@@ -172,18 +182,6 @@ export default Vue.extend({
     toggle_json () {
       this.show_json = !this.show_json;
     },
-    // focus_sheet_and_record (sheet_id : string, record_id : string) {
-    //   let sheet = this.database.find_sheet (sheet_id);
-
-    //   if (sheet) {
-    //     let record = sheet.find_by_id(record_id);
-
-    //     if (record) {
-    //       debugger
-    //       // this.current_focus.record_id = record._id
-    //     }
-    //   }
-    // },
   },
   computed: {
   }

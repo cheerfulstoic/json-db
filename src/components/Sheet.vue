@@ -113,7 +113,7 @@
                      v-bind:definition="definition"
                      v-bind:database="database"
                      v-on:record-clicked="edit_record"
-                     v-on:add-reference="add_reference" />
+                     v-on:reference-record-selected="reference_record_selected(record, definition, ...arguments)" />
             </td>
           </template>
 
@@ -127,13 +127,11 @@
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
                 v-on:record-clicked="edit_record" />
-              <ReferencesSearch v-bind:references_to_skip="referencer_reference_references_for(sheet, definition_info.definition, record)"
-                          v-bind:record="record"
-                          v-bind:definition="definition_info.definition"
+              <ReferencesSearch v-bind:record_ids_to_skip="referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)"
                           v-bind:database="database"
                           v-bind:use_source_record="true"
                           v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
-                          v-on:add-reference="add_reference" />
+                          v-on:reference-record-selected="reverse_reference_record_selected(record, definition_info.definition, ...arguments)" />
             </td>
           </template>
 
@@ -308,6 +306,12 @@ export default Vue.extend({
       })
       this.recompute_database_reference_referencer_references = this.recompute_database_reference_referencer_references + 1;
     },
+    reference_record_selected (record : db.Record, definition : db.ReferencesDefinition, chosen_record : db.Record) {
+      this.add_reference(record, definition, chosen_record);
+    },
+    reverse_reference_record_selected (record : db.Record, definition : db.ReferencesDefinition, chosen_record : db.Record) {
+      this.add_reference(chosen_record, definition, record);
+    },
     referencer_reference_references_for (sheet : db.Sheet, definition : db.ReferencesDefinition, record : any) {
       // let key = `${sheet._id}|${definition._id}|${record._id}`
       // let key = `${definition._id}|${record._id}`
@@ -316,6 +320,10 @@ export default Vue.extend({
       let test = this.database_reference_referencer_references[record._id];
       // if (record._id === '33256380-9434-11ea-bebd-f9ab7e4fb49b' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') { debugger }
       return test ? _.uniq(test[definition._id] || []) : []
+    },
+    referencer_reference_references_for_record_ids_to_skip (sheet : db.Sheet, definition : db.ReferencesDefinition, record : db.Record) {
+      return(
+        [record._id].concat(_.map(this.referencer_reference_references_for(sheet, definition, record), 'source_record._id')))
     },
     set_filter (definition_id : string, value : (record: any) => boolean) {
       Vue.set(this.filters, definition_id, value);

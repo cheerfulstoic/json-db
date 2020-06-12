@@ -53,9 +53,7 @@ export default Vue.extend({
     })
   },
   props: {
-    references_to_skip: Array,
-    record: Object,
-    definition: db.ReferencesDefinition,
+    record_ids_to_skip: Array,
     database: Object,
     use_source_record: Boolean,
     sheet_ids_to_search: Array,
@@ -75,20 +73,13 @@ export default Vue.extend({
         return([])
       }
 
-      let currently_referenced_ids = _.map(this.references_to_skip, this.use_source_record ? 'source_record._id' : 'record._id');
-
       return _(this.database.search(`${this.match_text}`, new Set(this.sheet_ids_to_search)))
-        .reject((record) => {
-            return(record._id === this.record._id || currently_referenced_ids.includes(record._id));
-          })
+        .reject((record) => { return(this.record_ids_to_skip.includes(record._id)) })
         .take(7).value()
     },
-    choose (record_to_reference : db.Record, event : any) : void {
-      if (this.use_source_record) {
-        this.$emit('add-reference', record_to_reference, this.definition, this.record);
-      } else {
-        this.$emit('add-reference', this.record, this.definition, record_to_reference);
-      }
+    choose (chosen_record : db.Record, event : any) : void {
+      this.$emit('reference-record-selected', chosen_record);
+
       this.match_text = null;
       this.highlighted_index = null;
     },

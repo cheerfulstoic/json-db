@@ -24,12 +24,10 @@
       </div>
     </template>
     <ReferencesSearch v-if="definition.type === 'references'"
-                      v-bind:references_to_skip="record_value || []"
-                      v-bind:record="record"
-                      v-bind:definition="definition"
+                      v-bind:record_ids_to_skip="record_ids_to_skip()"
                       v-bind:database="database"
                       v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
-                      v-on:add-reference="add_reference" />
+                      v-on:reference-record-selected="reference_record_selected" />
 
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
@@ -97,12 +95,21 @@ export default Vue.extend({
       this.$emit('add-reference', source_record, definition, target_record);
       this.mark_for_recompute()
     },
+
+    reference_record_selected (chosen_record : db.Record) : void {
+      this.$emit('reference-record-selected', chosen_record);
+      this.mark_for_recompute()
+    },
+
     update_value (new_value : any) {
       this.mark_for_recompute()
       this.record.update_value(this.definition, new_value);
     },
     mark_for_recompute () {
       this.recompute = this.recompute + 1;
+    },
+    record_ids_to_skip () {
+      return [this.record._id].concat(_.map(this.record_value, 'record._id') || [])
     },
     grouped_references () : any {
       let groups : object = _.groupBy(this.record_value, 'record.sheet._id')
