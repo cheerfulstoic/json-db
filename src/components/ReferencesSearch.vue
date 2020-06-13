@@ -1,5 +1,5 @@
 <template>
-  <div class="input-group referenced-records">
+  <div class="input-group">
     <div class="search">
       <b-input-group prepend="🔎">
         <input class="form-control"
@@ -136,11 +136,6 @@ export default Vue.extend({
   border: 1px solid black;
 }
 
-.referenced-records {
-  display: block;
-  text-align: left;
-}
-
 .referenced-record {
   white-space: nowrap;
   padding: 0 0.5em;
@@ -152,11 +147,10 @@ export default Vue.extend({
 
 .search {
   display: block;
-  margin-top: 1em;
 
   .results {
     position: absolute;
-    z-index: 5;
+    z-index: 200;
 
     .search_result {
       text-align: left

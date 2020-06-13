@@ -10,14 +10,14 @@
 
       <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
-      <a class="btn btn-primary mx-2"
+      <button class="btn btn-primary mx-2"
          v-if="database.sheets.length"
          href="#"
          v-bind:download="project_name + '.db.json'"
          v-on:click.prevent="download_json_file_data"
          >
         Save JSON
-      </a>
+      </button>
 
       <ReferencesSearch v-bind:record_ids_to_skip="[]"
                         v-bind:database="database"
@@ -197,6 +197,10 @@ export default Vue.extend({
   color: #2c3e50;
 }
 
+nav button {
+  white-space: nowrap;
+}
+
 #project_name {
   width: 200px;
 }
@@ -226,6 +230,7 @@ ul.nav.nav-tabs {
   top: 53px;
   background-color: white;
   margin-bottom: 2em;
+  z-index: 100;
 
   .nav-item a.active {
     border-bottom: 1px solid #dee2e6;
