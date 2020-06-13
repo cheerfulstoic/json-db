@@ -194,7 +194,7 @@ import _ from 'lodash';
 export default Vue.extend({
   name: 'Sheet',
   mounted () {
-    let columns_element = this.$refs.columns_to_display.querySelector('th');
+    let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th');
     let sticky_top_amount : number;
     if (columns_element) {
       let relative_height = columns_element.getBoundingClientRect().height || 0;
@@ -202,7 +202,7 @@ export default Vue.extend({
     } else {
       sticky_top_amount = 170;
     }
-    let header_cells = this.$refs.table_header.querySelectorAll<HTMLElement>("th");
+    let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>("th");
 
     _.each(header_cells, ((e) : void => {
       e.style.top = `${sticky_top_amount}px`
