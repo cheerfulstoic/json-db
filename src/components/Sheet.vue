@@ -20,7 +20,7 @@
           </th>
         </tr>
 
-        <tr class="columns-to-display">
+        <tr class="columns-to-display" ref="columns_to_display">
           <th colspan="100%">
             <h3>Columns to Display</h3>
             <div class="form-check form-check-inline" v-for="definition in sheet.definitions" v-bind:key="'column-to-display-' + definition._id">
@@ -42,7 +42,7 @@
         </tr>
 
 
-        <tr class="table-header">
+        <tr class="table-header" ref="table_header">
           <th>&nbsp;</th>
           <template v-for="definition in sheet.definitions">
             <th v-if="should_display_definition(definition)" class="field-cell" v-bind:key="definition._id">
@@ -194,7 +194,7 @@ import _ from 'lodash';
 export default Vue.extend({
   name: 'Sheet',
   mounted () {
-    let columns_element = document.querySelector(".columns-to-display th");
+    let columns_element = this.$refs.columns_to_display.querySelector('th');
     let sticky_top_amount : number;
     if (columns_element) {
       let relative_height = columns_element.getBoundingClientRect().height || 0;
@@ -202,7 +202,7 @@ export default Vue.extend({
     } else {
       sticky_top_amount = 170;
     }
-    let header_cells = document.querySelectorAll<HTMLElement>(".table-header th");
+    let header_cells = this.$refs.table_header.querySelectorAll<HTMLElement>("th");
 
     _.each(header_cells, ((e) : void => {
       e.style.top = `${sticky_top_amount}px`
