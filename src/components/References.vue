@@ -13,14 +13,10 @@
         <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
           <v-icon name="edit"/>
         </a>
-        <span v-if="!use_source_record">
-          <RecordResult v-bind:record="reference.record" v-bind:database="database"
-            v-on:record-clicked="record_clicked" />
-        </span>
-        <span v-if="use_source_record">
-          <RecordResult v-bind:record="reference.source_record" v-bind:database="database"
-            v-on:record-clicked="record_clicked" />
-        </span>
+        <RecordResult
+          v-bind:record="use_source_record ? reference.source_record : reference.record"
+          v-bind:database="database"
+          v-on:record-clicked="record_clicked" />
       </div>
     </div>
 

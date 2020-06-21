@@ -7,7 +7,7 @@
          v-if="definition.type === 'references'"
          v-on:input="handle_input"
          v-bind:definition="definition"
-         v-bind:values="values"
+         v-bind:values="record_values"
          v-bind:database="database" />
 
       <SelectOne
@@ -67,6 +67,9 @@ export default Vue.extend({
   computed: {
     modal_dom_id () {
       return `definition-filter-modal-${this.definition._id}`;
+    },
+    record_values () {
+      return _.map(this.values, 'record')
     },
   },
   methods: {

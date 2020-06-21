@@ -127,11 +127,11 @@
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
                 v-on:record-clicked="edit_record" />
-              <ReferencesSearch v-bind:record_ids_to_skip="referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)"
+              <RecordsSearch v-bind:record_ids_to_skip="referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)"
                           v-bind:database="database"
                           v-bind:use_source_record="true"
                           v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
-                          v-on:reference-record-selected="reverse_reference_record_selected(record, definition_info.definition, ...arguments)" />
+                          v-on:record-selected="reverse_reference_record_selected(record, definition_info.definition, ...arguments)" />
             </td>
           </template>
 
@@ -179,7 +179,7 @@ import Definition from './Definition.vue';
 import DefinitionFilter from './DefinitionFilter.vue';
 
 import References from './References.vue';
-import ReferencesSearch from './ReferencesSearch.vue';
+import RecordsSearch from './RecordsSearch.vue';
 
 import Field from './Field.vue';
 
@@ -212,7 +212,7 @@ export default Vue.extend({
     Definition,
     DefinitionFilter,
     References,
-    ReferencesSearch,
+    RecordsSearch,
     Field,
 
     ChromePicker: Chrome,

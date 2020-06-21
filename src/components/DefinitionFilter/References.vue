@@ -2,18 +2,30 @@
   <span>
     {{values.length}} references used
 
-    <References
-      v-model="currently_filtered_records"
-      v-on:input="emit_input"
-      v-bind:definition="definition"
-      v-bind:database="database" />
+    <div v-for="record in currently_filtered_records" v-bind:key="record._id" class="referenced-record">
+      <a v-on:click.stop="remove(record)" class="remove">
+        <v-icon name="trash-2"/>
+      </a>
+      <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
+        <v-icon name="edit"/>
+      </a>
+
+      <RecordResult v-bind:record="record" v-bind:database="database" />
+    </div>
+
+    <RecordsSearch v-bind:record_ids_to_limit_to="filtered_record_ids()"
+                v-bind:database="database"
+                v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
+                v-on:record-selected="record_selected" />
+
   </span>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 
-import References from '../References.vue';
+import RecordResult from '../RecordResult.vue';
+import RecordsSearch from '../RecordsSearch.vue';
 
 import * as db from '../../db';
 import _ from 'lodash';
@@ -23,10 +35,11 @@ export default Vue.extend({
   props: {
     definition: Object,
     database: db.Database,
-    values: Array,
+    values: Array, // Record objects
   },
   components: {
-    References
+    RecordResult,
+    RecordsSearch,
   },
   data () : {
     currently_filtered_records: db.Record[],
@@ -38,9 +51,26 @@ export default Vue.extend({
     })
   },
   methods: {
-    emit_input (new_values : db.Record[]) {
-      this.currently_filtered_records = new_values;
+    filtered_record_ids () {
+      return(_.map(this.values, '_id'))
+    },
+    remove (record : db.Record) {
+      console.log('remove');
+      let index_to_remove = _(this.currently_filtered_records).map('_id').indexOf(record._id)
+      // Remove in a way that will be reactive
+      this.currently_filtered_records.splice(index_to_remove, 1)
 
+      this.emit_input()
+    },
+    record_selected (chosen_record : db.Record) {
+      console.log({chosen_record});
+      Vue.set(this,
+              'currently_filtered_records',
+              this.currently_filtered_records.concat([chosen_record]))
+
+      this.emit_input()
+    },
+    emit_input () {
       let current_record_ids = _.map(this.currently_filtered_records, '_id')
       let def = this.definition;
       if (current_record_ids.length === 0) {

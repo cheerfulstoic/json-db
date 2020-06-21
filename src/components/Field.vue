@@ -23,11 +23,11 @@
                     v-on:record-clicked="record_clicked" />
       </div>
     </template>
-    <ReferencesSearch v-if="definition.type === 'references'"
+    <RecordsSearch v-if="definition.type === 'references'"
                       v-bind:record_ids_to_skip="record_ids_to_skip()"
                       v-bind:database="database"
                       v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
-                      v-on:reference-record-selected="reference_record_selected" />
+                      v-on:record-selected="reference_record_selected" />
 
     <Expression v-if="definition.type === 'expression'"
                 v-bind:value="record_value"
@@ -43,7 +43,7 @@ import Vue from 'vue';
 import Expression from './types/Expression.vue';
 import Integer from './types/Integer.vue';
 import References from './References.vue';
-import ReferencesSearch from './ReferencesSearch.vue';
+import RecordsSearch from './RecordsSearch.vue';
 import SelectOne from './types/SelectOne.vue';
 import String from './types/String.vue';
 import TextArea from './types/TextArea.vue';
@@ -57,7 +57,7 @@ export default Vue.extend({
     Expression,
     Integer,
     References,
-    ReferencesSearch,
+    RecordsSearch,
     SelectOne,
     String,
     TextArea,

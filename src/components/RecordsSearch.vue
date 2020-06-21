@@ -54,6 +54,7 @@ export default Vue.extend({
   },
   props: {
     record_ids_to_skip: Array,
+    record_ids_to_limit_to: Array,
     database: Object,
     use_source_record: Boolean,
     sheet_ids_to_search: Array,
@@ -73,12 +74,18 @@ export default Vue.extend({
         return([])
       }
 
-      return _(this.database.search(`${this.match_text}`, new Set(this.sheet_ids_to_search)))
-        .reject((record) => { return(this.record_ids_to_skip.includes(record._id)) })
-        .take(7).value()
+      let result = _(this.database.search(`${this.match_text}`, new Set(this.sheet_ids_to_search)))
+      if (this.record_ids_to_skip) {
+        result.reject((record) => { return(this.record_ids_to_skip.includes(record._id)) })
+      }
+      if (this.record_ids_to_limit_to) {
+        result.filter((record) => { return(this.record_ids_to_limit_to.includes(record._id)) })
+      }
+
+      return result.take(7).value()
     },
     choose (chosen_record : db.Record, event : any) : void {
-      this.$emit('reference-record-selected', chosen_record);
+      this.$emit('record-selected', chosen_record);
 
       this.match_text = null;
       this.highlighted_index = null;

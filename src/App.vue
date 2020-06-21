@@ -19,10 +19,10 @@
         Save JSON
       </button>
 
-      <ReferencesSearch v-bind:record_ids_to_skip="[]"
+      <RecordsSearch v-bind:record_ids_to_skip="[]"
                         v-bind:database="database"
                         v-bind:sheet_ids_to_search="[]"
-                        v-on:reference-record-selected="focus_record" />
+                        v-on:record-selected="focus_record" />
       <!--
       <Graph id="graph"
              v-bind:database="database"
@@ -82,7 +82,7 @@ import Feather from 'vue-icon'
 import Sheet from './components/Sheet.vue';
 import VariableEditor from './components/VariableEditor.vue';
 // import Graph from './components/Graph.vue';
-import ReferencesSearch from './components/ReferencesSearch.vue';
+import RecordsSearch from './components/RecordsSearch.vue';
 
 import _ from 'lodash';
 import Fuse from 'fuse.js';
@@ -98,7 +98,7 @@ export default Vue.extend({
     // Graph,
     VariableEditor,
     Sheet,
-    ReferencesSearch,
+    RecordsSearch,
   },
   data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
     let database = new db.Database({});
