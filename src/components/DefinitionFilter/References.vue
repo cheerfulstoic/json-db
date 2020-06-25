@@ -14,9 +14,9 @@
     </div>
 
     <RecordsSearch v-bind:record_ids_to_limit_to="filtered_record_ids()"
-                v-bind:database="database"
-                v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
-                v-on:record-selected="record_selected" />
+                   v-bind:database="database"
+                   v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
+                   v-on:record-selected="record_selected" />
 
   </span>
 </template>
@@ -63,7 +63,6 @@ export default Vue.extend({
       this.emit_input()
     },
     record_selected (chosen_record : db.Record) {
-      console.log({chosen_record});
       Vue.set(this,
               'currently_filtered_records',
               this.currently_filtered_records.concat([chosen_record]))
@@ -71,7 +70,8 @@ export default Vue.extend({
       this.emit_input()
     },
     emit_input () {
-      let current_record_ids = _.map(this.currently_filtered_records, '_id')
+      let current_records = this.currently_filtered_records;
+      let current_record_ids = _.map(this.currently_filtered_records, '_id');
       let def = this.definition;
       if (current_record_ids.length === 0) {
         this.$emit('input', this.definition._id, null);
@@ -79,8 +79,16 @@ export default Vue.extend({
         this.$emit('input', this.definition._id,
                    (records : db.Record[]) => {
                      return _.filter(records, (record) => {
-                       let referenced_ids = _.map(record.value_for_definition(def) || [], 'record._id')
-                       return(_.intersection(current_record_ids, referenced_ids).length > 0)
+                       if (def.type === 'reverse_references') {
+                         return(_.some(current_records, (filtered_record) => {
+                           return(_.some(filtered_record.value_for_definition(def), (reference) => {
+                             return(reference.record._id === record._id)
+                           }))
+                         }))
+                       } else {
+                         let referenced_ids = _.map(record.value_for_definition(def) || [], 'record._id')
+                         return(_.intersection(current_record_ids, referenced_ids).length > 0)
+                       }
                      })
                    })
       }

@@ -76,6 +76,13 @@
               {{definition_info.sheet.name}}
               -
               {{definition_info.definition.name}}
+
+              <DefinitionFilter
+                 v-on:input="set_filter"
+                 v-bind:definition="reverse_references_definition(definition_info)"
+                 v-bind:values="source_values_for(definition_info)"
+                 v-bind:database="database" />
+
             </th>
           </template>
 
@@ -313,12 +320,8 @@ export default Vue.extend({
       this.add_reference(chosen_record, definition, record);
     },
     referencer_reference_references_for (sheet : db.Sheet, definition : db.ReferencesDefinition, record : any) {
-      // let key = `${sheet._id}|${definition._id}|${record._id}`
-      // let key = `${definition._id}|${record._id}`
-      // let key = record._id;
-
       let test = this.database_reference_referencer_references[record._id];
-      // if (record._id === '33256380-9434-11ea-bebd-f9ab7e4fb49b' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') { debugger }
+
       return test ? _.uniq(test[definition._id] || []) : []
     },
     referencer_reference_references_for_record_ids_to_skip (sheet : db.Sheet, definition : db.ReferencesDefinition, record : db.Record) {
@@ -332,6 +335,10 @@ export default Vue.extend({
       return(_(this.sheet.records).flatMap((record) => {
         return record.value_for_definition(definition)
       }).compact().value())
+    },
+    // Just for use with reverse reference definitions
+    source_values_for (definition_info : db.ReferencesDefinitionResult) {
+      return(definition_info.sheet.records)
     },
     sortable (definition : db.Definition) : boolean {
       return(definition.type !== 'references');
@@ -357,6 +364,16 @@ export default Vue.extend({
       this.currently_edited_record = record;
       this.$bvModal.show('edit-record-modal')
     },
+    // Create a fake definition for compatibility with DefinitionFilter(/References)
+    // so that the reverse reference filtering works
+    reverse_references_definition (definition_info : db.ReferencesDefinitionResult) : db.ReferencesDefinition {
+      return(new db.ReferencesDefinition({
+        _id: definition_info.definition._id,
+        type: 'reverse_references',
+        name: `${definition_info.sheet.name} - ${definition_info.definition.name}`,
+        referenceable_sheet_ids: [definition_info.sheet._id]
+      }))
+    }
   },
 });
 </script>

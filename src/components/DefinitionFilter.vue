@@ -2,9 +2,12 @@
   <span>
     <v-icon v-bind:class="{notice: currently_filtering}" v-b-modal="modal_dom_id" name="filter"></v-icon>
 
-    <b-modal ok-only v-bind:id="modal_dom_id" v-bind:static="true" v-bind:title="'Filter ' + definition.name">
+    <b-modal ok-only
+             v-bind:id="modal_dom_id"
+             v-bind:static="true"
+             v-bind:title="'Filter: ' + definition.name">
       <References
-         v-if="definition.type === 'references'"
+         v-if="definition.type === 'references' || definition.type === 'reverse_references'"
          v-on:input="handle_input"
          v-bind:definition="definition"
          v-bind:values="record_values"

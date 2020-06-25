@@ -197,6 +197,10 @@ export default Vue.extend({
   color: #2c3e50;
 }
 
+div.modal {
+  top: 100px;
+}
+
 nav button {
   white-space: nowrap;
 }
