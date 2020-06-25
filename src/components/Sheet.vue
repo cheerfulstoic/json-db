@@ -99,7 +99,8 @@
               <Field v-bind:record="currently_edited_record"
                      v-bind:definition="definition"
                      v-bind:database="database"
-                     v-on:add-reference="add_reference" />
+                     v-on:add-reference="add_reference"
+                     v-on:record-clicked="edit_record" />
             </label>
           </div>
         </b-modal>
