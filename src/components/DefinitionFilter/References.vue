@@ -55,7 +55,6 @@ export default Vue.extend({
       return(_.map(this.values, '_id'))
     },
     remove (record : db.Record) {
-      console.log('remove');
       let index_to_remove = _(this.currently_filtered_records).map('_id').indexOf(record._id)
       // Remove in a way that will be reactive
       this.currently_filtered_records.splice(index_to_remove, 1)
