@@ -100,7 +100,8 @@
                      v-bind:definition="definition"
                      v-bind:database="database"
                      v-on:add-reference="add_reference"
-                     v-on:record-clicked="edit_record" />
+                     v-on:record-clicked="edit_record"
+                     v-on:reference-record-selected="reference_record_selected(currently_edited_record, definition, ...arguments)" />
             </label>
           </div>
         </b-modal>
