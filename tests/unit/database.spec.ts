@@ -13,7 +13,7 @@ const uuid_regex = /([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}
 describe('db.Database', () => {
   describe('json_data', () => {
     it('works with an empty database', () => {
-      let database = new db.Database({})
+      let database = new db.Database('The name', {})
 
       chai.expect(database.json_data()).to.deep.equal({
         global_variables: {},
@@ -23,7 +23,7 @@ describe('db.Database', () => {
     })
 
     it('outputs expressions correctly', () => {
-      let database = new db.Database({ base_age: 18 })
+      let database = new db.Database('The name', { base_age: 18 })
       let sheet = new db.Sheet(database, 'just_an_expression', null, null, [
         { name: 'age', type: 'expression' },
       ], null, null, true, [
@@ -56,13 +56,13 @@ describe('db.Database', () => {
 
   describe('json_data', () => {
     it('works with an empty database', () => {
-      let database = new db.Database({})
+      let database = new db.Database('The name', {})
 
       chai.expect(database.referencer_reference_references()).to.deep.equal({})
     })
 
     it('works with an database with references', () => {
-      let database = new db.Database({})
+      let database = new db.Database('The name', {})
       let sheet = new db.Sheet(database, 'references', 'sheet_id', null, [
         { _id: 'the_refs_id', name: 'the_refs', type: 'references' },
         { _id: 'the_other_refs_id', name: 'the_other_refs', type: 'references' },

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
-      <input id="project_name" class="form-control mx-2" type="text" v-model="project_name" />
+      <input id="project_name" class="form-control mx-2" type="text" v-model="database.project_name" />
 
       <b-button
         v-b-modal.global-variables-modal
@@ -13,7 +13,7 @@
       <button class="btn btn-primary mx-2"
          v-if="database.sheets.length"
          href="#"
-         v-bind:download="project_name + '.db.json'"
+         v-bind:download="database.project_name + '.db.json'"
          v-on:click.prevent="download_json_file_data"
          >
         Save JSON
@@ -100,13 +100,12 @@ export default Vue.extend({
     Sheet,
     RecordsSearch,
   },
-  data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, project_name: string, upload_highlighted: boolean, show_json: boolean } {
-    let database = new db.Database({});
+  data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, upload_highlighted: boolean, show_json: boolean } {
+    let database = new db.Database('Project Name', {});
     return {
       database: database,
       current_sheet_id: null,
       current_focus: null,
-      project_name: 'Project Name',
       upload_highlighted: false,
       show_json: false,
     }
@@ -175,7 +174,7 @@ export default Vue.extend({
       let blob = new Blob([this.json()], { type: 'application/json' })
       let link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = this.project_name + '.db.json';
+      link.download = this.database.project_name + '.db.json';
       link.click()
       URL.revokeObjectURL(link.href)
     },

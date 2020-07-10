@@ -388,15 +388,18 @@ export class Sheet {
 export class Database {
   sheets: Sheet[];
   global_variables: any;
+  public project_name: string;
 
-  constructor(global_variables : object) {
+  constructor(project_name: string, global_variables : object) {
     this.sheets = [];
+
+    this.project_name = project_name;
 
     this.global_variables = global_variables;
   }
 
   public static from_saved (data : any) : Database {
-    let database = new Database(data.global_variables || {})
+    let database = new Database(data.project_name, data.global_variables || {})
 
     let sheets = _.map(data.sheets, (schema) => {
       return(new Sheet(
@@ -674,6 +677,7 @@ export class Database {
     }, {})
 
     return({
+      project_name: this.project_name,
       global_variables: this.global_variables,
       sheets: sheets_data,
       records: records_data,

@@ -11,7 +11,7 @@ describe('db.Sheet', () => {
 
   describe('remove_column', () => {
     it('removes the sheet and record data', () => {
-      let database = new db.Database({})
+      let database = new db.Database('The name', {})
       let sheet = new db.Sheet(database, 'a_few_values', null, null, [
         { _id: 'abc123', name: 'name', type: 'string' },
         { name: 'age', type: 'integer' },
