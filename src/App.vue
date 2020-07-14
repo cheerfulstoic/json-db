@@ -197,7 +197,7 @@ export default Vue.extend({
 }
 
 div.modal {
-  top: 100px;
+  top: 50px;
 }
 
 nav button {

@@ -4,7 +4,7 @@
 
     <button class="btn btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
 
-    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('top')">Add Row</button>
+    <button class="btn btn-primary add-row-btn" v-on:click="add_record('top')">Add Record</button>
 
 
     <table class="table table-striped table-bordered">
@@ -104,6 +104,20 @@
                      v-on:reference-record-selected="reference_record_selected(currently_edited_record, definition, ...arguments)" />
             </label>
           </div>
+            <template v-slot:modal-footer v-if="current_edit_new_record_position">
+              <div class="w-100">
+                <b-button variant="primary"
+                  class="float-right" v-on:click="add_record(current_edit_new_record_position)" >
+                  Save and Add New
+                </b-button>
+
+                <b-button variant="primary"
+                  class="float-right" v-on:click="stop_editing_record()" >
+                  Save
+                </b-button>
+              </div>
+            </template>
+
         </b-modal>
       </div>
 
@@ -150,7 +164,7 @@
         </tr>
       </template>
     </table>
-    <button class="btn btn-primary add-row-btn" v-on:click="sheet.add_row('bottom')">Add Row</button>
+    <button class="btn btn-primary add-row-btn" v-on:click="add_record('bottom')">Add Record</button>
 
 
     <b-modal ok-only v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
@@ -363,6 +377,7 @@ export default Vue.extend({
       // Vue.set(this.sheet, 'definitions', this.sheet.definitions)
     },
     edit_record (record : db.Record) : void {
+      this.current_edit_new_record_position = null;
       this.currently_edited_record = record;
       this.$bvModal.show('edit-record-modal')
     },
@@ -375,6 +390,18 @@ export default Vue.extend({
         name: `${definition_info.sheet.name} - ${definition_info.definition.name}`,
         referenceable_sheet_ids: [definition_info.sheet._id]
       }))
+    },
+    add_record ( position : string ) : void {
+      let record = this.sheet.add_row(position)
+
+      this.currently_edited_record = record;
+
+      this.edit_record(record);
+
+      this.current_edit_new_record_position = position;
+    },
+    stop_editing_record () : void {
+      this.currently_edited_record = null;
     }
   },
 });
@@ -422,8 +449,8 @@ tr.selected td {
 
 .record-modal {
   .form-inline {
-    margin-bottom: 0.6em;
-    padding-bottom: 0.6em;
+    margin-bottom: 0.3em;
+    padding-bottom: 0.3em;
     border-bottom: 1px solid black;
 
     strong { width: 200px }

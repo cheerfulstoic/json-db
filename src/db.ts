@@ -281,11 +281,20 @@ export class Sheet {
   }
 
   public add_row (position : string) {
+    let record = new Record({}, this)
+
+    // Go through and assign each value
+    // to make sure reactivity works
+    _.each(this.definitions, definition => {
+      record.update_value(definition, null);
+    })
     if (position == 'top') {
-      this.records.splice(0, 0, new Record({}, this))
+      this.records.splice(0, 0, record)
     } else {
-      this.records.splice(this.records.length, 1, new Record({}, this))
+      this.records.splice(this.records.length, 1, record)
     }
+
+    return(record)
   }
 
   public remove_row (id : string) {
