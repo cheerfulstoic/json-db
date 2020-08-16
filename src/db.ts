@@ -338,6 +338,7 @@ export class Sheet {
       _id: this._id,
       name: this.name,
       hex_color: this.hex_color,
+      project_name: this.project_name,
       definitions: this.definitions,
       definition_ids_to_display: this.definition_ids_to_display,
       definition_ids_referring_to_sheet_to_display: this.definition_ids_referring_to_sheet_to_display,
@@ -620,7 +621,7 @@ export class Database {
     })
   }
 
-  public json_data () {
+  public json_data_unused_somehow () {
     let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
       result[sheet.name] = sheet.json_data()
       return(result);
