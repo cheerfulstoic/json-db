@@ -621,7 +621,7 @@ export class Database {
     })
   }
 
-  public json_data_unused_somehow () {
+  public json_data () {
     let sheets_data = _.reduce(this.sheets, (result : any, sheet : Sheet) => {
       result[sheet.name] = sheet.json_data()
       return(result);
