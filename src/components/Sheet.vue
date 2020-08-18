@@ -42,6 +42,15 @@
         </tr>
 
 
+        <!-- Rename to DefinitionFilterEditModal or something -->
+        <span v-if="currently_edited_definition !== null">
+          <DefinitionFilter
+             v-on:input="set_filter"
+             v-bind:definition="currently_edited_definition"
+             v-bind:values="values_for(currently_edited_definition)"
+             v-bind:database="database" />
+        </span>
+
         <tr class="table-header" ref="table_header">
           <th>&nbsp;</th>
           <template v-for="definition in sheet.definitions">
@@ -54,11 +63,11 @@
                 v-on:remove-sub-definition="remove_sub_definition"
                 v-on:transform-values="transform_values"/>
 
-              <DefinitionFilter
-                 v-on:input="set_filter"
-                 v-bind:definition="definition"
-                 v-bind:values="values_for(definition)"
-                 v-bind:database="database" />
+              <span v-on:click="set_currently_edited_definition(definition)">
+                <v-icon
+                  name="filter"
+                  v-bind:class="{notice: currently_filtering_for_definition(definition)}"></v-icon>
+              </span>
 
               <span v-if="sortable(definition)">
                 <a v-on:click="sort(definition, 'desc')">
@@ -77,11 +86,13 @@
               -
               {{definition_info.definition.name}}
 
+              <!--
               <DefinitionFilter
                  v-on:input="set_filter"
                  v-bind:definition="reverse_references_definition(definition_info)"
                  v-bind:values="source_values_for(definition_info)"
                  v-bind:database="database" />
+              -->
 
             </th>
           </template>
@@ -247,6 +258,7 @@ export default Vue.extend({
       filters: {},
       currently_edited_record: new db.Record({}, this.sheet),
       recompute_database_reference_referencer_references: 0,
+      currently_edited_definition: null,
     })
   },
   props: {
@@ -315,6 +327,13 @@ export default Vue.extend({
     },
     remove_sub_definition (definition : db.ReferencesDefinition, sub_definition : db.Definition) : void {
       this.sheet.delete_sub_definition(definition, sub_definition);
+    },
+    set_currently_edited_definition (definition : db.Definition) : void {
+      this.currently_edited_definition = definition;
+    },
+    currently_filtering_for_definition (definition : db.Definition) : boolean {
+      return(this.currently_edited_definition &&
+        this.currently_edited_definition._id == definition._id);
     },
     focus_sheet_and_record (sheet_id : string, record_id : string, event : Event) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
@@ -412,7 +431,7 @@ export default Vue.extend({
 .columns-to-display th,
 .table-header th {
   position: sticky;
-  z-index: 10;
+  z-index: 1;
 }
 
 .columns-to-display th { top: 92px }

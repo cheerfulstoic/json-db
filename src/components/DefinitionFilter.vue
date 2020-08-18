@@ -1,9 +1,7 @@
 <template>
   <span>
-    <v-icon v-bind:class="{notice: currently_filtering}" v-b-modal="modal_dom_id" name="filter"></v-icon>
-
     <b-modal ok-only
-             v-bind:id="modal_dom_id"
+             id="definition-filter-edit-modal"
              v-bind:static="true"
              v-bind:title="'Filter: ' + definition.name">
       <References
@@ -58,9 +56,7 @@ export default Vue.extend({
     Stringy
   },
   data () {
-    return({
-      currently_filtering: false,
-    });
+    return({ });
   },
   props: {
     definition: Object,
@@ -77,7 +73,6 @@ export default Vue.extend({
   },
   methods: {
     handle_input (definition_id : string, value : (record : any) => boolean) {
-      this.currently_filtering = value != null
       this.$emit('input', definition_id, value);
     },
   },
