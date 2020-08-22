@@ -43,11 +43,13 @@
 
 
         <!-- Rename to DefinitionFilterEditModal or something -->
-        <span v-if="currently_edited_definition !== null">
+        {{currently_edited_definition !== null}}
+        <span>
           <DefinitionFilter
              v-on:input="set_filter"
              v-bind:definition="currently_edited_definition"
-             v-bind:values="values_for(currently_edited_definition)"
+             v-on:modal-hidden="clear_currently_edited_definition()"
+             v-bind:sheet="sheet"
              v-bind:database="database" />
         </span>
 
@@ -252,13 +254,21 @@ export default Vue.extend({
     ChromePicker: Chrome,
     draggable
   },
-  data () {
+  data () : {
+    colors: { hex: string },
+    filters: object,
+    currently_edited_record: db.Record, // TODO: Define as: `null | db.Record`
+    recompute_database_reference_referencer_references: number,
+    currently_edited_definition: null | db.Definition,
+    current_edit_new_record_position: string
+  } {
     return({
       colors: { hex: this.sheet.hex_color },
       filters: {},
       currently_edited_record: new db.Record({}, this.sheet),
       recompute_database_reference_referencer_references: 0,
       currently_edited_definition: null,
+      current_edit_new_record_position: 'top',
     })
   },
   props: {
@@ -331,9 +341,11 @@ export default Vue.extend({
     set_currently_edited_definition (definition : db.Definition) : void {
       this.currently_edited_definition = definition;
     },
+    clear_currently_edited_definition () : void {
+      this.currently_edited_definition = null;
+    },
     currently_filtering_for_definition (definition : db.Definition) : boolean {
-      return(this.currently_edited_definition &&
-        this.currently_edited_definition._id == definition._id);
+      return(this.currently_edited_definition?._id === definition._id);
     },
     focus_sheet_and_record (sheet_id : string, record_id : string, event : Event) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
@@ -366,11 +378,6 @@ export default Vue.extend({
     set_filter (definition_id : string, value : (record: any) => boolean) {
       Vue.set(this.filters, definition_id, value);
     },
-    values_for (definition : db.Definition) {
-      return(_(this.sheet.records).flatMap((record) => {
-        return record.value_for_definition(definition)
-      }).compact().value())
-    },
     // Just for use with reverse reference definitions
     source_values_for (definition_info : db.ReferencesDefinitionResult) {
       return(definition_info.sheet.records)
@@ -396,7 +403,7 @@ export default Vue.extend({
       // Vue.set(this.sheet, 'definitions', this.sheet.definitions)
     },
     edit_record (record : db.Record) : void {
-      this.current_edit_new_record_position = null;
+      this.current_edit_new_record_position = 'top';
       this.currently_edited_record = record;
       this.$bvModal.show('edit-record-modal')
     },
@@ -420,7 +427,7 @@ export default Vue.extend({
       this.current_edit_new_record_position = position;
     },
     stop_editing_record () : void {
-      this.currently_edited_record = null;
+      this.currently_edited_record = new db.Record({}, this.sheet);
     }
   },
 });

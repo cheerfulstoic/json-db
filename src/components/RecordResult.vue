@@ -19,8 +19,8 @@ export default Vue.extend({
   name: 'Sheet',
   props: {
     record: Object,
-    database: db.Database,
-    definition_name: { type: String, require: false, default: null },
+    // database: db.Database,
+    // definition_name: { type: String, require: false, default: null },
   },
 });
 </script>
