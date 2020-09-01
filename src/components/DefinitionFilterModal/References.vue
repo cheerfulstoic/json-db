@@ -31,7 +31,7 @@ import * as db from '../../db';
 import _ from 'lodash';
 
 export default Vue.extend({
-  name: 'DefinitionFilter',
+  name: 'Reference',
   props: {
     definition: Object,
     database: db.Database,
