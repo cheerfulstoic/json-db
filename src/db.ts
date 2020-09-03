@@ -169,6 +169,8 @@ export class Record extends DataObject {
   }
 }
 
+export type RecordsFilter = (records:Record[]) => Record[]
+
 export class Reference extends DataObject {
   public record : Record;
   public source_record : Record;

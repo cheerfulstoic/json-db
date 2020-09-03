@@ -266,7 +266,7 @@ export default Vue.extend({
   },
   data () : {
     colors: { hex: string },
-    filters: object,
+    filters: { [key:string]: db.RecordsFilter },
     currently_edited_record: db.Record, // TODO: Define as: `null | db.Record`
     recompute_database_reference_referencer_references: number,
     current_edit_new_record_position: string,
@@ -381,7 +381,7 @@ export default Vue.extend({
     set_filter (definition_id : string, value : (record: any) => boolean) {
       Vue.set(this.filters, definition_id, value);
     },
-    filtering_on (definition_id : string) {
+    filtering_on (definition_id : string) : db.RecordsFilter {
       return(this.filters[definition_id])
     },
     values_for (definition : db.Definition) {
