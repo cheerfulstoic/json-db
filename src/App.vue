@@ -284,6 +284,10 @@ ul.nav.nav-tabs {
     font-weight: bold;
     color: red;
   }
+  &.warning {
+    font-weight: bold;
+    color: green;
+  }
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';

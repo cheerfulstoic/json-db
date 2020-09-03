@@ -79,7 +79,7 @@
 
               <span v-on:click="currently_edited_definition = definition">
                 <v-icon
-                  v-bind:class="{notice: currently_edited_definition === definition}"
+                  v-bind:class="{notice: currently_edited_definition === definition, warning: filtering_on(definition._id)}"
                   name="filter"></v-icon>
               </span>
 
@@ -102,7 +102,7 @@
 
               <span v-on:click="currently_edited_reverse_definition = definition_info.definition">
                 <v-icon
-                  v-bind:class="{notice: currently_edited_reverse_definition === definition_info.definition}"
+                  v-bind:class="{notice: currently_edited_reverse_definition === definition_info.definition, warning: filtering_on(definition._id)}"
                   name="filter"></v-icon>
               </span>
 
@@ -384,6 +384,9 @@ export default Vue.extend({
     },
     set_filter (definition_id : string, value : (record: any) => boolean) {
       Vue.set(this.filters, definition_id, value);
+    },
+    filtering_on (definition_id : string) {
+      return(this.filters[definition_id])
     },
     values_for (definition : db.Definition) {
       return(_(this.sheet.records).flatMap((record) => {
