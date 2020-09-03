@@ -39,7 +39,7 @@
         </div>
       </b-tab>
       <b-tab title="Blank filter">
-        <b-button-group v-model="test">
+        <b-button-group>
           <b-button v-on:click="show_only_blank()" v-bind:pressed="blankness_filter === true">Show only empty</b-button>
           <b-button v-on:click="show_only_non_blank()" v-bind:pressed="blankness_filter === false">Showonly non-empty</b-button>
         </b-button-group>
@@ -94,6 +94,11 @@ export default Vue.extend({
     record_values () {
       return _.map(this.values, 'record')
     },
+    current_record_ids_referenced () {
+      return _.flatMap(this.values, (remote_record : db.Record) : string[] => {
+        return(_(remote_record.value_for_definition(this.definition) || []).map('record._id').compact().uniq().value())
+      })
+    }
   },
   methods: {
     handle_input (definition_id : string, value : (record : any) => boolean) {
@@ -105,7 +110,11 @@ export default Vue.extend({
       this.$emit('input', this.definition._id,
         (records : any[]) => {
           return _.filter(records, (record) => {
-            return(is_blank(record.value_for_definition(this.definition)))
+            if (this.definition.type === 'reverse_references') {
+              return(!this.current_record_ids_referenced.includes(record._id));
+            } else {
+              return(is_blank(record.value_for_definition(this.definition)))
+            }
           })
         })
     },
@@ -114,7 +123,11 @@ export default Vue.extend({
       this.$emit('input', this.definition._id,
         (records : any[]) => {
           return _.filter(records, (record) => {
-            return(!is_blank(record.value_for_definition(this.definition)))
+            if (this.definition.type === 'reverse_references') {
+              return(this.current_record_ids_referenced.includes(record._id));
+            } else {
+              return(!is_blank(record.value_for_definition(this.definition)))
+            }
           })
         })
     },
@@ -124,6 +137,7 @@ export default Vue.extend({
     }
   },
 });
+
 </script>
 
 <style scoped lang="scss">

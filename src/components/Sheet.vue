@@ -102,7 +102,7 @@
 
               <span v-on:click="currently_edited_reverse_definition = definition_info.definition">
                 <v-icon
-                  v-bind:class="{notice: currently_edited_reverse_definition === definition_info.definition, warning: filtering_on(definition._id)}"
+                  v-bind:class="{notice: currently_edited_reverse_definition === definition_info.definition, warning: filtering_on(definition_info.definition._id)}"
                   name="filter"></v-icon>
               </span>
 
