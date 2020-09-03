@@ -321,10 +321,6 @@ export default Vue.extend({
     },
   },
   methods: {
-    definition_filter_modal_closed (definition : db.Definition) {
-      console.log('definition_filter_modal_closed');
-      console.log(definition)
-    },
     should_display_definition (definition : db.Definition) {
       // if (!this.sheet.definition_ids_to_display.has) { debugger }
       // return(this.sheet.definition_ids_to_display.includes(definition._id))
