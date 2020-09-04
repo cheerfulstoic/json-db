@@ -74,8 +74,8 @@ export default Vue.extend({
     SelectOne,
     Stringy
   },
-  data () : {last_input_value: ((record : any) => boolean) | null,
-             blankness_filter: boolean | null} {
+  data () : {last_input_value: db.RecordsFilter | null,
+             blankness_filter: true | false | null} {
     return({
       last_input_value: null,
       blankness_filter: null,
@@ -94,14 +94,15 @@ export default Vue.extend({
     record_values () {
       return _.map(this.values, 'record')
     },
-    current_record_ids_referenced () {
-      return _.flatMap(this.values, (remote_record : db.Record) : string[] => {
-        return(_(remote_record.value_for_definition(this.definition) || []).map('record._id').compact().uniq().value())
-      })
+    current_record_ids_referenced () : Set<string> {
+      let ids : any[] = _.chain(this.values).flatMap((remote_record : db.Record) : any[] => {
+        return(_.map(remote_record.value_for_definition(this.definition) || [], 'record._id'))
+      }).uniq().compact().value()
+      return(new Set(ids))
     }
   },
   methods: {
-    handle_input (definition_id : string, value : (record : any) => boolean) {
+    handle_input (definition_id : string, value : db.RecordsFilter) {
       this.last_input_value = value;
       this.$emit('input', definition_id, value);
     },
@@ -111,9 +112,9 @@ export default Vue.extend({
         (records : any[]) => {
           return _.filter(records, (record) => {
             if (this.definition.type === 'reverse_references') {
-              return(!this.current_record_ids_referenced.includes(record._id));
+              return(!this.current_record_ids_referenced.has(record._id));
             } else {
-              return(is_blank(record.value_for_definition(this.definition)))
+              return(is_blank(record.value_for_definition(this.definition)));
             }
           })
         })
@@ -124,7 +125,7 @@ export default Vue.extend({
         (records : any[]) => {
           return _.filter(records, (record) => {
             if (this.definition.type === 'reverse_references') {
-              return(this.current_record_ids_referenced.includes(record._id));
+              return(this.current_record_ids_referenced.has(record._id));
             } else {
               return(!is_blank(record.value_for_definition(this.definition)))
             }
