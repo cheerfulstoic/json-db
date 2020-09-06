@@ -1,5 +1,86 @@
 # json-db
 
+## Purpose
+
+The JSON DB project is designed as an easy-to-use interface for configuration files.  It was inspired by [CastleDB](http://castledb.org/) but JSON DB is designed to be much easier to use.
+
+The JSON format has certain built-in types, but (aside from objects and arrays) is limited to strings, numbers, and booleans.  The JSON DB defines formats to allow you to have:
+
+* Unique IDs
+* Select One (multi choice)
+* References to other records (e.g. foreign keys)
+* Expressions based on variables
+
+
+## File Format
+
+The file format of JSON DB is designed to be simple to use from any language that can read a JSON file.
+
+JSON DB creates files with extension of `.db.json` which looks like:
+
+```json
+{
+  "sheets": {
+    "Sheet Name": {
+      "_id": "c5af89b0-3831-11ea-a178-1d815a833476",
+      "name": "Sheet Name",
+      "hex_color": "#00AEDB",
+      "definitions": [
+        {
+          "_id": "1128d3b0-3832-11ea-a178-1d815a833476",
+          "name": "Label",
+          "type": "string",
+          "unique_id": true
+        },
+        {
+          "_id": "acf7b110-5a0d-11ea-a879-534818663e3d",
+          "name": "Set Releasable On",
+          "type": "expression"
+        },
+        ...
+      ],
+    },
+    ...
+  },
+  "records": {
+    "Sheet Name": [
+      {
+        "_id": "34bde080-586d-11ea-86de-b9c0a083be4d",
+        "Label": "A Unique Label",
+        "SetReleasableOn": {
+          "expression_string": "AnImportantVariable * 2",
+          "calculated_value": "14"
+        },
+        ...
+      }
+      ...
+    ],
+    ...
+  },
+  "global_variables": {
+    "AnImportantVariable": "7",
+    ...
+  }
+}
+```
+
+The `records` key is intentionally kept separate from the `sheets` / `global_variables` keys and is designed to be the main/only thing another application would access.  The keys other than `records` exist to help JSON DB do it's job.
+
+In the future the JSON DB application should be able to import general JSON (/CSV/etc...) files and save them as `.db.json` files.
+
+TODO: Examples of why expressions would be useful
+
+TODO: Screenshot of graph visualization?
+
+TODO: Images as a column type?  URLs?  Images as URLs?
+
+TODO: Arrays as a type?  Do references cover that, to some extent?  Look at CastleDB
+
+
+
+
+
+
 ## Project setup
 ```
 yarn install
