@@ -94,12 +94,6 @@ export default Vue.extend({
     record_values () {
       return _.map(this.values, 'record')
     },
-    current_record_ids_referenced () : Set<string> {
-      let ids : any[] = _.chain(this.values).flatMap((remote_record : db.Record) : any[] => {
-        return(_.map(remote_record.value_for_definition(this.definition) || [], 'record._id'))
-      }).uniq().compact().value()
-      return(new Set(ids))
-    }
   },
   methods: {
     handle_input (definition_id : string, value : db.RecordsFilter) {
@@ -107,35 +101,43 @@ export default Vue.extend({
       this.$emit('input', definition_id, value);
     },
     show_only_blank () : void {
+      let definition = this.definition;
       this.blankness_filter = true;
-      this.$emit('input', this.definition._id,
-        (records : any[]) => {
-          return _.filter(records, (record) => {
-            if (this.definition.type === 'reverse_references') {
-              return(!this.current_record_ids_referenced.has(record._id));
-            } else {
-              return(is_blank(record.value_for_definition(this.definition)));
-            }
-          })
-        })
+      this.$emit(
+        'input',
+        this.definition._id,
+        (records : any[]) => { return _.filter(records, this.blankness_filter_func(definition)) }
+      )
     },
     show_only_non_blank () : void {
+      let definition = this.definition;
       this.blankness_filter = false;
-      this.$emit('input', this.definition._id,
-        (records : any[]) => {
-          return _.filter(records, (record) => {
-            if (this.definition.type === 'reverse_references') {
-              return(this.current_record_ids_referenced.has(record._id));
-            } else {
-              return(!is_blank(record.value_for_definition(this.definition)))
-            }
-          })
-        })
+      this.$emit(
+        'input',
+        this.definition._id,
+        (records : any[]) => { return _.reject(records, this.blankness_filter_func(definition)) }
+      )
+    },
+    blankness_filter_func (definition : db.Definition) : (record: db.Record) => boolean {
+      if (definition.type === 'reverse_references') {
+        let current_record_ids_referenced : Set<string> = this.current_record_ids_referenced(definition);
+
+        return((record) => { return(!current_record_ids_referenced.has(record._id)) });
+      } else {
+        return((record) => { return(is_blank(record.value_for_definition(definition))) });
+      }
     },
     reset_blank () : void {
       this.blankness_filter = null;
       this.$emit('input', this.definition._id, this.last_input_value);
-    }
+    },
+    current_record_ids_referenced (definition : db.Definition) : Set<string> {
+      let ids : any[] = _.chain(this.values).flatMap((remote_record : db.Record) : any[] => {
+        return(_.map(remote_record.value_for_definition(definition) || [], 'record._id'))
+      }).uniq().compact().value()
+
+      return(new Set(ids))
+    },
   },
 });
 

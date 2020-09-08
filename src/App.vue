@@ -59,10 +59,6 @@
 
       <hr/>
 
-      <button class="btn btn-primary toggle-json-btn" v-on:click="toggle_json">Toggle JSON</button>
-      <pre v-if="show_json" class="json-output">{{json()}}</pre>
-
-
       <b-modal id="global-variables-modal" title="Global Variables">
         <VariableEditor
           v-bind:variables="database.global_variables"

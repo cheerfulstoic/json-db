@@ -290,10 +290,12 @@ export default Vue.extend({
   },
   computed: {
     records_to_display () : any[] {
+      console.log('records_to_display', _.size(this.filters), this.sheet.records.length);
+
       return(_(this.filters).values().compact()
-        .reduce((records, fn : (records:db.Record[]) => db.Record[]) : db.Record[] => {
-        return fn(records)
-      }, this.sheet.records))
+        .reduce((records : db.Record[], fn : db.RecordsFilter) : db.Record[] => { return fn(records) },
+                this.sheet.records)
+      )
     },
     total_count () : number {
       return(this.sheet.records.length);

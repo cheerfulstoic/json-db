@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@egjs/hammerjs": "^2.0.17",
-    "@types/lodash": "^4.14.149",
+    "@types/lodash": "^4.14.161",
     "@types/vue-color": "^2.4.2",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.1.0",
@@ -19,7 +19,7 @@
     "expr-eval": "^2.0.2",
     "fuse.js": "^3.4.6",
     "keycharm": "^0.3.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "moment": "^2.24.0",
     "uuid": "^8.0.0",
     "vis-data": "^6.3.1",
