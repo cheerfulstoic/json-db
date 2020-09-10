@@ -290,8 +290,6 @@ export default Vue.extend({
   },
   computed: {
     records_to_display () : any[] {
-      console.log('records_to_display', _.size(this.filters), this.sheet.records.length);
-
       return(_(this.filters).values().compact()
         .reduce((records : db.Record[], fn : db.RecordsFilter) : db.Record[] => { return fn(records) },
                 this.sheet.records)
