@@ -98,6 +98,7 @@ export default Vue.extend({
   },
   data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, upload_highlighted: boolean, show_json: boolean } {
     let database = new db.Database('Project Name', {});
+
     return {
       database: database,
       current_sheet_id: null,
@@ -106,7 +107,22 @@ export default Vue.extend({
       show_json: false,
     }
   },
+  mounted () {
+    let url_params = new URLSearchParams(window.location.search)
+    let file_url = url_params.get('file_url');
+
+    if (file_url) { this.load_database_from_url(file_url); }
+  },
   methods: {
+    load_database_from_url (url : string) {
+      let response = fetch(url).then((response) => {
+        response.json().then((data) => {
+          this.database = db.Database.from_saved(data);
+
+          this.current_sheet_id = this.database.sheets[0]._id;
+        })
+      })
+    },
     update_global_variables (key : string, value : any) {
       Vue.set(this.database.global_variables, key, value);
     },
