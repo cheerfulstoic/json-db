@@ -114,7 +114,7 @@
       </thead>
 
       <div v-if="currently_edited_record">
-        <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
+        <b-modal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Record" v-bind:visible="true">
           <button v-on:click="focus_sheet_and_record(currently_edited_record.sheet._id, currently_edited_record._id)">Focus Record in Sheet</button>
           <div class="form-inline" v-for="definition in currently_edited_record.sheet.definitions" v-bind:key="definition._id">
             <label>
@@ -267,7 +267,7 @@ export default Vue.extend({
   data () : {
     colors: { hex: string },
     filters: { [key:string]: db.RecordsFilter },
-    currently_edited_record: db.Record, // TODO: Define as: `null | db.Record`
+    currently_edited_record: db.Record | null,
     recompute_database_reference_referencer_references: number,
     current_edit_new_record_position: string,
     currently_edited_definition: db.Definition | null,
@@ -276,7 +276,7 @@ export default Vue.extend({
     return({
       colors: { hex: this.sheet.hex_color },
       filters: {},
-      currently_edited_record: new db.Record({}, this.sheet),
+      currently_edited_record: null,
       recompute_database_reference_referencer_references: 0,
       current_edit_new_record_position: 'top',
       currently_edited_definition: null,
@@ -352,7 +352,7 @@ export default Vue.extend({
     },
     focus_sheet_and_record (sheet_id : string, record_id : string, event : Event) {
       this.$emit('focus-sheet-and-record', sheet_id, record_id);
-      this.currently_edited_record = new db.Record({}, this.sheet);
+      this.currently_edited_record = null;
     },
     add_reference (source_record : db.Record, definition : db.ReferencesDefinition, target_record : db.Record) : void {
       source_record.transform_value(definition, (references) => {
@@ -439,7 +439,7 @@ export default Vue.extend({
       this.current_edit_new_record_position = position;
     },
     stop_editing_record () : void {
-      this.currently_edited_record = new db.Record({}, this.sheet);
+      this.currently_edited_record = null;
     },
 
     set_currently_edited_definition (definition : db.Definition) {
