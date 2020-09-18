@@ -537,30 +537,23 @@ export class Database {
   }
 
   public referencer_reference_references () {
-    return _.reduce(this.sheets, (result : any, sheet : Sheet) => {
+    return _.mapValues(_.reduce(this.sheets, (result : any, sheet : Sheet) => {
       let references_definitions = _.filter(sheet.definitions, { type: 'references' })
 
       sheet.records.forEach((record : Record) => {
         references_definitions.forEach((definition) => {
           (record.value_for_definition(definition) || []).forEach((reference : Reference) => {
-            // let key = `${definition._id}|${reference.record._id}`;
             let key = reference.record._id;
             if (result[key] == null) { result[key] = {} }
             if (result[key][definition._id] == null) { result[key][definition._id] = [] }
 
-            // CrimeDecreasedChart
-            // CanViralTransformTo
-            // if (record._id === '7784d0d0-9432-11ea-924d-43c66426590c' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') {
-            // if (reference.record._id === '7784d0d0-9432-11ea-924d-43c66426590c' && definition._id === '690056f0-383a-11ea-a178-1d815a833476') {
-            //   debugger
-            // }
             result[key][definition._id].push(reference);
           })
         })
       })
 
       return(result)
-    }, {})
+    }, {}), (value) => { return(_.mapValues(value, _.uniq)) })
   }
 
 

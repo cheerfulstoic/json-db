@@ -372,7 +372,7 @@ export default Vue.extend({
     referencer_reference_references_for (sheet : db.Sheet, definition : db.ReferencesDefinition, record : any) {
       let test = this.database_reference_referencer_references[record._id];
 
-      return test ? _.uniq(test[definition._id] || []) : []
+      return test ? (test[definition._id] || []) : []
     },
     referencer_reference_references_for_record_ids_to_skip (sheet : db.Sheet, definition : db.ReferencesDefinition, record : db.Record) {
       return(

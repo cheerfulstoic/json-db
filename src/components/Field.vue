@@ -106,7 +106,9 @@ export default Vue.extend({
       this.record.update_value(this.definition, new_value);
     },
     mark_for_recompute () {
-      this.recompute = this.recompute + 1;
+      if (this.definition.type === 'expression') {
+        this.recompute = this.recompute + 1;
+      }
     },
     record_ids_to_skip () {
       return [this.record._id].concat(_.map(this.record_value, 'record._id') || [])
