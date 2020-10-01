@@ -18,17 +18,21 @@ export class Definition {
     this.unique_id = data.unique_id;
     this.options = data.options;
   }
+
+  public to_reference_definition() {
+    return(new ReferencesDefinition(this))
+  }
 }
 
 export class ReferencesDefinition extends Definition {
   public definitions: Definition[];
-  public referenceable_sheet_ids: string[];
+  public _referenceable_sheet_ids: string[];
 
   constructor(data : any) {
     super(data)
 
     this.definitions = data.definitions || [];
-    this.referenceable_sheet_ids = data.referenceable_sheet_ids || [];
+    this._referenceable_sheet_ids = data.referenceable_sheet_ids || [];
   }
 
   references_sheet(sheet : Sheet) {
@@ -38,6 +42,17 @@ export class ReferencesDefinition extends Definition {
     )
   }
 
+  get referenceable_sheet_ids() : string[] {
+    return(this._referenceable_sheet_ids || [])
+  }
+  set referenceable_sheet_ids(values: string[]) {
+    this._referenceable_sheet_ids = values;
+  }
+
+
+  public to_definition() {
+    return(new ReferencesDefinition(_.omit(this, ['definitions', '_referenceable_sheet_ids'])))
+  }
 }
 
 export interface ReferencesDefinitionResult {
@@ -197,7 +212,7 @@ export class Sheet {
   public _id: string;
   public name: string;
   public hex_color: string;
-  public definitions: Definition[] | ReferencesDefinition[];
+  public definitions: (Definition | ReferencesDefinition)[];
   public records_data: object[]; // DEPRECATED
   public records: Record[];
   public definition_ids_to_display : string[];
@@ -271,7 +286,7 @@ export class Sheet {
 
   public add_definition () {
     let number = this.definitions.length + 1
-    let definition = add_id({name: `Column #${number}`, type: 'string'})
+    let definition = new Definition(add_id({name: `Column #${number}`, type: 'string'}));
     this.definitions.push(definition);
     this.update_definition_caches();
     this.definition_ids_to_display.push(definition._id);

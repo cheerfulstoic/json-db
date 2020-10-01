@@ -118,6 +118,18 @@ export default Vue.extend({
     options () {
       return this.value.options || [];
     },
+    value_type() {
+      return(this.value.type);
+    }
+  },
+  watch: {
+    value_type: function (newValue, oldValue) {
+      if (oldValue !== 'references' && newValue === 'references') {
+        this.$emit('input', this.value.to_reference_definition())
+      } else if (oldValue === 'references' && newValue !== 'references') {
+        this.$emit('input', this.value.to_definition())
+      }
+    }
   },
   methods: {
     add_option () {
