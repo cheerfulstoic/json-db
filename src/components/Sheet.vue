@@ -12,7 +12,7 @@
        v-on:definition-filter-modal-hidden="set_currently_edited_definition(null)"
        v-bind:definition="definition"
        v-bind:values="values_for(definition)"
-       v-bind:database="database"
+       v-bind:database="sheet.database"
        v-bind:key="definition._id + '-modal'"
        v-bind:visible="currently_edited_definition === definition" />
 
@@ -22,7 +22,7 @@
        v-on:definition-filter-modal-hidden="set_currently_edited_reverse_definition(null)"
        v-bind:definition="reverse_references_definition(definition_info)"
        v-bind:values="source_values_for(definition_info)"
-       v-bind:database="database"
+       v-bind:database="sheet.database"
        v-bind:key="'reverse-definition-test-' + definition_info.definition._id"
        v-bind:visible="currently_edited_reverse_definition === definition_info.definition" />
 
@@ -51,7 +51,7 @@
 
             </div>
 
-            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet" v-bind:key="'reverse-column-to-display-' + definition_info.definition._id">
+            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display" v-bind:key="'reverse-column-to-display-' + definition_info.definition._id">
               <label>
                 <input type="checkbox" class="form-check-input" v-bind:value="definition_info.definition._id" v-model="sheet.definition_ids_referring_to_sheet_to_display">
                 {{definition_info.sheet.name}}
@@ -67,11 +67,11 @@
         <tr class="table-header" ref="table_header">
           <th>&nbsp;</th>
 
-          <template v-for="definition in sheet.definitions">
-            <th v-if="should_display_definition(definition)" class="field-cell" v-bind:key="definition._id">
+          <template v-for="definition in definitions_to_display">
+            <th class="field-cell" v-bind:key="definition._id">
               <Definition
                 v-bind:value="definition"
-                v-bind:database="database"
+                v-bind:database="sheet.database"
                 v-on:input="replace_definition(definition._id, $event)"
                 v-on:remove="remove_definition(definition)"
                 v-on:remove-sub-definition="remove_sub_definition"
@@ -94,8 +94,8 @@
             </th>
           </template>
 
-          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet">
-            <th v-if="should_display_definition_referring_to_sheet(definition_info)" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display">
+            <th v-bind:key="'reverse-definition-' + definition_info.definition._id">
               {{definition_info.sheet.name}}
               -
               {{definition_info.definition.name}}
@@ -121,7 +121,7 @@
               <strong>{{definition.name}}</strong>
               <Field v-bind:record="currently_edited_record"
                      v-bind:definition="definition"
-                     v-bind:database="database"
+                     v-bind:database="sheet.database"
                      v-on:add-reference="add_reference"
                      v-on:record-clicked="edit_record"
                      v-on:reference-record-selected="reference_record_selected(currently_edited_record, definition, ...arguments)" />
@@ -153,28 +153,28 @@
             <b-button class="btn btn-primary" v-on:click="edit_record(record)">Edit</b-button>
           </td>
 
-          <template v-for="definition in sheet.definitions">
-            <td v-if="should_display_definition(definition)" v-bind:key="definition._id">
+          <template v-for="definition in definitions_to_display">
+            <td v-bind:key="definition._id">
               <Field v-bind:record="record"
                      v-bind:definition="definition"
-                     v-bind:database="database"
+                     v-bind:database="sheet.database"
                      v-on:record-clicked="edit_record"
                      v-on:reference-record-selected="reference_record_selected(record, definition, ...arguments)" />
             </td>
           </template>
 
           <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet">
-            <td v-if="should_display_definition_referring_to_sheet(definition_info)" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+            <td v-bind:key="'reverse-definition-' + definition_info.definition._id">
               <References
                 v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
                 v-bind:record="record"
                 v-bind:definition="definition_info.definition"
-                v-bind:database="database"
+                v-bind:database="sheet.database"
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
                 v-on:record-clicked="edit_record" />
               <RecordsSearch v-bind:record_ids_to_skip="referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)"
-                          v-bind:database="database"
+                          v-bind:database="sheet.database"
                           v-bind:use_source_record="true"
                           v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
                           v-on:record-selected="reverse_reference_record_selected(record, definition_info.definition, ...arguments)" />
@@ -285,7 +285,6 @@ export default Vue.extend({
   },
   props: {
     sheet: db.Sheet,
-    database: db.Database,
     current_focus: Object,
   },
   computed: {
@@ -305,7 +304,7 @@ export default Vue.extend({
     database_reference_referencer_references () : any {
       let dummy = this.recompute_database_reference_referencer_references;
 
-      return this.database.referencer_reference_references()
+      return this.sheet.database.referencer_reference_references()
     },
 
     // For performance
@@ -317,16 +316,23 @@ export default Vue.extend({
     },
 
     definitions_referring_to_sheet () : { definition: db.Definition, sheet: db.Sheet }[] {
-      return(this.database.definitions_referring_to(this.sheet))
+      return(this.sheet.database.definitions_referring_to(this.sheet));
+    },
+    definitions_referring_to_sheet_to_display () : { definition: db.Definition, sheet: db.Sheet }[] {
+      return(_.filter(
+        this.sheet.database.definitions_referring_to(this.sheet),
+        this.should_display_definition_referring_to_sheet
+      ))
+    },
+    definitions_to_display () : db.Definition[] {
+      return(_.filter(this.sheet.definitions, this.should_display_definition))
     },
   },
   methods: {
-    should_display_definition (definition : db.Definition) {
-      // if (!this.sheet.definition_ids_to_display.has) { debugger }
-      // return(this.sheet.definition_ids_to_display.includes(definition._id))
+    should_display_definition (definition : db.Definition) : boolean {
       return(this.sheet_definition_ids_to_display_set.has(definition._id));
     },
-    should_display_definition_referring_to_sheet (definition_info : db.ReferencesDefinitionResult) {
+    should_display_definition_referring_to_sheet (definition_info : db.ReferencesDefinitionResult) : boolean {
       return(this.sheet_definition_ids_referring_to_sheet_to_display_set.has(definition_info.definition._id));
     },
     update_color (colors : {hex: string}) {
@@ -398,7 +404,7 @@ export default Vue.extend({
     },
     sort (definition : db.Definition, direction : string) : void {
       // TODO: Sort within db.ts
-      let result = _(this.sheet.records).sortBy(record => { return(record.sort_value_for_definition(definition, this.database)) });
+      let result = _(this.sheet.records).sortBy(record => { return(record.sort_value_for_definition(definition, this.sheet.database)) });
       if (direction === 'desc') { result = result.reverse() }
       this.sheet.records = result.value();
     },

@@ -45,7 +45,7 @@
       </ul>
 
       <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
-        <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet" v-bind:database="database"
+        <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet"
                v-bind:current_focus="current_focus" v-on:focus-sheet-and-record="focus_sheet_and_record" />
       </div>
 
