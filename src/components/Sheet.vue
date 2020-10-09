@@ -51,7 +51,7 @@
 
             </div>
 
-            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display" v-bind:key="'reverse-column-to-display-' + definition_info.definition._id">
+            <div class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet" v-bind:key="'reverse-column-to-display-' + definition_info.definition._id">
               <label>
                 <input type="checkbox" class="form-check-input" v-bind:value="definition_info.definition._id" v-model="sheet.definition_ids_referring_to_sheet_to_display">
                 {{definition_info.sheet.name}}
@@ -163,7 +163,7 @@
             </td>
           </template>
 
-          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet">
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display">
             <td v-bind:key="'reverse-definition-' + definition_info.definition._id">
               <References
                 v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
