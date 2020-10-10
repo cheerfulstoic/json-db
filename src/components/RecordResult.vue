@@ -1,16 +1,18 @@
 <template>
   <div class="record-result">
-    <span v-for="(value, key) in record.description_data()" v-bind:key="key" class="property"
-          v-on:click.prevent="$emit('record-clicked', record)">
-      <span class="key">{{key}}</span>
-      <span class="value">{{value}}</span>
+    <span v-for="(value, key) in data" v-bind:key="key" class="property">
+      <span class="key" v-if="show_keys">{{key}}</span>
+      <span v-bind:class="['value', look]">
+        <span v-if="is_blank(value)">
+          <strong>-</strong>
+        </span>
+        <span v-if="!is_blank(value)">{{value}}</span>
+      </span>
     </span>
   </div>
 </template>
 
 <script lang="ts">
-// DEPRECATED COMPONENT
-
 import Vue from 'vue';
 
 import * as db from '../db';
@@ -18,10 +20,15 @@ import * as db from '../db';
 export default Vue.extend({
   name: 'Sheet',
   props: {
-    record: Object,
-    // database: db.Database,
-    // definition_name: { type: String, require: false, default: null },
+    data: Object,
+    show_keys: {type: Boolean, default: true},
+    look: {type: String, default: 'pill'},
   },
+  methods: {
+    is_blank (value : any) : boolean {
+      return(value == null || value === '');
+    }
+  }
 });
 </script>
 
@@ -32,54 +39,49 @@ export default Vue.extend({
   font-size: 0.8em;
   padding: 1em 0;
   white-space: nowrap;
-
-
 }
 
-.sheet {
-  margin: 0;
-  padding: 0;
-  font-weight: bold;
-
-  .sheet_name {
-    padding: 0.4em;
-    margin: 0;
-    border: 1px solid black;
-  }
-
-  .definition_name {
-    border: 1px solid black;
-    border-left: 0;
-    padding: 0.4em;
-    background-color: white;
-    margin: 0;
-  }
-}
+$border-color: black;
 
 .property {
   .key {
-    display: none;
-    border: 1px solid black;
-    border-radius: 1em 0 0 1em;
+    border: 1px solid $border-color;
+    border-radius: 0;
 
     font-weight: bold;
 
     background-color: lightskyblue;
 
     padding: 0.1em 0.2em 0.1em 0.4em;
+
+    border-right: 0;
   }
 
   .value {
-    border: 1px solid black;
-    border-left: 0px;
-    /* border-radius: 0 1em 1em 0; */
-    border-radius: 1em;
+    border: 1px solid $border-color;
 
     padding: 0.1em 0.4em 0.1em 0.3em;
     margin-right: 0.5em;
 
     background-color: white;
 
+    &.right-arrow {
+      padding-right: 7px;
+      margin-right: 15px;
+      border-right: 0;
+
+      &::after {
+        content: "";
+        position: absolute;
+        display: inline-block;
+        background-color: white;
+        width: 16px;
+        height: 16px;
+        transform: translate(-1px,2px) rotate(45deg);
+        border: 1px solid $border-color;
+        z-index: -1;
+      }
+    }
   }
 
   &:hover {
@@ -89,6 +91,9 @@ export default Vue.extend({
 
     .value {
       background-color: #CCC;
+      &::after {
+        background-color: #CCC;
+      }
     }
   }
 }

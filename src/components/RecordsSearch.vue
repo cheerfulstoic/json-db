@@ -17,17 +17,12 @@
             v-on:click.self.stop="choose(record, $event)"
             v-bind:class="{search_result: true, highlighted: index == highlighted_index}">
 
-            <div class="record-result">
+            <div>
               <span class="sheet-name" v-bind:style="'background-color:' + record.sheet.hex_color">
                 {{record.sheet.name}}
               </span>
               »
-
-              <span v-for="(value, key) in record.description_data()" v-bind:key="key" class="property"
-                    v-on:click.stop="choose(record, $event)">
-                <!-- <span class="key">{{key}}</span> -->
-                <span class="value">{{value}}</span>
-              </span>
+              <RecordResult v-bind:data="record.description_data()" v-bind:show_keys="false" look="right-arrow" />
             </div>
           </b-list-group-item>
         </b-list-group>
@@ -39,12 +34,17 @@
 <script lang="ts">
 import Vue from 'vue';
 
+import RecordResult from './RecordResult.vue';
+
 import _ from 'lodash';
 
 import * as db from '../db';
 
 export default Vue.extend({
   name: 'References',
+  components: {
+    RecordResult: RecordResult,
+  },
   data () : any {
     return({
       match_text: null,
@@ -143,9 +143,11 @@ export default Vue.extend({
   border: 1px solid black;
 }
 
-.referenced-record {
+.list-group-item {
+  z-index: 0;
+
   white-space: nowrap;
-  padding: 0 0.5em;
+  padding: 0.3em 0.5em;
 
   &:not(:last-child) {
     border-bottom: 1px solid black;
@@ -161,52 +163,10 @@ export default Vue.extend({
 
     .search_result {
       text-align: left
-
     }
+
     .search_result.highlighted {
       background-color: #4294C5;
-    }
-  }
-}
-
-.record-result {
-  display: inline-block;
-  font-size: 0.8em;
-  padding: 1em 0;
-  white-space: nowrap;
-
-  .property {
-    .key {
-      border: 1px solid black;
-      border-radius: 1em 0 0 1em;
-
-      font-weight: bold;
-
-      background-color: lightskyblue;
-
-      padding: 0.1em 0.2em 0.1em 0.4em;
-    }
-
-    .value {
-      border: 1px solid black;
-      border-left: 0px;
-      border-radius: 0 1em 1em 0;
-
-      padding: 0.1em 0.4em 0.1em 0.3em;
-      margin-right: 0.5em;
-
-      background-color: white;
-
-    }
-
-    &:hover {
-      .key {
-        background-color: #4294C5;
-      }
-
-      .value {
-        background-color: #CCC;
-      }
     }
   }
 }

@@ -5,18 +5,15 @@
         {{sheet.name}}
       </span>
       <div v-for="reference in value"
-           v-bind:key="reference_key(reference)"
+           v-bind:key="record_to_display(reference)._id"
            class="referenced-record">
-        <a v-on:click.stop="remove(reference)" class="remove">
-          <v-icon name="trash-2"/>
-        </a>
         <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
           <v-icon name="edit"/>
         </a>
-        <RecordResult
-          v-bind:record="use_source_record ? reference.source_record : reference.record"
-          v-bind:database="database"
-          v-on:record-clicked="record_clicked" />
+
+        <RecordResult v-bind:data="record_to_display(reference).description_data()" v-bind:show_keys="false" look="right-arrow" />
+
+        <RecordResult v-bind:data="record_data(reference)" />
       </div>
     </div>
 
@@ -26,6 +23,10 @@
           {{references_definition.name}}
           <Field v-bind:record="currently_edited_reference" v-bind:definition="references_definition" v-bind:database="database"/>
         </div>
+
+        <hr/>
+
+        <button class="btn btn-danger" v-on:click.stop="remove(currently_edited_reference)">Delete Reference</button>
 
       </b-modal>
     </div>
@@ -77,17 +78,14 @@ export default Vue.extend({
     },
   },
   methods: {
-    reference_key (reference : db.Reference) {
-      return(this.use_source_record ? reference.source_record._id : reference.record._id)
+    record_to_display (reference : db.Reference) : db.Record {
+      return(this.use_source_record ? reference.source_record : reference.record);
     },
     remove (reference_to_remove : db.Reference) : void {
       reference_to_remove.remove()
       // this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
       //   return(reference.record._id == record_to_remove._id)
       // }))
-    },
-    record_clicked (record : db.Record) : void {
-      this.$emit('record-clicked', record);
     },
     edit_properties (reference : db.Reference) : void {
       this.$bvModal.show(this.references_definition_edit_modal_id)
@@ -104,7 +102,12 @@ export default Vue.extend({
       } else {
         return(true)
       }
-    }
+    },
+    record_data (record : db.Record) : object {
+      return _.reduce(this.definition.definitions, (result : object, references_definition : db.Definition) : object => {
+        return _.set(result, references_definition.name, record.value_for_definition(references_definition));
+      }, {})
+    },
   }
 });
 </script>

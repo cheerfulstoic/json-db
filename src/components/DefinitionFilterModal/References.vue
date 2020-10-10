@@ -10,7 +10,7 @@
         <v-icon name="edit"/>
       </a>
 
-      <RecordResult v-bind:record="record" v-bind:database="database" />
+      <RecordResult v-bind:data="record.description_data()" />
     </div>
 
     <RecordsSearch v-bind:record_ids_to_limit_to="filtered_record_ids()"
