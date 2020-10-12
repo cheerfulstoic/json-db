@@ -1,6 +1,6 @@
 <template>
   <div class="record-result">
-    <span v-for="(value, key) in data" v-bind:key="key" class="property">
+    <span v-for="(value, key) in data" v-bind:key="key" class="property" v-on:click="$emit('clicked')">
       <span class="key" v-if="show_keys">{{key}}</span>
       <span v-bind:class="['value', look]">
         <span v-if="is_blank(value)">

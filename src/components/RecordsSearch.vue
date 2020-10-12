@@ -22,7 +22,11 @@
                 {{record.sheet.name}}
               </span>
               »
-              <RecordResult v-bind:data="record.description_data()" v-bind:show_keys="false" look="right-arrow" />
+              <RecordResult
+                v-bind:data="record.description_data()"
+                v-bind:show_keys="false"
+                v-on:clicked="choose(record)"
+                look="right-arrow" />
             </div>
           </b-list-group-item>
         </b-list-group>
@@ -84,7 +88,7 @@ export default Vue.extend({
 
       return result.take(7).value()
     },
-    choose (chosen_record : db.Record, event : any) : void {
+    choose (chosen_record : db.Record, _event : any) : void {
       this.$emit('record-selected', chosen_record);
 
       this.match_text = null;
