@@ -11,7 +11,11 @@
           <v-icon name="edit"/>
         </a>
 
-        <RecordResult v-bind:data="record_to_display(reference).description_data()" v-bind:show_keys="false" look="right-arrow" />
+        <RecordResult
+          v-bind:data="record_to_display(reference).description_data()"
+          v-bind:show_keys="false"
+          v-on:clicked="$emit('record-clicked', record_to_display(reference))"
+          look="right-arrow" />
 
         <RecordResult v-bind:data="record_data(reference)" />
       </div>
