@@ -18,10 +18,18 @@
     </div>
 
     <div>
-      <b-modal ok-only v-bind:id="references_definition_edit_modal_id" title="Edit reference properties">
+      <b-modal ok-only
+        v-bind:static="true"
+        v-bind:visible="!!currently_edited_reference"
+        v-if="currently_edited_reference"
+        v-on:hidden="hide_properties()"
+        title="Edit reference properties">
         <div v-for="references_definition in definition.definitions" v-bind:key="references_definition._id">
           {{references_definition.name}}
-          <Field v-bind:record="currently_edited_reference" v-bind:definition="references_definition" v-bind:database="database"/>
+          <Field
+            v-bind:record="currently_edited_reference"
+            v-bind:definition="references_definition"
+            v-bind:database="database"/>
         </div>
 
         <hr/>
@@ -63,10 +71,6 @@ export default Vue.extend({
     sheet: db.Sheet,
   },
   computed: {
-    references_definition_edit_modal_id () : string {
-      if (this.record == null) { return('') }
-      return('references-definitions-edit-modal-' + (this.use_source_record ? 'use-source-' : '') + this.record._id + this.definition._id);
-    },
     definition_referenceable_sheet_ids_set () : Set<string> {
       if (this.use_source_record) {
         // For incoming references just use to the referencing sheet
@@ -88,12 +92,14 @@ export default Vue.extend({
       // }))
     },
     edit_properties (reference : db.Reference) : void {
-      this.$bvModal.show(this.references_definition_edit_modal_id)
       // Using Vue.set instead of straight assignment to get past typescript error
       Vue.set(this, 'currently_edited_reference', reference);
       // if ( this.currently_edited_reference.data == null ) {
       //   this.currently_edited_reference = null
       // }
+    },
+    hide_properties () : void {
+      Vue.set(this, 'currently_edited_reference', null);
     },
     valid_sheet (sheet : db.Sheet) : boolean {
       if (this.definition) {
