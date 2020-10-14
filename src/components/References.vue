@@ -7,8 +7,12 @@
       <div v-for="reference in value"
            v-bind:key="record_to_display(reference)._id"
            class="referenced-record">
-        <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
+        <a v-on:click.stop="edit_properties(reference)" class="edit">
           <v-icon name="edit"/>
+        </a>
+
+        <a v-on:click.stop="remove(reference)" class="remove">
+          <v-icon name="trash-2"/>
         </a>
 
         <RecordResult
@@ -37,8 +41,6 @@
         </div>
 
         <hr/>
-
-        <button class="btn btn-danger" v-on:click.stop="remove(currently_edited_reference)">Delete Reference</button>
 
       </b-modal>
     </div>
