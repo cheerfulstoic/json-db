@@ -111,7 +111,7 @@ export class DataObject {
 
   public sort_value_for_definition(definition : Definition, database : Database) : any {
     if (definition.type == 'expression') {
-      return database.evaluate_expression(this.data[definition._id])[0]
+      return parseInt(database.evaluate_expression(this.data[definition._id])[0])
     } else {
       return this.value_for_definition(definition);
     }
