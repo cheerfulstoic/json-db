@@ -19,12 +19,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-
 import * as db from '../../db';
 import _ from 'lodash';
 
-export default Vue.extend({
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'SelectOne',
   props: ['definition', 'database', 'values'],
   data () {

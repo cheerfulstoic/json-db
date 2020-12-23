@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'VariableEditor',
   data () : { new_key : string | null } {
     return({ new_key: null })
@@ -27,6 +27,7 @@ export default Vue.extend({
   props: {
     variables: Object,
   },
+  emits: ['update', 'delete'],
   methods: {
     add_variable () {
       if (this.new_key) {

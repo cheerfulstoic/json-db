@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import RecordResult from '../RecordResult.vue';
 import RecordsSearch from '../RecordsSearch.vue';
@@ -30,10 +30,10 @@ import RecordsSearch from '../RecordsSearch.vue';
 import * as db from '../../db';
 import _ from 'lodash';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Reference',
   props: {
-    definition: Object,
+    definition: {type: db.Definition, required: true},
     database: db.Database,
     values: Array, // Record objects
   },
@@ -62,7 +62,7 @@ export default Vue.extend({
       this.emit_input()
     },
     record_selected (chosen_record : db.Record) {
-      Vue.set(this,
+      _.set(this,
               'currently_filtered_records',
               this.currently_filtered_records.concat([chosen_record]))
 

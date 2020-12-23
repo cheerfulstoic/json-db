@@ -91,34 +91,34 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import _ from 'lodash';
 
 import * as db from '../db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'DefinitionDetails',
   data () {
     return({
-      option_to_add: null,
+      option_to_add: '',
       old_value: null,
       new_value: null,
     })
   },
   props: {
-    value: Object,
+    value: {type: db.ReferencesDefinition, required: true},
     sub_definition: Boolean,
     database: db.Database,
   },
   computed: {
-    definition () {
+    definition () : db.ReferencesDefinition {
       return this.value;
     },
-    options () {
+    options () : string[] {
       return this.value.options || [];
     },
-    value_type() {
+    value_type() : string {
       return(this.value.type);
     }
   },
@@ -136,7 +136,7 @@ export default Vue.extend({
       let new_options = this.options;
       new_options.push(this.option_to_add);
       this.value.options = _.uniq(new_options);
-      this.option_to_add = null;
+      this.option_to_add = '';
     },
     remove_option (option_to_remove:string, event:object) {
       if(confirm(`Do you really want to remove the option \`${option_to_remove}\`?`)) {

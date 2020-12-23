@@ -37,14 +37,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import * as db from '../db';
 import _ from 'lodash';
 
 import { DataSet, Network } from 'vis-network';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Graph',
   props: {
     database: db.Database,

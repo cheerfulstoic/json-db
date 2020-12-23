@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import Expression from './types/Expression.vue';
 import Integer from './types/Integer.vue';
@@ -51,7 +51,7 @@ import TextArea from './types/TextArea.vue';
 import * as db from '../db';
 import _ from 'lodash';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Field',
   components: {
     Expression,
@@ -63,8 +63,8 @@ export default Vue.extend({
     TextArea,
   },
   props: {
-    record: Object,
-    definition: Object,
+    record: {type: Object, required: true},
+    definition: {type: Object, required: true},
     database: db.Database,
   },
   data () {

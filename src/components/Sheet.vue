@@ -67,8 +67,8 @@
         <tr class="table-header" ref="table_header">
           <th>&nbsp;</th>
 
-          <template v-for="definition in definitions_to_display">
-            <th class="field-cell" v-bind:key="definition._id">
+          <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
+            <th class="field-cell">
               <Definition
                 v-bind:value="definition"
                 v-bind:database="sheet.database"
@@ -94,8 +94,8 @@
             </th>
           </template>
 
-          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display">
-            <th v-bind:key="'reverse-definition-' + definition_info.definition._id">
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+            <th>
               {{definition_info.sheet.name}}
               -
               {{definition_info.definition.name}}
@@ -144,17 +144,16 @@
         </b-modal>
       </div>
 
-      <template v-for="record in records_to_display">
-        <tr v-bind:key="record._id"
-            v-bind:class="{selected: record_focused(record)}"
+      <template v-for="record in records_to_display" v-bind:key="record._id">
+        <tr v-bind:class="{selected: record_focused(record)}"
             v-bind:id="'record-' + record._id"
             >
           <td>
             <b-button class="btn btn-primary" v-on:click="edit_record(record)">Edit</b-button>
           </td>
 
-          <template v-for="definition in definitions_to_display">
-            <td v-bind:key="definition._id">
+          <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
+            <td>
               <Field v-bind:record="record"
                      v-bind:definition="definition"
                      v-bind:database="sheet.database"
@@ -163,8 +162,8 @@
             </td>
           </template>
 
-          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display">
-            <td v-bind:key="'reverse-definition-' + definition_info.definition._id">
+          <template class="form-check form-check-inline" v-for="definition_info in definitions_referring_to_sheet_to_display" v-bind:key="'reverse-definition-' + definition_info.definition._id">
+            <td>
               <References
                 v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
                 v-bind:record="record"
@@ -220,7 +219,6 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
 import Definition from './Definition.vue';
 import DefinitionFilterModal from './DefinitionFilterModal.vue';
 
@@ -237,7 +235,9 @@ import draggable from 'vuedraggable'
 import * as db from '../db';
 import _ from 'lodash';
 
-export default Vue.extend({
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'Sheet',
   mounted () {
     let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th');
@@ -284,7 +284,7 @@ export default Vue.extend({
     })
   },
   props: {
-    sheet: db.Sheet,
+    sheet: {type: db.Sheet, required: true},
     current_focus: Object,
   },
   computed: {
@@ -385,7 +385,7 @@ export default Vue.extend({
         [record._id].concat(_.map(this.referencer_reference_references_for(sheet, definition, record), 'source_record._id')))
     },
     set_filter (definition_id : string, value : (record: any) => boolean) {
-      Vue.set(this.filters, definition_id, value);
+      _.set(this.filters, definition_id, value);
     },
     filtering_on (definition_id : string) : db.RecordsFilter {
       return(this.filters[definition_id])
@@ -415,14 +415,15 @@ export default Vue.extend({
       // this.sheet.replace_definition(id, definition);
       let index = _.findIndex(this.sheet.definitions, {_id: id})
 
-      Vue.set(this.sheet.definitions, index, definition);
+      _.set(this.sheet.definitions, index, definition);
 
-      // Vue.set(this.sheet, 'definitions', this.sheet.definitions)
+      // _.set(this.sheet, 'definitions', this.sheet.definitions)
     },
     edit_record (record : db.Record) : void {
       this.current_edit_new_record_position = 'top';
       this.currently_edited_record = record;
-      this.$bvModal.show('edit-record-modal')
+      // FIXME: Find a solution for bootstrap-vue for Vue 3
+      // this.$bvModal.show('edit-record-modal')
     },
     // Create a fake definition for compatibility with DefinitionFilterModal(/References)
     // so that the reverse reference filtering works

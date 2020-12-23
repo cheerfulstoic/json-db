@@ -13,11 +13,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import * as db from '../db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Sheet',
   props: {
     data: Object,

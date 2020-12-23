@@ -71,9 +71,8 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue'
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue'
-import Feather from 'vue-icon'
 
 import Sheet from './components/Sheet.vue';
 import VariableEditor from './components/VariableEditor.vue';
@@ -83,12 +82,9 @@ import RecordsSearch from './components/RecordsSearch.vue';
 import _ from 'lodash';
 import Fuse from 'fuse.js';
 
-Vue.use(BootstrapVue);
-Vue.use(Feather, 'v-icon');
-
 import * as db from './db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'app',
   components: {
     // Graph,
@@ -124,10 +120,10 @@ export default Vue.extend({
       })
     },
     update_global_variables (key : string, value : any) {
-      Vue.set(this.database.global_variables, key, value);
+      _.set(this.database.global_variables, key, value);
     },
     delete_global_variables_key (key : string) {
-      Vue.delete(this.database.global_variables, key);
+      _.unset(this.database.global_variables, key);
     },
     upload (event : any) {
       this.upload_highlighted = false;

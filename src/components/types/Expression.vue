@@ -12,18 +12,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-
 import _ from 'lodash';
 
 import * as db from '../../db';
 
-export default Vue.extend({
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'Expression',
   props: {
     value: String,
     definition: Object,
-    database: Object,
+    database: {type: Object, required: true},
   },
   computed: {
     calculated_value_and_error () : db.ExpressionResult {

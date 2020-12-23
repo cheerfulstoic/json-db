@@ -17,20 +17,21 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
+
 import DefinitionDetails from './DefinitionDetails.vue';
 
 import _ from 'lodash';
 
 import * as db from '../db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Definition',
   components: {
     DefinitionDetails,
   },
   props: {
-    value: Object,
+    value: {type: db.ReferencesDefinition, required: true},
     database: db.Database,
   },
   watch: {
@@ -45,7 +46,8 @@ export default Vue.extend({
   },
   methods: {
     remove (definition : db.Definition, event : Event) {
-      this.$bvModal.hide(this.modal_dom_id)
+      // FIXME: Find a solution for bootstrap-vue for Vue 3
+      // this.$bvModal.hide(this.modal_dom_id)
       this.$emit('remove', definition, event);
     },
     remove_sub_definition (definition : db.ReferencesDefinition, sub_definition : db.Definition, event : Event) {

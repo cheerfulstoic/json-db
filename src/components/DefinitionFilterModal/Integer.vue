@@ -23,13 +23,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import * as db from '../../db';
 import _ from 'lodash';
 import Fuse from 'fuse.js';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Integer',
   props: ['definition', 'database', 'values'],
   data () {

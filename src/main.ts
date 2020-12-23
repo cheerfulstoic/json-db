@@ -1,8 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-Vue.config.productionTip = false
+import BootstrapVue from 'bootstrap-vue'
+import Feather from 'vue-icon'
 
-new Vue({
-  render: h => h(App),
-}).$mount('#app')
+const app = Vue.createApp(App)
+
+app.use(BootstrapVue)
+app.use(Feather)
+
+app.mount('#app')

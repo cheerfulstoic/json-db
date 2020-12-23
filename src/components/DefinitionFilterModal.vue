@@ -13,7 +13,7 @@
              v-if="definition.type === 'references' || definition.type === 'reverse_references'"
              v-on:input="handle_input"
              v-bind:definition="definition"
-             v-bind:values="record_values"
+             v-bind:values="record_values()"
              v-bind:database="database" />
 
           <SelectOne
@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import * as db from '../db';
 import _ from 'lodash';
@@ -66,7 +66,7 @@ const is_blank = (value : any) => {
          (Array.isArray(value) && value.length === 0))
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'DefinitionFilterModal',
   components: {
     Integer,
@@ -82,17 +82,14 @@ export default Vue.extend({
     });
   },
   props: {
-    definition: Object,
+    definition: {type: db.Definition, required: true},
     database: db.Database,
     values: Array,
     visible: Boolean,
   },
   computed: {
-    modal_dom_id () {
+    modal_dom_id () : string {
       return `definition-filter-modal-${this.definition._id}`;
-    },
-    record_values () {
-      return _.map(this.values, 'record')
     },
   },
   methods: {
@@ -137,6 +134,9 @@ export default Vue.extend({
       }).uniq().compact().value()
 
       return(new Set(ids))
+    },
+    record_values () {
+      return _.map(this.values, 'record')
     },
   },
 });

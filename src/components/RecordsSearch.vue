@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import RecordResult from './RecordResult.vue';
 
@@ -44,7 +44,7 @@ import _ from 'lodash';
 
 import * as db from '../db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'References',
   components: {
     RecordResult: RecordResult,

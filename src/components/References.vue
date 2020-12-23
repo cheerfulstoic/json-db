@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { defineComponent } from 'vue'
 
 import RecordResult from './RecordResult.vue';
 
@@ -56,7 +56,7 @@ import _ from 'lodash';
 
 import * as db from '../db';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'References',
   components: {
     RecordResult: RecordResult,
@@ -98,14 +98,14 @@ export default Vue.extend({
       // }))
     },
     edit_properties (reference : db.Reference) : void {
-      // Using Vue.set instead of straight assignment to get past typescript error
-      Vue.set(this, 'currently_edited_reference', reference);
+      // Using _.set instead of straight assignment to get past typescript error
+      _.set(this, 'currently_edited_reference', reference);
       // if ( this.currently_edited_reference.data == null ) {
       //   this.currently_edited_reference = null
       // }
     },
     hide_properties () : void {
-      Vue.set(this, 'currently_edited_reference', null);
+      _.set(this, 'currently_edited_reference', null);
     },
     valid_sheet (sheet : db.Sheet) : boolean {
       if (this.definition) {
