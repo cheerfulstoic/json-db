@@ -1,67 +1,68 @@
 <template>
   <span>
-    <b-modal ok-only v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="BootstrapVue">
+    <BootstrapModal ok-only v-bind:ref="modal_dom_id" v-bind:id="modal_dom_id" title="Edit Definition">
       <DefinitionDetails
         v-bind:value="value"
         v-on:input="update"
         v-on:remove="remove"
         v-on:remove-sub-definition="remove_sub_definition"
-        v-bind:database="database" />
-    </b-modal>
+        v-bind:database="database"
+      />
+    </BootstrapModal>
 
-    {{value.name}}
-    <br/>
-    <span v-if="value.unique_id"><v-icon name="zap" style="color: red"/></span>
-    <a v-b-modal="modal_dom_id"><v-icon name="edit"/></a>
+    {{ value.name }}
+    <br />
+    <span v-if="value.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
+    <a role="button" data-toggle="modal" v-bind:data-target="'#' + modal_dom_id">
+      <Icon name="pencil-alt" />
+    </a>
   </span>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import DefinitionDetails from './DefinitionDetails.vue';
+import BootstrapModal from './BootstrapModal.vue'
+import DefinitionDetails from './DefinitionDetails.vue'
+import Icon from './Icon.vue'
 
-import _ from 'lodash';
-
-import * as db from '../db';
+import * as db from '../db'
 
 export default defineComponent({
   name: 'Definition',
   components: {
+    BootstrapModal,
     DefinitionDetails,
+    Icon,
   },
   props: {
-    value: {type: db.ReferencesDefinition, required: true},
+    value: { type: [db.Definition, db.ReferencesDefinition], required: true },
     database: db.Database,
   },
   watch: {
-    value (new_value : any, _old_value : any) {
+    value(new_value: any, _old_value: any) {
       this.$emit('input', new_value)
     },
   },
-  data () {
-    return({
-      modal_dom_id: `edit-definition-modal-${this.value._id}`
-    })
+  data() {
+    return {
+      modal_dom_id: `edit-definition-modal-${this.value._id}`,
+    }
   },
   methods: {
-    remove (definition : db.Definition, event : Event) {
+    remove(definition: db.Definition, event: Event) {
       // FIXME: Find a solution for bootstrap-vue for Vue 3
       // this.$bvModal.hide(this.modal_dom_id)
-      this.$emit('remove', definition, event);
+      this.$emit('remove', definition, event)
     },
-    remove_sub_definition (definition : db.ReferencesDefinition, sub_definition : db.Definition, event : Event) {
-      this.$emit('remove-sub-definition', definition, sub_definition, event);
+    remove_sub_definition(definition: db.ReferencesDefinition, sub_definition: db.Definition, event: Event) {
+      this.$emit('remove-sub-definition', definition, sub_definition, event)
     },
-    update (new_value : any) {
+    update(new_value: any) {
       this.$emit('input', new_value)
     },
-  }
-});
+  },
+})
 </script>
 
-<style scoped lang="scss">
-
-
-</style>
-
+<style scoped lang="scss"></style>

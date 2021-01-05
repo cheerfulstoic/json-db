@@ -3,14 +3,14 @@
     <div class="form-group">
       <label>
         Name
-        <input class="form-control" v-model.lazy="value.name"/>
+        <input class="form-control" v-model.lazy="value.name" />
       </label>
     </div>
 
     <div class="form-group">
       <label>
         Unique ID?
-        <input type="checkbox" id="unique_id" v-model="value.unique_id">
+        <input type="checkbox" id="unique_id" v-model="value.unique_id" />
       </label>
     </div>
 
@@ -31,33 +31,34 @@
 
     <div class="form-group" v-if="value.type == 'select_one'">
       <label>
-        <b-list-group>
-          <b-list-group-item v-for="option in options" v-bind:key="option">
+        <ul class="list-group">
+          <li class="list-group-item" v-for="option in options" v-bind:key="option">
             <a v-on:click="remove_option(option, $event)" class="float-right">
-              <v-icon name="trash-2"/>
+              <Icon name="trash" />
             </a>
-            {{option}}
-          </b-list-group-item>
-        </b-list-group>
+            {{ option }}
+          </li>
+        </ul>
 
-        <input class="form-control" v-model="option_to_add" placeholder="New option"/>
-        <b-button v-on:click="add_option">Add Option</b-button>
+        <input class="form-control" v-model="option_to_add" placeholder="New option" />
+        <button v-on:click="add_option" type="button" class="btn btn-secondary">Add Option</button>
       </label>
     </div>
 
     <div class="form-group" v-if="value.type == 'select_one' && !sub_definition">
       <label>
         Transform all
-        <select  v-model="old_value">
-          <option v-for="option in options" v-bind:key="option">{{option}}</option>
+        <select v-model="old_value">
+          <option v-for="option in options" v-bind:key="option">{{ option }}</option>
         </select>
         to:
-        <select  v-model="new_value">
-          <option v-for="option in options" v-bind:key="option">{{option}}</option>
+        <select v-model="new_value">
+          <option v-for="option in options" v-bind:key="option">{{ option }}</option>
         </select>
 
-        <button class="btn btn-danger"
-                v-on:click="$emit('transform-values', definition, old_value, new_value)">Change</button>
+        <button class="btn btn-danger" v-on:click="$emit('transform-values', definition, old_value, new_value)">
+          Change
+        </button>
       </label>
     </div>
 
@@ -68,22 +69,26 @@
         <p>Limit sheets which can be referenced (select none to allow reference of any sheet):</p>
 
         <label class="referenceable-sheet-option" v-for="sheet in database.sheets" v-bind:key="sheet._id">
-          <input type="checkbox" v-bind:value="sheet._id" v-model="value.referenceable_sheet_ids">
-          {{sheet.name}}
+          <input type="checkbox" v-bind:value="sheet._id" v-model="value.referenceable_sheet_ids" />
+          {{ sheet.name }}
         </label>
       </div>
 
       <div class="form-group">
         <a v-on:click="add_definition" class="btn btn-primary btn-block">Add sub-definition</a>
 
-        <div class="references-definition mt-2"
-              v-for="(references_definition, index) in value.definitions"
-              v-bind:key="references_definition.name">
+        <div
+          class="references-definition mt-2"
+          v-for="(references_definition, index) in value.definitions"
+          v-bind:key="references_definition.name"
+        >
           <DefinitionDetails
-            v-model="definition.definitions[index]"
+            v-bind:value="definition.definitions[index]"
+            v-on:input="$emit('input', $event.target.value)"
             v-bind:sub_definition="true"
             v-on:remove="remove"
-            v-bind:database="database" />
+            v-bind:database="database"
+          />
         </div>
       </div>
     </div>
@@ -93,82 +98,94 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import _ from 'lodash';
+import _ from 'lodash'
 
-import * as db from '../db';
+import * as db from '../db'
+
+import DefinitionDetails from './DefinitionDetails.vue'
+import Icon from './Icon.vue'
 
 export default defineComponent({
   name: 'DefinitionDetails',
-  data () {
-    return({
+  components: { DefinitionDetails, Icon },
+  data() {
+    return {
       option_to_add: '',
       old_value: null,
       new_value: null,
-    })
+    }
   },
   props: {
-    value: {type: db.ReferencesDefinition, required: true},
+    value: {
+      type: [db.Definition, db.ReferencesDefinition],
+      required: true,
+    },
     sub_definition: Boolean,
     database: db.Database,
   },
   computed: {
-    definition () : db.ReferencesDefinition {
-      return this.value;
+    definition(): db.Definition | db.ReferencesDefinition {
+      return this.value
     },
-    options () : string[] {
-      return this.value.options || [];
+    options(): string[] {
+      return this.value.options || []
     },
-    value_type() : string {
-      return(this.value.type);
-    }
+    value_type(): string {
+      return this.value.type
+    },
   },
   watch: {
-    value_type: function (newValue, oldValue) {
-      if (oldValue !== 'references' && newValue === 'references') {
-        this.$emit('input', this.value.to_reference_definition())
-      } else if (oldValue === 'references' && newValue !== 'references') {
-        this.$emit('input', this.value.to_definition())
+    value_type: function (new_value, _old_value) {
+      if (new_value instanceof db.Definition) {
+        this.$emit('input', new_value.to_reference_definition())
+      } else if (new_value instanceof db.ReferencesDefinition) {
+        this.$emit('input', new_value.to_definition())
       }
-    }
-  },
-  methods: {
-    add_option () {
-      let new_options = this.options;
-      new_options.push(this.option_to_add);
-      this.value.options = _.uniq(new_options);
-      this.option_to_add = '';
     },
-    remove_option (option_to_remove:string, event:object) {
-      if(confirm(`Do you really want to remove the option \`${option_to_remove}\`?`)) {
+  },
+  emits: ['input', 'remove', 'remove-sub-definition', 'transform-values'],
+  methods: {
+    add_option(): void {
+      let new_options = this.options
+      new_options.push(this.option_to_add)
+      this.value.options = _.uniq(new_options)
+      this.option_to_add = ''
+    },
+    remove_option(option_to_remove: string): void {
+      if (confirm(`Do you really want to remove the option \`${option_to_remove}\`?`)) {
         this.value.options = _.reject(this.options, (option) => {
           return option == option_to_remove
         })
       }
     },
-    emit_remove () {
-      if(confirm(`Do you really want to delete the definition ${this.definition.name}?`)) {
-        this.$emit('remove', this.definition);
+    emit_remove() {
+      if (confirm(`Do you really want to delete the definition ${this.definition.name}?`)) {
+        this.$emit('remove', this.definition)
       }
     },
-    remove (definition : db.Definition, event : Event) {
-      this.$emit('remove-sub-definition', this.value, definition);
+    remove(definition: db.Definition): void {
+      this.$emit('remove-sub-definition', this.value, definition)
     },
-    add_definition () {
+    add_definition(): void {
       let new_value = _.cloneDeep(this.value)
-      let definition = new db.Definition({name: `Def #1`, type: 'string'})
-      if (new_value.definitions == null) { new_value.definitions = [] }
-      new_value.definitions.push(definition)
-      this.$emit('input', new_value);
+      if (new_value instanceof db.ReferencesDefinition) {
+        // Should always be the case
+        let definition = new db.Definition({ name: 'Def #1', type: 'string' })
+        if (new_value.definitions == null) {
+          new_value.definitions = []
+        }
+        new_value.definitions.push(definition)
+        this.$emit('input', new_value)
+      }
     },
-  }
-});
+  },
+})
 </script>
 
 <style scoped lang="scss">
-
 .references-definition {
   border: 1px solid #333;
-  background-color: #CCC;
+  background-color: #ccc;
   padding: 0.5em;
 }
 
@@ -178,7 +195,4 @@ export default defineComponent({
   border-radius: 0.7em;
   margin: 0.3em;
 }
-
 </style>
-
-

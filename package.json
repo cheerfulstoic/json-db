@@ -4,32 +4,33 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "dev": "vite",
+    "build": "vite build"
   },
   "dependencies": {
     "@egjs/hammerjs": "^2.0.17",
     "@types/lodash": "^4.14.161",
-    "@types/vue-color": "^2.4.2",
+    "@types/vue-color": "^2.4.3",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
     "bootstrap": "^4.5.3",
-    "bootstrap-vue": "^2.21.1",
-    "chai-match-pattern": "^1.1.0",
     "core-js": "^3.4.4",
     "expr-eval": "^2.0.2",
     "fuse.js": "^3.4.6",
+    "jquery": "^3.5.1",
     "keycharm": "^0.3.1",
     "lodash": "^4.17.20",
     "moment": "^2.24.0",
+    "popper.js": "^1.14.3",
     "uuid": "^8.0.0",
     "vis-data": "^6.3.1",
     "vis-network": "^6.5.0",
-    "vue": "^3.0.4",
-    "vue-color": "^2.7.0",
-    "vue-icon": "^2.1.2",
-    "vuedraggable": "^2.24.3",
+    "vite": "^1.0.0-rc.13",
+    "vue": "^3.0.5",
+    "vue-color": "^2.8.1",
+    "vuedraggable": "^4.0.1",
     "yard": "^1.0.3"
   },
   "devDependencies": {
@@ -40,10 +41,11 @@
     "@vue/cli-plugin-typescript": "^4.5.9",
     "@vue/cli-plugin-unit-mocha": "^4.5.9",
     "@vue/cli-service": "^4.5.9",
-    "@vue/compiler-sfc": "^3.0.4",
+    "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "1.1.2",
     "chai": "^4.1.2",
+    "chai-match-pattern": "^1.1.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^3.3.0",
@@ -51,6 +53,7 @@
     "prettier": "^2.2.1",
     "sass": "^1.23.7",
     "sass-loader": "^8.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "vue-template-compiler": "2.6.12"
   }
 }

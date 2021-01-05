@@ -13,49 +13,44 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import * as db from '../../db';
-import _ from 'lodash';
-import Fuse from 'fuse.js';
+import * as db from '../../db'
+import _ from 'lodash'
+import Fuse from 'fuse.js'
 
 export default defineComponent({
   name: 'Stringy',
   props: ['definition', 'database', 'values'],
-  data () {
-    return({
-      search_query: ''
-    })
+  data() {
+    return {
+      search_query: '',
+    }
   },
   watch: {
     search_query: {
-      handler (new_search_query : string, _old_search_query : string) {
+      handler(_new_search_query: string, _old_search_query: string) {
         if (_.trim(this.search_query) === '') {
-          this.$emit('input', this.definition._id, null);
+          this.$emit('input', this.definition._id, null)
         } else {
-          this.$emit('input', this.definition._id, (records : db.Record[]) => {
+          this.$emit('input', this.definition._id, (records: db.Record[]) => {
             let fuse = new Fuse(records, {
               shouldSort: false,
               // TODO: Find a way so that we don't need to know about internal `data` field
               keys: [`data.${this.definition._id}`],
-              threshold: 0.2
+              threshold: 0.2,
             })
 
-            return(fuse.search(this.search_query));
-          });
+            return fuse.search(this.search_query)
+          })
         }
-      }
+      },
     },
   },
   methods: {
-    clear () {
-      this.search_query = '';
-    }
-  }
-});
+    clear() {
+      this.search_query = ''
+    },
+  },
+})
 </script>
 
-<style scoped lang="scss">
-
-
-</style>
-
-
+<style scoped lang="scss"></style>

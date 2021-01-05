@@ -2,11 +2,9 @@
   <span>
     <div class="form-check">
       <label class="form-check-label" v-for="choice in choices()" v-bind:key="choice">
-        <input type="checkbox" class="form-check-input"
-               v-bind:value="choice"
-               v-model="items" />
+        <input type="checkbox" class="form-check-input" v-bind:value="choice" v-model="items" />
 
-        {{choice}}
+        {{ choice }}
       </label>
 
       Select:
@@ -19,53 +17,50 @@
 </template>
 
 <script lang="ts">
-import * as db from '../../db';
-import _ from 'lodash';
+import _ from 'lodash'
 
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'SelectOne',
   props: ['definition', 'database', 'values'],
-  data () {
-    return({
+  data() {
+    return {
       items: _(this.values).uniq().sort().value(),
-    })
+    }
   },
   watch: {
     items: {
-      handler (new_items : string[], _old_items : string[]) : void {
+      handler(_new_items: string[], _old_items: string[]): void {
         if (this.items.length === this.choices().length) {
           this.$emit('input', this.definition._id, null)
         } else {
-          this.$emit('input', this.definition._id,
-                     (records : any[]) => {
-                       return _.filter(records, (record) => {
-                         return(this.items.includes(record.value_for_definition(this.definition)));
-                       })
-                     })
+          this.$emit('input', this.definition._id, (records: any[]) => {
+            return _.filter(records, (record) => {
+              return this.items.includes(record.value_for_definition(this.definition))
+            })
+          })
         }
       },
-      deep: true
+      deep: true,
     },
   },
   methods: {
-    choices () : string[] {
-      return(_(this.values).uniq().sort().value());
+    choices(): string[] {
+      return _(this.values).uniq().sort().value()
     },
-    select_none () :void { this.items = [] },
-    select_all () :void { this.items = this.choices() },
+    select_none(): void {
+      this.items = []
+    },
+    select_all(): void {
+      this.items = this.choices()
+    },
   },
-});
+})
 </script>
 
 <style scoped lang="scss">
-
 .form-check-label {
   display: block;
 }
-
 </style>
-
-
-

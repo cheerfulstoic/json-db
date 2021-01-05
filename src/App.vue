@@ -3,26 +3,28 @@
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
       <input id="project_name" class="form-control mx-2" type="text" v-model="database.project_name" />
 
-      <b-button
-        v-b-modal.global-variables-modal
-        class="btn mx-2"
-        variant="primary">Edit Global Variables</b-button>
+      <button data-toggle="modal" data-target="#global-variables-modal" class="btn btn-primary mx-2">
+        Edit Global Variables
+      </button>
 
       <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
-      <button class="btn btn-primary mx-2"
-         v-if="database.sheets.length"
-         href="#"
-         v-bind:download="database.project_name + '.db.json'"
-         v-on:click.prevent="download_json_file_data"
-         >
+      <button
+        class="btn btn-primary mx-2"
+        v-if="database.sheets.length"
+        href="#"
+        v-bind:download="database.project_name + '.db.json'"
+        v-on:click.prevent="download_json_file_data"
+      >
         Save JSON
       </button>
 
-      <RecordsSearch v-bind:record_ids_to_skip="[]"
-                        v-bind:database="database"
-                        v-bind:sheet_ids_to_search="[]"
-                        v-on:record-selected="focus_record" />
+      <RecordsSearch
+        v-bind:record_ids_to_skip="[]"
+        v-bind:database="database"
+        v-bind:sheet_ids_to_search="[]"
+        v-on:record-selected="focus_record"
+      />
       <!--
       <Graph id="graph"
              v-bind:database="database"
@@ -33,56 +35,63 @@
 
     <div class="container-fluid">
       <ul class="nav nav-tabs sticky-top">
-        <li class="nav-item"
-            v-for="sheet in database.sheets"
-            v-bind:key="sheet._id">
-          <a v-bind:class="['nav-link', 'active', {selected: current_sheet_id === sheet._id}]"
-             v-on:click="change_sheet(sheet._id)">
+        <li class="nav-item" v-for="sheet in database.sheets" v-bind:key="sheet._id">
+          <a
+            v-bind:class="['nav-link', 'active', { selected: current_sheet_id === sheet._id }]"
+            v-on:click="change_sheet(sheet._id)"
+          >
             <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
-            {{sheet.name}}
+            {{ sheet.name }}
           </a>
         </li>
       </ul>
 
       <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
-        <Sheet v-if="current_sheet_id === sheet._id" v-bind:sheet="sheet"
-               v-bind:current_focus="current_focus" v-on:focus-sheet-and-record="focus_sheet_and_record" />
+        <Sheet
+          v-if="current_sheet_id === sheet._id"
+          v-bind:sheet="sheet"
+          v-bind:current_focus="current_focus"
+          v-on:focus-sheet-and-record="focus_sheet_and_record"
+        />
       </div>
 
-      <div id="file-upload" v-cloak v-if="!database.sheets.length"
+      <div
+        id="file-upload"
+        v-cloak
+        v-if="!database.sheets.length"
         v-on:drop.prevent="upload"
         v-on:dragover.prevent="highlight_upload"
         v-on:dragleave.prevent="unhighlight_upload"
-        v-bind:class="{hover: upload_highlighted}">
+        v-bind:class="{ hover: upload_highlighted }"
+      >
         Drag here to upload file
       </div>
 
-      <hr/>
+      <hr />
 
-      <b-modal id="global-variables-modal" title="Global Variables">
+      <BootstrapModal title="Global Variables">
         <VariableEditor
           v-bind:variables="database.global_variables"
           v-on:update="update_global_variables"
-          v-on:delete="delete_global_variables_key" />
-      </b-modal>
+          v-on:delete="delete_global_variables_key"
+        />
+      </BootstrapModal>
     </div>
   </div>
-
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Vue from 'vue';
 
-import Sheet from './components/Sheet.vue';
-import VariableEditor from './components/VariableEditor.vue';
+import Sheet from './components/Sheet.vue'
+import VariableEditor from './components/VariableEditor.vue'
 // import Graph from './components/Graph.vue';
-import RecordsSearch from './components/RecordsSearch.vue';
+import RecordsSearch from './components/RecordsSearch.vue'
+import BootstrapModal from './components/BootstrapModal.vue'
 
-import _ from 'lodash';
-import Fuse from 'fuse.js';
+import _ from 'lodash'
 
-import * as db from './db';
+import * as db from './db'
 
 export default defineComponent({
   name: 'app',
@@ -91,9 +100,16 @@ export default defineComponent({
     VariableEditor,
     Sheet,
     RecordsSearch,
+    BootstrapModal,
   },
-  data () : { database: db.Database, current_sheet_id: string | null, current_focus: {sheet_id: string, record_id: string} | null, upload_highlighted: boolean, show_json: boolean } {
-    let database = new db.Database('Project Name', {});
+  data(): {
+    database: db.Database
+    current_sheet_id: string | null
+    current_focus: { sheet_id: string; record_id: string } | null
+    upload_highlighted: boolean
+    show_json: boolean
+  } {
+    let database = new db.Database('Project Name', {})
 
     return {
       database: database,
@@ -103,96 +119,95 @@ export default defineComponent({
       show_json: false,
     }
   },
-  mounted () {
+  mounted() {
     let url_params = new URLSearchParams(window.location.search)
-    let file_url = url_params.get('file_url');
+    let file_url = url_params.get('file_url')
 
-    if (file_url) { this.load_database_from_url(file_url); }
+    if (file_url) {
+      this.load_database_from_url(file_url)
+    }
   },
   methods: {
-    load_database_from_url (url : string) {
-      let response = fetch(url).then((response) => {
+    load_database_from_url(url: string) {
+      fetch(url).then((response) => {
         response.json().then((data) => {
-          this.database = db.Database.from_saved(data);
+          this.database = db.Database.from_saved(data)
 
-          this.current_sheet_id = this.database.sheets[0]._id;
+          this.current_sheet_id = this.database.sheets[0]._id
         })
       })
     },
-    update_global_variables (key : string, value : any) {
-      _.set(this.database.global_variables, key, value);
+    update_global_variables(key: string, value: any) {
+      _.set(this.database.global_variables, key, value)
     },
-    delete_global_variables_key (key : string) {
-      _.unset(this.database.global_variables, key);
+    delete_global_variables_key(key: string) {
+      _.unset(this.database.global_variables, key)
     },
-    upload (event : any) {
-      this.upload_highlighted = false;
+    upload(event: any) {
+      this.upload_highlighted = false
 
       if (event.dataTransfer.files.length > 1) {
         alert('You cannot upload more than one file')
       }
-      let file = event.dataTransfer.files[0];
-      let item = event.dataTransfer.items[0];
+      let file = event.dataTransfer.files[0]
 
-      var reader = new FileReader();
-      reader.onload = (e : any) => {
-        this.database = db.Database.from_saved(JSON.parse(e.target.result));
+      var reader = new FileReader()
+      reader.onload = (e: any) => {
+        this.database = db.Database.from_saved(JSON.parse(e.target.result))
 
-        this.current_sheet_id = this.database.sheets[0]._id;
-      };
-      reader.readAsText(file);
+        this.current_sheet_id = this.database.sheets[0]._id
+      }
+      reader.readAsText(file)
     },
-    highlight_upload () {
-      this.upload_highlighted = true;
+    highlight_upload() {
+      this.upload_highlighted = true
     },
-    unhighlight_upload () {
-      this.upload_highlighted = false;
+    unhighlight_upload() {
+      this.upload_highlighted = false
     },
-    add_sheet () {
+    add_sheet() {
       let number = this.database.sheets.length + 1
-      let sheet = new db.Sheet(this.database, `Sheet #${number}`, null, null, [], null, null, true, []);
-      this.current_sheet_id = sheet._id;
+      let sheet = new db.Sheet(this.database, `Sheet #${number}`, null, null, [], null, null, true, [])
+      this.current_sheet_id = sheet._id
     },
-    change_sheet (id : string) {
-      this.current_sheet_id = id;
+    change_sheet(id: string) {
+      this.current_sheet_id = id
     },
-    focus_record (record : db.Record) {
+    focus_record(record: db.Record) {
       this.focus_sheet_and_record(record.sheet._id, record._id)
     },
     // DEPRECATED?
-    focus_sheet_and_record (sheet_id : string, record_id : string) {
-      this.current_focus = {sheet_id: sheet_id, record_id: record_id};
-      this.current_sheet_id = sheet_id;
+    focus_sheet_and_record(sheet_id: string, record_id: string) {
+      this.current_focus = { sheet_id: sheet_id, record_id: record_id }
+      this.current_sheet_id = sheet_id
       window.setTimeout(() => {
-        let record_element = document.getElementById(`record-${record_id}`);
+        let record_element = document.getElementById(`record-${record_id}`)
 
         if (record_element) {
-          record_element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          record_element.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
       }, 1)
     },
-    json () {
+    json() {
       return JSON.stringify(this.database.json_data(), null, 2)
     },
-    json_file_data_url () {
-      let file = new Blob([this.json()], {type: 'application/json'});
-      return(URL.createObjectURL(file))
+    json_file_data_url() {
+      let file = new Blob([this.json()], { type: 'application/json' })
+      return URL.createObjectURL(file)
     },
-    download_json_file_data () {
+    download_json_file_data() {
       let blob = new Blob([this.json()], { type: 'application/json' })
       let link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = this.database.project_name + '.db.json';
+      link.download = this.database.project_name + '.db.json'
       link.click()
       URL.revokeObjectURL(link.href)
     },
-    toggle_json () {
-      this.show_json = !this.show_json;
+    toggle_json() {
+      this.show_json = !this.show_json
     },
   },
-  computed: {
-  }
-});
+})
 </script>
 
 <style lang="scss">
@@ -229,7 +244,7 @@ nav button {
   vertical-align: middle;
 
   &.hover {
-    background-color: #BBB;
+    background-color: #bbb;
   }
 
   &:drop {
@@ -299,5 +314,4 @@ ul.nav.nav-tabs {
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';
-@import 'node_modules/bootstrap-vue/src/index.scss';
 </style>

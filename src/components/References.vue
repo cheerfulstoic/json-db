@@ -1,48 +1,49 @@
 <template>
   <div class="input-group referenced-records">
-    <div v-bind:class="{sheet: true, valid: valid_sheet(sheet)}" v-if="this.value.length">
+    <div v-bind:class="{ sheet: true, valid: valid_sheet(sheet) }" v-if="value.length">
       <span class="sheet-name" v-bind:style="'background-color:' + sheet.hex_color">
-        {{sheet.name}}
+        {{ sheet.name }}
       </span>
-      <div v-for="reference in value"
-           v-bind:key="record_to_display(reference)._id"
-           class="referenced-record">
+      <div v-for="reference in value" v-bind:key="record_to_display(reference)._id" class="referenced-record">
         <a v-on:click.stop="edit_properties(reference)" class="edit">
-          <v-icon name="edit"/>
+          <Icon name="pencil-alt" />
         </a>
 
         <a v-on:click.stop="remove(reference)" class="remove">
-          <v-icon name="trash-2"/>
+          <Icon name="trash" />
         </a>
 
         <RecordResult
           v-bind:data="record_to_display(reference).description_data()"
           v-bind:show_keys="false"
           v-on:clicked="$emit('record-clicked', record_to_display(reference))"
-          look="right-arrow" />
+          look="right-arrow"
+        />
 
         <RecordResult v-bind:data="record_data(reference)" />
       </div>
     </div>
 
     <div>
-      <b-modal ok-only
+      <BootstrapModal
+        ok-only
         v-bind:static="true"
         v-bind:visible="!!currently_edited_reference"
         v-if="currently_edited_reference"
         v-on:hidden="hide_properties()"
-        title="Edit reference properties">
+        title="Edit reference properties"
+      >
         <div v-for="references_definition in definition.definitions" v-bind:key="references_definition._id">
-          {{references_definition.name}}
+          {{ references_definition.name }}
           <Field
             v-bind:record="currently_edited_reference"
             v-bind:definition="references_definition"
-            v-bind:database="database"/>
+            v-bind:database="database"
+          />
         </div>
 
-        <hr/>
-
-      </b-modal>
+        <hr />
+      </BootstrapModal>
     </div>
   </div>
 </template>
@@ -50,23 +51,30 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import RecordResult from './RecordResult.vue';
+import BootstrapModal from './BootstrapModal.vue'
+import Field from './Field.vue'
+import Icon from './Icon.vue'
+import RecordResult from './RecordResult.vue'
 
-import _ from 'lodash';
+import _ from 'lodash'
 
-import * as db from '../db';
+import * as db from '../db'
 
 export default defineComponent({
   name: 'References',
   components: {
+    BootstrapModal,
+    Icon,
     RecordResult: RecordResult,
-    Field: () => import('./Field.vue') as any
+    Field,
+    // FIXME? Do I need to put this back?
+    // Field: () => import('./Field.vue') as any,
   },
-  data () : any {
-    return({
+  data(): any {
+    return {
       match_text: null,
       currently_edited_reference: null,
-    })
+    }
   },
   props: {
     value: Array,
@@ -77,55 +85,61 @@ export default defineComponent({
     sheet: db.Sheet,
   },
   computed: {
-    definition_referenceable_sheet_ids_set () : Set<string> {
+    definition_referenceable_sheet_ids_set(): Set<string> {
       if (this.use_source_record) {
         // For incoming references just use to the referencing sheet
-        return(new Set([this.sheet._id]))
+        return new Set([this.sheet._id])
       } else {
         // Use sheets from definition for outgoing references
-        return(this.definition ? new Set(this.definition.referenceable_sheet_ids) : new Set());
+        return this.definition ? new Set(this.definition.referenceable_sheet_ids) : new Set()
       }
     },
   },
+  emits: ['record-clicked'],
   methods: {
-    record_to_display (reference : db.Reference) : db.Record {
-      return(this.use_source_record ? reference.source_record : reference.record);
+    record_to_display(reference: db.Reference): db.Record {
+      return this.use_source_record ? reference.source_record : reference.record
     },
-    remove (reference_to_remove : db.Reference) : void {
+    remove(reference_to_remove: db.Reference): void {
       reference_to_remove.remove()
       // this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
       //   return(reference.record._id == record_to_remove._id)
       // }))
     },
-    edit_properties (reference : db.Reference) : void {
+    edit_properties(reference: db.Reference): void {
       // Using _.set instead of straight assignment to get past typescript error
-      _.set(this, 'currently_edited_reference', reference);
+      _.set(this, 'currently_edited_reference', reference)
       // if ( this.currently_edited_reference.data == null ) {
       //   this.currently_edited_reference = null
       // }
     },
-    hide_properties () : void {
-      _.set(this, 'currently_edited_reference', null);
+    hide_properties(): void {
+      _.set(this, 'currently_edited_reference', null)
     },
-    valid_sheet (sheet : db.Sheet) : boolean {
+    valid_sheet(sheet: db.Sheet): boolean {
       if (this.definition) {
-        return(this.definition_referenceable_sheet_ids_set.size == 0 ||
-               this.definition_referenceable_sheet_ids_set.has(sheet._id))
+        return (
+          this.definition_referenceable_sheet_ids_set.size == 0 ||
+          this.definition_referenceable_sheet_ids_set.has(sheet._id)
+        )
       } else {
-        return(true)
+        return true
       }
     },
-    record_data (record : db.Record) : object {
-      return _.reduce(this.definition.definitions, (result : object, references_definition : db.Definition) : object => {
-        return _.set(result, references_definition.name, record.value_for_definition(references_definition));
-      }, {})
+    record_data(record: db.Record): object {
+      return _.reduce(
+        this.definition.definitions,
+        (result: object, references_definition: db.Definition): object => {
+          return _.set(result, references_definition.name, record.value_for_definition(references_definition))
+        },
+        {},
+      )
     },
-  }
-});
+  },
+})
 </script>
 
 <style scoped lang="scss">
-
 .sheet {
   border: 5px solid red;
 
@@ -138,7 +152,8 @@ export default defineComponent({
   margin-bottom: 1em;
 }
 
-.remove, .edit {
+.remove,
+.edit {
   float: left;
   margin: 0.5em 0.8em 0 0.3em;
 }
@@ -179,7 +194,7 @@ export default defineComponent({
     z-index: 5;
 
     .search_result {
-      text-align: left
+      text-align: left;
     }
   }
 }
@@ -211,21 +226,17 @@ export default defineComponent({
       margin-right: 0.5em;
 
       background-color: white;
-
     }
 
     &:hover {
       .key {
-        background-color: #4294C5;
+        background-color: #4294c5;
       }
 
       .value {
-        background-color: #CCC;
+        background-color: #ccc;
       }
     }
   }
 }
-
-
 </style>
-

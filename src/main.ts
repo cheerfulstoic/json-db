@@ -1,12 +1,6 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 
-import BootstrapVue from 'bootstrap-vue'
-import Feather from 'vue-icon'
+import 'bootstrap'
 
-const app = Vue.createApp(App)
-
-app.use(BootstrapVue)
-app.use(Feather)
-
-app.mount('#app')
+createApp(App).mount('#app')

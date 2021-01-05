@@ -31,7 +31,7 @@ export class ReferencesDefinition extends Definition {
   constructor(data: any) {
     super(data)
 
-    this.definitions = data.definitions || []
+    this.definitions = _.map(data.definitions, (data) => new Definition(data)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
   }
 
@@ -47,7 +47,7 @@ export class ReferencesDefinition extends Definition {
   }
 
   public to_definition() {
-    return new ReferencesDefinition(_.omit(this, ['definitions', '_referenceable_sheet_ids']))
+    return new Definition(_.omit(this, ['definitions', '_referenceable_sheet_ids']))
   }
 }
 
@@ -430,8 +430,8 @@ export class Sheet {
 }
 
 export class Database {
-  sheets: Sheet[]
-  global_variables: any
+  public sheets: Sheet[]
+  public global_variables: any
   public project_name: string
 
   constructor(project_name: string, global_variables: object) {
@@ -445,7 +445,7 @@ export class Database {
   public static from_saved(data: any): Database {
     const database = new Database(data.project_name, data.global_variables || {})
 
-    const sheets = _.map(data.sheets, (schema) => {
+    database.sheets = _.map(data.sheets, (schema) => {
       return new Sheet(
         database,
         schema.name,

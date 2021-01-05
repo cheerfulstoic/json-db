@@ -1,6 +1,6 @@
 <template>
   <span class="input-group">
-    <input class="form-control" v-bind:value="value" ref="the_input" v-on:input="update_value">
+    <input class="form-control" v-bind:value="value" ref="the_input" v-on:input="update_value" />
   </span>
 </template>
 
@@ -9,21 +9,19 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'String',
-  data () {
+  data() {
     return {}
   },
   props: {
     value: String,
   },
+  emits: ['input'],
   methods: {
-    update_value (event : any) {
+    update_value(event: any) {
       this.$emit('input', event.target.value)
     },
-  }
-});
+  },
+})
 </script>
 
-<style scoped lang="scss">
-
-</style>
-
+<style scoped lang="scss"></style>

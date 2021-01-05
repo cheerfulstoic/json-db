@@ -1,20 +1,18 @@
 <template>
   <div>
     <div class="form-group">
-      <input class="form-control" v-bind:value="value" v-on:input="change_value"/>
+      <input class="form-control" v-bind:value="value" v-on:input="change_value" />
     </div>
 
     <div class="form-group">
-      <span class="calculated-value">{{calculated_value}}</span>
-      <span class="error">{{error}}</span>
+      <span class="calculated-value">{{ calculated_value }}</span>
+      <span class="error">{{ error }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
-
-import * as db from '../../db';
+import * as db from '../../db'
 
 import { defineComponent } from 'vue'
 
@@ -23,21 +21,26 @@ export default defineComponent({
   props: {
     value: String,
     definition: Object,
-    database: {type: Object, required: true},
+    database: { type: Object, required: true },
   },
   computed: {
-    calculated_value_and_error () : db.ExpressionResult {
+    calculated_value_and_error(): db.ExpressionResult {
       return this.database.evaluate_expression(this.value)
     },
-    calculated_value () : number | null { return(this.calculated_value_and_error[0]); },
-    error () : Error | null { return(this.calculated_value_and_error[1]); },
+    calculated_value(): number | null {
+      return this.calculated_value_and_error[0]
+    },
+    error(): Error | null {
+      return this.calculated_value_and_error[1]
+    },
   },
+  emits: ['input'],
   methods: {
-    change_value (event : any) : void {
-      this.$emit('input', event.target.value);
-    }
+    change_value(event: any): void {
+      this.$emit('input', event.target.value)
+    },
   },
-});
+})
 </script>
 
 <style scoped lang="scss">
@@ -55,8 +58,4 @@ input {
   font-weight: bold;
   color: red;
 }
-
 </style>
-
-
-

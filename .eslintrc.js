@@ -24,12 +24,13 @@ module.exports = {
     '@typescript-eslint'
   ],
   'rules': {
-    'indent': ['error', 2 ],
+    'indent': 'off', // Taken care of by prettier
     'linebreak-style': [ 'error', 'unix' ],
     'quotes': [ 'error', 'single' ],
     'semi': [ 'error', 'never' ],
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": "error"
-
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "vue/no-v-for-template-key": 'off',
+    "vue/no-mutating-props": 'off',
   }
 }
