@@ -1,5 +1,5 @@
 <template>
-  <img v-bind:src="`/heroicons/src/outline/${name}.svg`" />
+  <img class="icon" v-bind:src="`/heroicons/src/outline/${name}.svg`" />
 </template>
 
 <script lang="ts">

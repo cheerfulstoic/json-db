@@ -27,6 +27,7 @@ describe('db.Sheet', () => {
         name: 'a_few_values',
         hex_color: /^#[0-9A-F]{6}$/,
         definition_ids_to_display: [ 'abc123', uuid_regex ],
+        definition_ids_referring_to_sheet_to_display: [],
         display_referencers: true,
         definitions: [
           { _id: uuid_regex, name: 'age', type: 'integer' },

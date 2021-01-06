@@ -102,12 +102,15 @@ import _ from 'lodash'
 
 import * as db from '../db'
 
-import DefinitionDetails from './DefinitionDetails.vue'
+// import DefinitionDetails from './DefinitionDetails.vue'
 import Icon from './Icon.vue'
 
 export default defineComponent({
   name: 'DefinitionDetails',
-  components: { DefinitionDetails, Icon },
+  components: {
+    // DefinitionDetails,
+    Icon,
+  },
   data() {
     return {
       option_to_add: '',

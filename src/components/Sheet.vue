@@ -13,27 +13,41 @@
 
     <button class="btn btn-primary add-row-btn" v-on:click="add_record('top')">Add Record</button>
 
-    <DefinitionFilterModal
+    <BootstrapModal
       v-for="definition in sheet.definitions"
-      v-on:input="set_filter"
-      v-on:definition-filter-modal-hidden="set_currently_edited_definition(null)"
-      v-bind:definition="definition"
-      v-bind:values="values_for(definition)"
-      v-bind:database="sheet.database"
       v-bind:key="definition._id + '-modal'"
-      v-bind:visible="currently_edited_definition === definition"
-    />
+      v-bind:id="`definition-filter-modal-${definition._id}`"
+      v-bind:title="'Filter: ' + definition.name"
+    >
+      <div>
+        <DefinitionFilterModal
+          v-on:input="set_filter"
+          v-on:definition-filter-modal-hidden="set_currently_filtered_definition(null)"
+          v-bind:definition="definition"
+          v-bind:values="values_for(definition)"
+          v-bind:database="sheet.database"
+          v-show="currently_filtered_definition === definition"
+        />
+      </div>
+    </BootstrapModal>
 
-    <DefinitionFilterModal
+    <BootstrapModal
       v-for="definition_info in definitions_referring_to_sheet"
-      v-on:input="set_filter"
-      v-on:definition-filter-modal-hidden="set_currently_edited_reverse_definition(null)"
-      v-bind:definition="reverse_references_definition(definition_info)"
-      v-bind:values="source_values_for(definition_info)"
-      v-bind:database="sheet.database"
       v-bind:key="'reverse-definition-test-' + definition_info.definition._id"
-      v-bind:visible="currently_edited_reverse_definition === definition_info.definition"
-    />
+      v-bind:id="`definition-filter-modal-${definition_info.definition._id}`"
+      v-bind:title="'Filter: ' + definition_info.definition.name"
+    >
+      <div>
+        <DefinitionFilterModal
+          v-on:input="set_filter"
+          v-on:definition-filter-modal-hidden="set_currently_edited_reverse_definition(null)"
+          v-bind:definition="reverse_references_definition(definition_info)"
+          v-bind:values="source_values_for(definition_info)"
+          v-bind:database="sheet.database"
+          v-show="currently_edited_reverse_definition === definition_info.definition"
+        />
+      </div>
+    </BootstrapModal>
 
     <BootstrapModal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
       <div v-if="currently_edited_record">
@@ -54,7 +68,7 @@
               v-on:add-reference="add_reference"
               v-on:record-clicked="edit_record"
               v-on:reference-record-selected="
-                reference_record_selected(currently_edited_record, definition, ...arguments)
+                reference_record_selected(currently_edited_record, definition, $event)
               "
             />
           </label>
@@ -74,6 +88,18 @@
         <!-- </template> -->
       </div>
     </BootstrapModal>
+
+    <div v-if="currently_edited_definition != null">
+      <BootstrapModal id="edit-definition-modal" v-bind:title="`Edit Definition: ${currently_edited_definition.name}`">
+        <DefinitionDetails
+          v-bind:value="currently_edited_definition"
+          v-on:input="val => $emit('input', val)"
+          v-on:remove="(def, event) => $emit('remove', def, event)"
+          v-on:remove-sub-definition="(def, sub_def, event) => $emit('remove-sub-definition', def, sub_def, event)"
+          v-bind:database="database"
+        />
+      </BootstrapModal>
+    </div>
 
     <table class="table table-striped table-bordered">
       <thead class="thead-light">
@@ -130,32 +156,30 @@
         <tr class="table-header" ref="table_header">
           <th>&nbsp;</th>
 
-          <template v-for="definition in definitions_to_display">
-            <th v-bind:key="definition._id" class="field-cell">
-              <Definition
-                v-bind:value="definition"
-                v-bind:database="sheet.database"
-                v-on:input="replace_definition(definition._id, $event)"
-                v-on:remove="remove_definition(definition)"
-                v-on:remove-sub-definition="remove_sub_definition"
-                v-on:transform-values="transform_values"
-              />
+          <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
+            <th class="field-cell">
+              {{ definition.name }}
+              <br />
+              <span v-if="definition.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
+              <a role="button" data-toggle="modal" v-on:click="edit_definition(definition)">
+                <Icon name="pencil-alt" />
+              </a>
 
-              <span v-on:click="currently_edited_definition = definition">
+              <a role="button" data-toggle="modal" v-on:click="filter_definition(definition)">
                 <Icon
                   name="filter"
                   v-bind:class="{
-                    notice: currently_edited_definition === definition,
+                    notice: currently_filtered_definition === definition,
                     warning: filtering_on(definition._id),
                   }"
                 ></Icon>
-              </span>
+              </a>
 
               <span v-if="sortable(definition)">
-                <a v-on:click="sort(definition, 'desc')">
+                <a role="button" v-on:click="sort(definition, 'desc')">
                   <Icon name="chevron-down" />
                 </a>
-                <a v-on:click="sort(definition, 'asc')">
+                <a role="button" v-on:click="sort(definition, 'asc')">
                   <Icon name="chevron-up" />
                 </a>
               </span>
@@ -165,8 +189,9 @@
           <template
             class="form-check form-check-inline"
             v-for="definition_info in definitions_referring_to_sheet_to_display"
+            v-bind:key="'reverse-definition-' + definition_info.definition._id"
           >
-            <th v-bind:key="'reverse-definition-' + definition_info.definition._id">
+            <th>
               {{ definition_info.sheet.name }}
               -
               {{ definition_info.definition.name }}
@@ -187,9 +212,8 @@
         </tr>
       </thead>
 
-      <template v-for="record in records_to_display">
+      <template v-for="record in records_to_display" v-bind:key="record._id">
         <tr
-          v-bind:key="record._id"
           v-bind:class="{ selected: record_focused(record) }"
           v-bind:id="'record-' + record._id"
         >
@@ -199,45 +223,43 @@
             </button>
           </td>
 
-          <template v-for="definition in definitions_to_display">
-            <td v-bind:key="definition._id">
+          <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
+            <td>
               <Field
                 v-bind:record="record"
                 v-bind:definition="definition"
                 v-bind:database="sheet.database"
                 v-on:record-clicked="edit_record"
-                v-on:reference-record-selected="reference_record_selected(record, definition, ...arguments)"
+                v-on:reference-record-selected="reference_record_selected(record, definition, $event)"
               />
             </td>
           </template>
 
-          <template class="form-check form-check-inline">
-            <td
-              v-bind:key="'reverse-definition-' + definition_info.definition._id"
-              v-for="definition_info in definitions_referring_to_sheet_to_display"
-            >
-              <References
-                v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
-                v-bind:record="record"
-                v-bind:definition="definition_info.definition"
-                v-bind:database="sheet.database"
-                v-bind:sheet="definition_info.sheet"
-                v-bind:use_source_record="true"
-                v-on:record-clicked="edit_record"
-              />
-              <RecordsSearch
-                v-bind:record_ids_to_skip="
-                  referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)
-                "
-                v-bind:database="sheet.database"
-                v-bind:use_source_record="true"
-                v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
-                v-on:record-selected="
-                  reverse_reference_record_selected(record, definition_info.definition, ...arguments)
-                "
-              />
-            </td>
-          </template>
+          <td
+            v-bind:key="'reverse-definition-' + definition_info.definition._id"
+            v-for="definition_info in definitions_referring_to_sheet_to_display"
+          >
+            <References
+              v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
+              v-bind:record="record"
+              v-bind:definition="definition_info.definition"
+              v-bind:database="sheet.database"
+              v-bind:sheet="definition_info.sheet"
+              v-bind:use_source_record="true"
+              v-on:record-clicked="edit_record"
+            />
+            <RecordsSearch
+              v-bind:record_ids_to_skip="
+                referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)
+              "
+              v-bind:database="sheet.database"
+              v-bind:use_source_record="true"
+              v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
+              v-on:record-selected="
+                reverse_reference_record_selected(record, definition_info.definition, $event)
+              "
+            />
+          </td>
 
           <td>
             <a v-on:click="remove_row(record._id)" class="remove"><Icon name="trash" /></a>
@@ -265,18 +287,18 @@
 
       <h1>Column order</h1>
       <h2>(drag to reorder)</h2>
-      <Draggable v-model="sheet.definitions" item-key="_id">
-        <template #item="{ definition }">
-          <div class="list-group-item">{{ definition.name }}</div>
-        </template>
-      </Draggable>
+      <!-- <Draggable v-model="sheet.definitions" item-key="_id"> -->
+      <!--   <template #item="{ definition }"> -->
+      <!--     <div class="list-group-item">{{ definition.name }}</div> -->
+      <!--   </template> -->
+      <!-- </Draggable> -->
     </BootstrapModal>
   </div>
 </template>
 
 <script lang="ts">
 import BootstrapModal from './BootstrapModal.vue'
-import Definition from './Definition.vue'
+import DefinitionDetails from './DefinitionDetails.vue'
 import DefinitionFilterModal from './DefinitionFilterModal.vue'
 import Icon from './Icon.vue'
 
@@ -287,7 +309,7 @@ import Field from './Field.vue'
 
 // import { Chrome } from 'vue-color'
 
-const Draggable = require('vuedraggable')
+// import Draggable from 'vuedraggable'
 
 import * as db from '../db'
 import _ from 'lodash'
@@ -314,7 +336,7 @@ export default defineComponent({
   },
   components: {
     BootstrapModal,
-    Definition,
+    DefinitionDetails,
     DefinitionFilterModal,
     Icon,
     References,
@@ -322,7 +344,7 @@ export default defineComponent({
     Field,
 
     // ChromePicker: Chrome,
-    Draggable,
+    // Draggable,
   },
   data(): {
     colors: { hex: string }
@@ -331,6 +353,7 @@ export default defineComponent({
     recompute_database_reference_referencer_references: number
     current_edit_new_record_position: string
     currently_edited_definition: db.Definition | null
+    currently_filtered_definition: db.Definition | null
     currently_edited_reverse_definition: db.Definition | null
   } {
     return {
@@ -340,6 +363,7 @@ export default defineComponent({
       recompute_database_reference_referencer_references: 0,
       current_edit_new_record_position: 'top',
       currently_edited_definition: null,
+      currently_filtered_definition: null,
       currently_edited_reverse_definition: null,
     }
   },
@@ -532,14 +556,24 @@ export default defineComponent({
       this.currently_edited_record = null
     },
 
-    set_currently_edited_definition(definition: db.Definition) {
-      this.currently_edited_definition = definition
+    set_currently_filtered_definition(definition: db.Definition) {
+      this.currently_filtered_definition = definition
       this.currently_edited_reverse_definition = null
     },
     set_currently_edited_reverse_definition(definition: db.Definition) {
-      this.currently_edited_definition = null
+      this.currently_filtered_definition = null
       this.currently_edited_reverse_definition = definition
     },
+    edit_definition(definition: db.Definition) {
+      this.currently_edited_definition = definition
+      setTimeout(() => {
+        $('#edit-definition-modal').modal({})
+      }, 1)
+    },
+    filter_definition(definition: db.Definition) {
+      this.currently_filtered_definition = definition
+      $(`#definition-filter-modal-${definition._id}`).modal({})
+    }
   },
 })
 </script>

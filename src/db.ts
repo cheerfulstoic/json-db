@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import Fuse from 'fuse.js'
-const Parser = require('expr-eval').Parser
+import { Parser } from 'expr-eval'
 
-const uuidv1 = require('uuid').v1
+import { v1 as uuid } from 'uuid'
 
 export class Definition {
   public _id: string
@@ -12,7 +12,7 @@ export class Definition {
   public options?: string[]
 
   constructor(data: any) {
-    this._id = data._id || uuidv1()
+    this._id = data._id || uuid()
     this.name = data.name
     this.type = data.type
     this.unique_id = data.unique_id
@@ -77,7 +77,7 @@ const add_id = (object: any): any => {
   if (object['_id']) {
     return object
   } else {
-    return _.assign(object, { _id: uuidv1() })
+    return _.assign(object, { _id: uuid() })
   }
 }
 
@@ -249,7 +249,7 @@ export class Sheet {
     this.database = database
     this.database.add_sheet(this)
 
-    this._id = id || uuidv1()
+    this._id = id || uuid()
     this.name = name
 
     this.definitions = _.map(definitions, (definition_data: any) => {
@@ -262,7 +262,7 @@ export class Sheet {
 
     this.update_definition_caches()
 
-    this.definition_ids_to_display = definition_ids_to_display || _.map(definitions, '_id')
+    this.definition_ids_to_display = definition_ids_to_display || _.map(this.definitions, '_id')
     this.definition_ids_referring_to_sheet_to_display = definition_ids_referring_to_sheet_to_display || []
     this.display_referencers = display_referencers == null ? true : display_referencers
 
@@ -387,7 +387,7 @@ export class Sheet {
       record.delete_definition(definition)
     })
     // this.definition_ids_to_display.delete(definition._id);
-    _.pull(this.definition_ids_to_display, definition._id)
+    _.pull(this.definition_ids_to_display, [definition._id])
     // Ugly?
     this.database.sheets.forEach((sheet: Sheet) => {
       _.pull(sheet.definition_ids_referring_to_sheet_to_display, definition._id)
@@ -593,7 +593,7 @@ export class Database {
 
           sheet.records.forEach((record: Record) => {
             references_definitions.forEach((definition) => {
-              ;(record.value_for_definition(definition) || []).forEach((reference: Reference) => {
+              (record.value_for_definition(definition) || []).forEach((reference: Reference) => {
                 const key = reference.record._id
                 if (result[key] == null) {
                   result[key] = {}

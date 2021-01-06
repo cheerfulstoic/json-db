@@ -1,7 +1,5 @@
 <template>
   <div class="input-group">
-    <input :value="value" @input="$emit('input', $event.target.value)" @click="openModal" />
-
     <select
       class="form-control"
       v-bind:value="value"

@@ -1,3 +1,5 @@
 module.exports = {
-  publicPath: '/json-db/dist/'
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/json-db/dist/'
+    : '/'
 }

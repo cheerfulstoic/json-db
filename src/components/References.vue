@@ -24,39 +24,33 @@
       </div>
     </div>
 
-    <div>
-      <BootstrapModal
-        ok-only
-        v-bind:static="true"
-        v-bind:visible="!!currently_edited_reference"
-        v-if="currently_edited_reference"
-        v-on:hidden="hide_properties()"
-        title="Edit reference properties"
-      >
-        <div v-for="references_definition in definition.definitions" v-bind:key="references_definition._id">
-          {{ references_definition.name }}
-          <Field
-            v-bind:record="currently_edited_reference"
-            v-bind:definition="references_definition"
-            v-bind:database="database"
-          />
-        </div>
+    <BootstrapModal
+      title="Edit reference properties"
+    >
+      <div v-for="references_definition in definition.definitions" v-bind:key="references_definition._id">
+        {{ references_definition.name }}
+        <Field
+          v-if="currently_edited_reference"
+          v-bind:record="currently_edited_reference"
+          v-bind:definition="references_definition"
+          v-bind:database="database"
+        />
+      </div>
 
-        <hr />
-      </BootstrapModal>
-    </div>
+      <hr />
+    </BootstrapModal>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, defineAsyncComponent } from 'vue'
 
 import BootstrapModal from './BootstrapModal.vue'
-import Field from './Field.vue'
 import Icon from './Icon.vue'
 import RecordResult from './RecordResult.vue'
 
-import _ from 'lodash'
+import * as _ from 'lodash'
+import $ from 'jquery'
 
 import * as db from '../db'
 
@@ -66,9 +60,7 @@ export default defineComponent({
     BootstrapModal,
     Icon,
     RecordResult: RecordResult,
-    Field,
-    // FIXME? Do I need to put this back?
-    // Field: () => import('./Field.vue') as any,
+    Field: defineAsyncComponent(() => import('./Field.vue') as any),
   },
   data(): any {
     return {
@@ -107,11 +99,11 @@ export default defineComponent({
       // }))
     },
     edit_properties(reference: db.Reference): void {
-      // Using _.set instead of straight assignment to get past typescript error
-      _.set(this, 'currently_edited_reference', reference)
-      // if ( this.currently_edited_reference.data == null ) {
-      //   this.currently_edited_reference = null
-      // }
+      // Used _.set instead of straight assignment to get past typescript error
+      // _.set(this, 'currently_edited_reference', reference)
+      this.currently_edited_reference = reference;
+
+      $(this.$el).find('.modal').modal('show')
     },
     hide_properties(): void {
       _.set(this, 'currently_edited_reference', null)

@@ -10,7 +10,14 @@
       v-on:input="update_value"
     />
     <template v-if="definition.type === 'references' && record_value">
-      <div v-for="references_group in grouped_references()" v-bind:key="references_group.sheet._id"></div>
+      <div v-for="references_group in grouped_references()" v-bind:key="references_group.sheet._id">
+        <References v-bind:value="references_group.references"
+                    v-bind:record="record"
+                    v-bind:definition="definition"
+                    v-bind:database="database"
+                    v-bind:sheet="references_group.sheet"
+                    v-on:record-clicked="record_clicked" />
+      </div>
     </template>
     <RecordsSearch
       v-if="definition.type === 'references'"
@@ -35,19 +42,21 @@ import { defineComponent } from 'vue'
 
 import Expression from './types/Expression.vue'
 import Integer from './types/Integer.vue'
+import References from './References.vue';
 import RecordsSearch from './RecordsSearch.vue'
 import SelectOne from './types/SelectOne.vue'
 import String from './types/String.vue'
 import TextArea from './types/TextArea.vue'
 
 import * as db from '../db'
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 export default defineComponent({
   name: 'Field',
   components: {
     Expression,
     Integer,
+    References,
     RecordsSearch,
     SelectOne,
     String,
@@ -95,7 +104,6 @@ export default defineComponent({
 
     update_value(new_value: any) {
       this.mark_for_recompute()
-      console.log({ d: this.definition.name, v: new_value })
       this.record.update_value(this.definition, new_value)
     },
     mark_for_recompute() {

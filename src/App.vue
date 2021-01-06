@@ -69,7 +69,7 @@
 
       <hr />
 
-      <BootstrapModal title="Global Variables">
+      <BootstrapModal id="global-variables-modal" title="Global Variables">
         <VariableEditor
           v-bind:variables="database.global_variables"
           v-on:update="update_global_variables"
@@ -303,13 +303,15 @@ ul.nav.nav-tabs {
 .icon {
   width: 20px;
 
+  /* Used this to generate filters: https://codepen.io/sosuke/pen/Pjoqqp */
   &.notice {
-    font-weight: bold;
-    color: red;
+    width: 22px;
+    filter: invert(59%) sepia(77%) saturate(7056%) hue-rotate(344deg) brightness(97%) contrast(90%);
   }
   &.warning {
-    font-weight: bold;
-    color: green;
+    width: 22px;
+    /* Yellow-ish */
+    filter: invert(99%) sepia(92%) saturate(1555%) hue-rotate(317deg) brightness(115%) contrast(98%);
   }
 }
 
