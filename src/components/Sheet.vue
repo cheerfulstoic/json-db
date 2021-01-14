@@ -154,10 +154,10 @@
         </tr>
 
         <tr class="table-header" ref="table_header">
-          <th>&nbsp;</th>
+          <th v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
 
           <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
-            <th class="field-cell">
+            <th class="field-cell" v-bind:style="`top: ${sticky_top_amount}px`">
               {{ definition.name }}
               <br />
               <span v-if="definition.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
@@ -191,7 +191,7 @@
             v-for="definition_info in definitions_referring_to_sheet_to_display"
             v-bind:key="'reverse-definition-' + definition_info.definition._id"
           >
-            <th>
+            <th v-bind:style="`top: ${sticky_top_amount}px`">
               {{ definition_info.sheet.name }}
               -
               {{ definition_info.definition.name }}
@@ -208,7 +208,7 @@
             </th>
           </template>
 
-          <th>&nbsp;</th>
+          <th v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
         </tr>
       </thead>
 
@@ -321,18 +321,18 @@ export default defineComponent({
   name: 'Sheet',
   mounted() {
     let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th')
-    let sticky_top_amount: number
+    // let sticky_top_amount: number
     if (columns_element) {
       let relative_height = columns_element.getBoundingClientRect().height || 0
-      sticky_top_amount = Math.round(relative_height) + 90
+      this.sticky_top_amount = Math.round(relative_height) + 90
     } else {
-      sticky_top_amount = 170
+      this.sticky_top_amount = 170
     }
-    let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>('th')
+    // let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>('th')
 
-    _.each(header_cells, (e): void => {
-      e.style.top = `${sticky_top_amount}px`
-    })
+    // _.each(header_cells, (e): void => {
+    //   e.style.top = `${this.sticky_top_amount}px`
+    // })
   },
   components: {
     BootstrapModal,
@@ -355,7 +355,9 @@ export default defineComponent({
     currently_edited_definition: db.Definition | null
     currently_filtered_definition: db.Definition | null
     currently_edited_reverse_definition: db.Definition | null
+    sticky_top_amount: number
   } {
+
     return {
       colors: { hex: this.sheet.hex_color },
       filters: {},
@@ -365,6 +367,7 @@ export default defineComponent({
       currently_edited_definition: null,
       currently_filtered_definition: null,
       currently_edited_reverse_definition: null,
+      sticky_top_amount: 170,
     }
   },
   props: {
