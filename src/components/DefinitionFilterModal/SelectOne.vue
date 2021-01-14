@@ -29,6 +29,7 @@ export default defineComponent({
       items: _(this.values).uniq().sort().value(),
     }
   },
+  emits: ['input'],
   watch: {
     items: {
       handler(_new_items: string[], _old_items: string[]): void {

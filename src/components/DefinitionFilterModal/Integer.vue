@@ -38,6 +38,7 @@ export default defineComponent({
       this.emit_function()
     },
   },
+  emits: ['input'],
   methods: {
     reset() {
       this.min = this.min_min

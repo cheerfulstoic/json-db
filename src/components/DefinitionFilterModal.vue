@@ -8,27 +8,26 @@
         href="#general"
         role="tab"
         aria-controls="home"
-        aria-selected="true"
-        v-on:click="reset_blank()"
+        v-on:click="reset_blank(); current_tab = 'general'"
         >General filter</a
       >
     </li>
     <li class="nav-item" role="presentation">
       <a
         class="nav-link"
-        id="profile-tab"
+        id="blank-tab"
         data-toggle="tab"
         href="#blank"
         role="tab"
-        aria-controls="profile"
-        aria-selected="false"
+        aria-controls="blank"
+        v-on:click="current_tab = 'blank'"
         >Blank filter</a
       >
     </li>
   </ul>
 
   <div class="tab-content">
-    <div class="tab-pane active" id="general" role="tabpanel" aria-labelledby="general-tab">
+    <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'general'}" id="general" role="tabpanel" aria-labelledby="general-tab">
       <References
         v-if="definition.type === 'references' || definition.type === 'reverse_references'"
         v-on:input="handle_input"
@@ -61,7 +60,7 @@
         v-bind:database="database"
       />
     </div>
-    <div class="tab-pane" id="blank" role="tabpanel" aria-labelledby="blank-tab">
+    <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'blank'}" id="blank" role="tabpanel" aria-labelledby="blank-tab">
       <div class="btn-group" role="group">
         <button
           v-on:click="show_only_blank()"
@@ -121,6 +120,7 @@ export default defineComponent({
     return {
       last_input_value: null,
       blankness_filter: null,
+      current_tab: 'general',
     }
   },
   props: {

@@ -40,8 +40,8 @@
             v-bind:class="['nav-link', 'active', { selected: current_sheet_id === sheet._id }]"
             v-on:click="change_sheet(sheet._id)"
           >
-            <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
             {{ sheet.name }}
+            <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
           </a>
         </li>
       </ul>
@@ -280,11 +280,13 @@ ul.nav.nav-tabs {
 
 .nav-item {
   font-weight: bold;
+  a.nav-link { padding: 0.3em 0.3em 0 0.3em }
 
   .marker {
     display: inline-block;
-    height: 0.8em;
-    width: 0.8em;
+    border: 3px solid green;
+    height: 0.5em;
+    width: 100%;
     border: 1px solid black;
   }
 }

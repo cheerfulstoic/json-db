@@ -50,6 +50,7 @@ export default defineComponent({
       currently_filtered_records: [],
     }
   },
+  emits: ['input'],
   methods: {
     filtered_record_ids() {
       return _.map(this.values, '_id')

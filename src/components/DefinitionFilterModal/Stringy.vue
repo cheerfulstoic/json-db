@@ -25,6 +25,7 @@ export default defineComponent({
       search_query: '',
     }
   },
+  emits: ['input'],
   watch: {
     search_query: {
       handler(_new_search_query: string, _old_search_query: string) {
