@@ -329,12 +329,17 @@ export class Sheet {
   }
 
   public remove_row(id: string) {
-    // this.records_data = _.reject(this.records_data, (record : any) => {
-    //   return(record._id === id);
-    // })
     this.records = _.reject(this.records, (record: Record) => {
       return record._id === id
     })
+
+    let references = this.database.referencer_reference_references();
+
+    if (references[id] != null) {
+      _.each(references[id], (references, definition_id) => {
+        _.invokeMap(references, 'remove')
+      })
+    }
   }
 
   // DEPRECATED!  Use Record.values()
