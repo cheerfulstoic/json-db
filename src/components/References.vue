@@ -49,7 +49,7 @@ import BootstrapModal from './BootstrapModal.vue'
 import Icon from './Icon.vue'
 import RecordResult from './RecordResult.vue'
 
-import * as _ from 'lodash'
+import _ from 'lodash'
 import $ from 'jquery'
 
 import * as db from '../db'

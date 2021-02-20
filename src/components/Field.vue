@@ -19,6 +19,7 @@
                     v-on:record-clicked="record_clicked" />
       </div>
     </template>
+
     <RecordsSearch
       v-if="definition.type === 'references'"
       v-bind:record_ids_to_skip="record_ids_to_skip()"
@@ -49,7 +50,7 @@ import String from './types/String.vue'
 import TextArea from './types/TextArea.vue'
 
 import * as db from '../db'
-import * as _ from 'lodash'
+import _ from 'lodash'
 
 export default defineComponent({
   name: 'Field',
