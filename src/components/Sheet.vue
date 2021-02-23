@@ -280,8 +280,7 @@
       <div class="form-group">
         <label>
           Color
-          <!-- FIXME -->
-          <!-- <ChromePicker v-bind:value="colors" v-on:input="update_color" /> -->
+          <input type="color" v-model="sheet.hex_color">
         </label>
       </div>
 
@@ -306,8 +305,6 @@ import References from './References.vue'
 import RecordsSearch from './RecordsSearch.vue'
 
 import Field from './Field.vue'
-
-// import { Chrome } from 'vue-color'
 
 // import Draggable from 'vuedraggable'
 
@@ -343,11 +340,9 @@ export default defineComponent({
     RecordsSearch,
     Field,
 
-    // ChromePicker: Chrome,
     // Draggable,
   },
   data(): {
-    colors: { hex: string }
     filters: { [key: string]: db.RecordsFilter }
     currently_edited_record: db.Record | null
     recompute_database_reference_referencer_references: number
@@ -359,7 +354,6 @@ export default defineComponent({
   } {
 
     return {
-      colors: { hex: this.sheet.hex_color },
       filters: {},
       currently_edited_record: null,
       recompute_database_reference_referencer_references: 0,
@@ -424,12 +418,6 @@ export default defineComponent({
     should_display_definition_referring_to_sheet(definition_info: db.ReferencesDefinitionResult): boolean {
       return this.sheet_definition_ids_referring_to_sheet_to_display_set.has(definition_info.definition._id)
     },
-    update_color(colors: { hex: string }) {
-      this.sheet.hex_color = colors.hex
-    },
-    // focus_record (record_id : string) {
-    //   this.$emit('focus-sheet-and-record', this.sheet._id, record_id);
-    // },
     record_focused(record: db.Record) {
       if (!this.current_focus) {
         return false
