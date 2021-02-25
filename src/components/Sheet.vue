@@ -317,7 +317,7 @@ import * as db from '../db'
 import _ from 'lodash'
 import $ from 'jquery'
 
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 
 export default defineComponent({
   name: 'Sheet',
@@ -562,13 +562,14 @@ export default defineComponent({
     },
     edit_definition(definition: db.Definition) {
       this.currently_edited_definition = definition
+
       setTimeout(() => {
-        $('#edit-definition-modal').modal({})
+        $('#edit-definition-modal').modal('show')
       }, 1)
     },
     filter_definition(definition: db.Definition) {
       this.currently_filtered_definition = definition
-      $(`#definition-filter-modal-${definition._id}`).modal({})
+      $(`#definition-filter-modal-${definition._id}`).modal('show')
     }
   },
 })
