@@ -286,11 +286,16 @@
 
       <h1>Column order</h1>
       <h2>(drag to reorder)</h2>
-      <!-- <Draggable v-model="sheet.definitions" item-key="_id"> -->
-      <!--   <template #item="{ definition }"> -->
-      <!--     <div class="list-group-item">{{ definition.name }}</div> -->
-      <!--   </template> -->
-      <!-- </Draggable> -->
+
+      <draggable class="dragArea list-group w-full" :list="sheet.definitions" @change="log">
+        <div
+          class="list-group-item bg-gray-300 m-1 p-3 rounded-md text-center"
+          v-for="definition in sheet.definitions"
+          :key="definition._id"
+        >
+          {{ definition.name }}
+        </div>
+      </draggable>
     </BootstrapModal>
   </div>
 </template>
@@ -306,7 +311,7 @@ import RecordsSearch from './RecordsSearch.vue'
 
 import Field from './Field.vue'
 
-// import Draggable from 'vuedraggable'
+import { VueDraggableNext } from 'vue-draggable-next'
 
 import * as db from '../db'
 import _ from 'lodash'
@@ -340,7 +345,7 @@ export default defineComponent({
     RecordsSearch,
     Field,
 
-    // Draggable,
+    Draggable: VueDraggableNext,
   },
   data(): {
     filters: { [key: string]: db.RecordsFilter }
