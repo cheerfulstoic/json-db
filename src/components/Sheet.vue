@@ -96,7 +96,7 @@
           v-on:input="val => $emit('input', val)"
           v-on:remove="(def, event) => $emit('remove', def, event)"
           v-on:remove-sub-definition="(def, sub_def, event) => $emit('remove-sub-definition', def, sub_def, event)"
-          v-bind:database="database"
+          v-bind:database="sheet.database"
         />
       </BootstrapModal>
     </div>
