@@ -93,7 +93,8 @@
       <BootstrapModal id="edit-definition-modal" v-bind:title="`Edit Definition: ${currently_edited_definition.name}`">
         <DefinitionDetails
           v-bind:value="currently_edited_definition"
-          v-on:input="val => $emit('input', val)"
+          v-on:input="replace_definition(currently_edited_definition._id, $event)"
+          v-on:add-sub-definition="add_sub_definition(currently_edited_definition._id, $event)"
           v-on:remove="(def, event) => $emit('remove', def, event)"
           v-on:remove-sub-definition="(def, sub_def, event) => $emit('remove-sub-definition', def, sub_def, event)"
           v-bind:database="sheet.database"
@@ -317,7 +318,7 @@ import * as db from '../db'
 import _ from 'lodash'
 import $ from 'jquery'
 
-import { defineComponent, nextTick } from 'vue'
+import { defineComponent, nextTick, reactive } from 'vue'
 
 export default defineComponent({
   name: 'Sheet',
@@ -516,12 +517,26 @@ export default defineComponent({
       this.sheet.transform_values(definition._id, old_value, new_value)
     },
     replace_definition(id: string, definition: db.Definition): void {
+      // debugger
       // this.sheet.replace_definition(id, definition);
-      let index = _.findIndex(this.sheet.definitions, { _id: id })
 
-      _.set(this.sheet.definitions, index, definition)
+
+      console.log({id, definition});
+      let index = _.findIndex(this.sheet.definitions, { _id: id })
+      console.log({index});
+
+      // this.sheet.definitions = _.set(this.sheet.definitions, index, definition);
+      console.log('splice!')
+      this.sheet.definitions.splice(index, 1, definition);
+      // this.sheet.definitions[index] = definition;
 
       // _.set(this.sheet, 'definitions', this.sheet.definitions)
+    },
+    add_sub_definition(id: string, definition: db.Definition): void {
+      console.log('heya')
+      let index = _.findIndex(this.sheet.definitions, { _id: id })
+
+      this.sheet.definitions[index].definitions.push(definition)
     },
     edit_record(record: db.Record): void {
       this.current_edit_new_record_position = 'top'

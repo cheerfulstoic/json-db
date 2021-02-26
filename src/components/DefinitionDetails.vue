@@ -79,11 +79,11 @@
 
         <div
           class="references-definition mt-2"
-          v-for="(references_definition, index) in value.definitions"
+          v-for="references_definition in value.definitions"
           v-bind:key="references_definition.name"
         >
           <DefinitionDetails
-            v-bind:value="definition.definitions[index]"
+            v-bind:value="references_definition"
             v-on:input="$emit('input', $event.target.value)"
             v-bind:sub_definition="true"
             v-on:remove="remove"
@@ -146,7 +146,7 @@ export default defineComponent({
       }
     },
   },
-  emits: ['input', 'remove', 'remove-sub-definition', 'transform-values'],
+  emits: ['input', 'remove', 'remove-sub-definition', 'add-sub-definition', 'transform-values'],
   methods: {
     add_option(): void {
       let new_options = this.options
@@ -170,15 +170,11 @@ export default defineComponent({
       this.$emit('remove-sub-definition', this.value, definition)
     },
     add_definition(): void {
-      let new_value = _.cloneDeep(this.value)
-      if (new_value instanceof db.ReferencesDefinition) {
-        // Should always be the case
+      // Should always be the case
+      if (this.value instanceof db.ReferencesDefinition) {
         let definition = new db.Definition({ name: 'Def #1', type: 'string' })
-        if (new_value.definitions == null) {
-          new_value.definitions = []
-        }
-        new_value.definitions.push(definition)
-        this.$emit('input', new_value)
+
+        this.$emit('add-sub-definition', definition)
       }
     },
   },
