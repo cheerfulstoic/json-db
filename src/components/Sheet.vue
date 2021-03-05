@@ -95,8 +95,8 @@
           v-bind:value="currently_edited_definition"
           v-on:input="replace_definition(currently_edited_definition._id, $event)"
           v-on:add-sub-definition="add_sub_definition(currently_edited_definition._id, $event)"
-          v-on:remove="(def, event) => $emit('remove', def, event)"
-          v-on:remove-sub-definition="(def, sub_def, event) => $emit('remove-sub-definition', def, sub_def, event)"
+          v-on:remove="remove_definition"
+          v-on:remove-sub-definition="remove_sub_definition"
           v-bind:database="sheet.database"
         />
       </BootstrapModal>
@@ -162,8 +162,8 @@
               {{ definition.name }}
               <br />
               <span v-if="definition.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
-              <a role="button" data-toggle="modal" v-on:click="edit_definition(definition)">
-                <Icon name="pencil-alt" />
+              <a role="button" data-toggle="modal" v-on:click="edit_definition(definition)" data-cy="edit-column">
+                <Icon name="pencil-alt" alt_text="Edit Column" />
               </a>
 
               <a role="button" data-toggle="modal" v-on:click="filter_definition(definition)">
@@ -391,8 +391,6 @@ export default defineComponent({
     },
     // To cache, for now...
     database_reference_referencer_references(): any {
-      console.log(this.recompute_database_reference_referencer_references)
-
       return this.sheet.database.referencer_reference_references()
     },
 
@@ -521,19 +519,15 @@ export default defineComponent({
       // this.sheet.replace_definition(id, definition);
 
 
-      console.log({id, definition});
       let index = _.findIndex(this.sheet.definitions, { _id: id })
-      console.log({index});
 
       // this.sheet.definitions = _.set(this.sheet.definitions, index, definition);
-      console.log('splice!')
       this.sheet.definitions.splice(index, 1, definition);
       // this.sheet.definitions[index] = definition;
 
       // _.set(this.sheet, 'definitions', this.sheet.definitions)
     },
     add_sub_definition(id: string, definition: db.Definition): void {
-      console.log('heya')
       let index = _.findIndex(this.sheet.definitions, { _id: id })
 
       this.sheet.definitions[index].definitions.push(definition)

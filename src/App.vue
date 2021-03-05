@@ -52,7 +52,6 @@
           v-bind:sheet="sheet"
           v-bind:current_focus="current_focus"
           v-on:focus-sheet-and-record="focus_sheet_and_record"
-          v-on:input="val => console.log({ val })"
         />
       </div>
 
