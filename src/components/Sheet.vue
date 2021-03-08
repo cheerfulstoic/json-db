@@ -34,7 +34,7 @@
     <BootstrapModal
       v-for="definition_info in definitions_referring_to_sheet"
       v-bind:key="'reverse-definition-test-' + definition_info.definition._id"
-      v-bind:id="`definition-filter-modal-${definition_info.definition._id}`"
+      v-bind:id="`reverse-definition-filter-modal-${definition_info.definition._id}`"
       v-bind:title="'Filter: ' + definition_info.definition.name"
     >
       <div>
@@ -197,7 +197,7 @@
               -
               {{ definition_info.definition.name }}
 
-              <span v-on:click="currently_edited_reverse_definition = definition_info.definition">
+              <a role="button" data-toggle="modal" v-on:click="filter_reverse_definition(definition_info.definition)">
                 <Icon
                   name="filter"
                   v-bind:class="{
@@ -205,7 +205,7 @@
                     warning: filtering_on(definition_info.definition._id),
                   }"
                 ></Icon>
-              </span>
+              </a>
             </th>
           </template>
 
@@ -579,6 +579,10 @@ export default defineComponent({
     filter_definition(definition: db.Definition) {
       this.currently_filtered_definition = definition
       $(`#definition-filter-modal-${definition._id}`).modal('show')
+    },
+    filter_reverse_definition(definition: db.Definition) {
+      this.currently_edited_reverse_definition = definition
+      $(`#reverse-definition-filter-modal-${definition._id}`).modal('show')
     }
   },
 })
