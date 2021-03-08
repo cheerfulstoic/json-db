@@ -730,9 +730,7 @@ export class Database {
           return definition.type == 'references'
         }) as ReferencesDefinition[]
 
-        const expression_definitions: Definition[] = _.filter(sheet.definitions, (definition: Definition) => {
-          return definition.type == 'expression'
-        }) as Definition[]
+        const expression_definitions: Definition[] = _.filter(sheet.definitions, {type: 'expression'})
 
         result[sheet.name] = _.map(sheet.records, (record) => {
           let values = record.values()
@@ -742,11 +740,15 @@ export class Database {
             (values_result: any, definition: ReferencesDefinition) => {
               const references = values_result[definition.name]
 
+              const definition_expression_definitions: Definition[] = _.filter(definition.definitions, {type: 'expression'});
+
               if (references && references.length) {
                 values_result[definition.name] = _.map(references, (reference) => {
                   const referenced_record = reference.record
 
-                  const transformed_data = data_ids_to_names(reference.data, definition.definitions)
+                  let transformed_data = data_ids_to_names(reference.data, definition.definitions)
+                  transformed_data = this.set_expression_data(definition_expression_definitions, transformed_data)
+
                   let reference_data = {
                     record_id: referenced_record._id,
                     sheet_id: referenced_record.sheet._id,
@@ -771,21 +773,7 @@ export class Database {
             values,
           )
 
-          values = _.reduce(
-            expression_definitions,
-            (values_result: any, definition: Definition) => {
-              const expression_result = this.evaluate_expression(values_result[definition.name])[0]
-
-              if (expression_result) {
-                values_result[definition.name] = {
-                  expression_string: values_result[definition.name],
-                  calculated_value: expression_result,
-                }
-              }
-              return values_result
-            },
-            values,
-          )
+          values = this.set_expression_data(expression_definitions, values)
 
           return values
         })
@@ -801,6 +789,26 @@ export class Database {
       records: records_data,
     }
   }
+
+  private set_expression_data(expression_definitions: Definition[], values: object): object {
+    return _.reduce(
+      expression_definitions,
+      (values_result: any, definition: Definition) => {
+        const expression_result = this.evaluate_expression(values_result[definition.name])[0]
+
+        if (expression_result) {
+          values_result[definition.name] = {
+            expression_string: values_result[definition.name],
+            calculated_value: expression_result,
+          }
+        }
+        return values_result
+      },
+      values,
+    )
+  }
+
+
 
   public evaluate_expression(expression_string: string): ExpressionResult {
     if (_.trim(expression_string) === '') {
