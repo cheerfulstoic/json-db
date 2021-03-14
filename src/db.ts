@@ -504,6 +504,12 @@ export class Database {
               // throw `Could not find record ID: ${record_id} for sheet ID: ${sheet_id}`
               return null // Ignore
             } else {
+              const expression_definitions: Definition[] = _.filter(definition.definitions, { type: 'expression' }) as Definition[]
+
+              data = _.reduce(expression_definitions, (result : object, definition: Definition) : object => {
+                return _.set(result, definition.name, this.finalize_expression_data(result[definition.name]))
+              }, data)
+
               return new Reference(
                 referenced_record,
                 record,
@@ -519,13 +525,17 @@ export class Database {
 
   private finalize_expression_record(record: Record, definition: Definition): void {
     record.transform_value(definition, (expression_data: any) => {
-      if (expression_data != null) {
-        return expression_data.expression_string
-      } else {
-        return expression_data
-      }
+      return this.finalize_expression_data(expression_data)
     })
   }
+  private finalize_expression_data(expression_data: object): object {
+    if (expression_data != null) {
+      return expression_data.expression_string
+    } else {
+      return expression_data
+    }
+  }
+
 
   public add_sheet(sheet: Sheet): void {
     this.sheets.push(sheet)
