@@ -27,7 +27,7 @@ describe('db.Sheet', () => {
         name: 'a_few_values',
         hex_color: /^#[0-9A-F]{6}$/,
         definition_ids_to_display: [ 'abc123', uuid_regex ],
-        definition_ids_referring_to_sheet_to_display: [],
+        definition_names_referring_to_sheet_to_display: [],
         display_referencers: true,
         definitions: [
           { _id: uuid_regex, name: 'age', type: 'integer' },
@@ -56,7 +56,7 @@ describe('db.Sheet', () => {
               { _id: 'the_other_refs', name: 'the_other_refs', type: 'references' },
             ],
             definition_ids_to_display: ['the_refs', 'the_other_refs'],
-            definition_ids_referring_to_sheet_to_display: [],
+            definition_names_referring_to_sheet_to_display: [],
             display_referencers: true,
           },
         },
@@ -86,7 +86,7 @@ describe('db.Sheet', () => {
         name: 'SheetName',
         hex_color: /^#[0-9A-F]{6}$/,
         definition_ids_to_display: [ 'the_refs', 'the_other_refs' ],
-        definition_ids_referring_to_sheet_to_display: [],
+        definition_names_referring_to_sheet_to_display: [],
         display_referencers: true,
         definitions: [
           { _id: 'the_refs', name: 'the_refs', type: 'references', definitions: [], _referenceable_sheet_ids: []  },

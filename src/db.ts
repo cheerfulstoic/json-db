@@ -223,7 +223,7 @@ export class Sheet {
   public records_data: object[] // DEPRECATED
   public records: Record[]
   public definition_ids_to_display: string[]
-  public definition_ids_referring_to_sheet_to_display: string[]
+  public definition_names_referring_to_sheet_to_display: string[]
   public display_referencers: boolean
 
   static hex_colors = ['#D11141', '#00B159', '#00AEDB', '#F37735', '#FFC425']
@@ -242,7 +242,7 @@ export class Sheet {
     hex_color: string | null,
     definitions: object[],
     definition_ids_to_display: string[] | null,
-    definition_ids_referring_to_sheet_to_display: string[] | null,
+    definition_names_referring_to_sheet_to_display: string[] | null,
     display_referencers: boolean,
     records_data: object[],
   ) {
@@ -263,7 +263,7 @@ export class Sheet {
     this.update_definition_caches()
 
     this.definition_ids_to_display = definition_ids_to_display || _.map(this.definitions, '_id')
-    this.definition_ids_referring_to_sheet_to_display = definition_ids_referring_to_sheet_to_display || []
+    this.definition_names_referring_to_sheet_to_display = definition_names_referring_to_sheet_to_display || []
     this.display_referencers = display_referencers == null ? true : display_referencers
 
     Sheet.last_used_hex_color = Sheet.last_used_hex_color + 1
@@ -377,7 +377,7 @@ export class Sheet {
       hex_color: this.hex_color,
       definitions: this.definitions,
       definition_ids_to_display: this.definition_ids_to_display,
-      definition_ids_referring_to_sheet_to_display: this.definition_ids_referring_to_sheet_to_display,
+      definition_names_referring_to_sheet_to_display: this.definition_names_referring_to_sheet_to_display,
       display_referencers: this.display_referencers,
     }
   }
@@ -395,7 +395,7 @@ export class Sheet {
     _.pull(this.definition_ids_to_display, [definition._id])
     // Ugly?
     this.database.sheets.forEach((sheet: Sheet) => {
-      _.pull(sheet.definition_ids_referring_to_sheet_to_display, definition._id)
+      _.pull(sheet.definition_names_referring_to_sheet_to_display, definition.name)
     })
     _.pull(this.definitions, definition)
   }
@@ -458,7 +458,7 @@ export class Database {
         schema.hex_color,
         schema.definitions,
         schema.definition_ids_to_display,
-        schema.definition_ids_referring_to_sheet_to_display,
+        schema.definition_names_referring_to_sheet_to_display,
         schema.display_referencers,
         data.records[schema.name],
       )

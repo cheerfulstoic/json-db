@@ -1,5 +1,5 @@
 <template>
-  <img class="icon" v-bind:src="`/heroicons/src/outline/${name}.svg`" />
+  <img class="icon" v-bind:src="`/heroicons/src/outline/${name}.svg`" v-bind:alt="alt_text"/>
 </template>
 
 <script lang="ts">
@@ -10,6 +10,7 @@ export default defineComponent({
   props: {
     name: { type: String, required: true },
     type: { type: String, required: false, default: 'outline' },
+    alt_text: { type: String, required: false },
   },
 })
 </script>

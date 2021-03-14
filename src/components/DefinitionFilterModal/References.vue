@@ -83,8 +83,7 @@ export default defineComponent({
                 })
               })
             } else {
-              let referenced_ids = _.map(record.value_for_definition(def) || [], 'record._id')
-              return _.intersection(current_record_ids, referenced_ids).length > 0
+              return !_(record.value_for_definition(def) || []).map('record._id').intersection(current_record_ids).isEmpty()
             }
           })
         })

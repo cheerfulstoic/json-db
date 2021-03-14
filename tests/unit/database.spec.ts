@@ -41,7 +41,7 @@ describe('db.Database', () => {
             name: 'just_an_expression',
             hex_color: /^#[0-9A-F]{6}$/,
             definition_ids_to_display: [ uuid_regex ],
-            definition_ids_referring_to_sheet_to_display: [],
+            definition_names_referring_to_sheet_to_display: [],
             display_referencers: true,
             definitions: [
               { _id: uuid_regex, name: 'age', type: 'expression' },
@@ -78,7 +78,7 @@ describe('db.Database', () => {
               { _id: 'the_other_refs', name: 'the_other_refs', type: 'references' },
             ],
             definition_ids_to_display: ['def456', 'abc123'],
-            definition_ids_referring_to_sheet_to_display: [],
+            definition_names_referring_to_sheet_to_display: [],
             display_referencers: true,
           },
         },

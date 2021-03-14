@@ -22,7 +22,7 @@
       <div>
         <DefinitionFilterModal
           v-on:input="set_filter"
-          v-on:definition-filter-modal-hidden="set_currently_filtered_definition(null)"
+          v-on:definition-filter-modal-hidden="clear_currently_filtered_definitions()"
           v-bind:definition="definition"
           v-bind:values="values_for(definition)"
           v-bind:database="sheet.database"
@@ -31,21 +31,28 @@
       </div>
     </BootstrapModal>
 
+    <!-- FIXME -->
     <BootstrapModal
-      v-for="definition_info in definitions_referring_to_sheet"
-      v-bind:key="'reverse-definition-test-' + definition_info.definition._id"
-      v-bind:id="`reverse-definition-filter-modal-${definition_info.definition._id}`"
-      v-bind:title="'Filter: ' + definition_info.definition.name"
+      v-for="definition_infos in definitions_referring_to_sheet"
+      v-bind:key="'reverse-definition-test-' + definition_infos[0].definition._id"
+      v-bind:id="`reverse-definition-filter-modal-${collapse_string(definition_infos[0].definition.name)}`"
+      v-bind:title="'Filter: ' + definition_infos[0].definition.name"
     >
       <div>
-        <DefinitionFilterModal
-          v-on:input="set_filter"
-          v-on:definition-filter-modal-hidden="set_currently_edited_reverse_definition(null)"
-          v-bind:definition="reverse_references_definition(definition_info)"
-          v-bind:values="source_values_for(definition_info)"
-          v-bind:database="sheet.database"
-          v-show="currently_edited_reverse_definition === definition_info.definition"
-        />
+        <template
+            v-for="definition_info in definition_infos" v-bind:key="definition_info.definition._id"
+            v-show="currently_edited_reverse_definition === definition_infos.definition.name" >
+          <hr/>
+          <h1>{{definition_info.sheet.name}}</h1>
+
+          <DefinitionFilterModal
+            v-on:input="set_filter"
+            v-on:definition-filter-modal-hidden="clear_currently_filtered_definitions()"
+            v-bind:definition="reverse_references_definition(definition_info)"
+            v-bind:values="source_values_for(definition_info)"
+            v-bind:database="sheet.database"
+          />
+        </template>
       </div>
     </BootstrapModal>
 
@@ -117,7 +124,7 @@
 
         <tr class="columns-to-display" ref="columns_to_display">
           <th colspan="100%">
-            <h3>Columns to Display</h3>
+            <h3>Attributes to Display</h3>
             <div
               class="form-check form-check-inline"
               v-for="definition in sheet.definitions"
@@ -134,21 +141,21 @@
               </label>
             </div>
 
+            <h3>Inbound Relationships to Display</h3>
+
             <div
               class="form-check form-check-inline"
-              v-for="definition_info in definitions_referring_to_sheet"
-              v-bind:key="'reverse-column-to-display-' + definition_info.definition._id"
+              v-for="definition_infos in definitions_referring_to_sheet"
+              v-bind:key="'reverse-column-to-display-' + definition_infos[0].definition._id"
             >
               <label>
                 <input
                   type="checkbox"
                   class="form-check-input"
-                  v-bind:value="definition_info.definition._id"
-                  v-model="sheet.definition_ids_referring_to_sheet_to_display"
+                  v-bind:value="definition_infos[0].definition.name"
+                  v-model="sheet.definition_names_referring_to_sheet_to_display"
                 />
-                {{ definition_info.sheet.name }}
-                -
-                {{ definition_info.definition.name }}
+                {{ definition_infos[0].definition.name }}
               </label>
             </div>
           </th>
@@ -189,20 +196,19 @@
 
           <template
             class="form-check form-check-inline"
-            v-for="definition_info in definitions_referring_to_sheet_to_display"
-            v-bind:key="'reverse-definition-' + definition_info.definition._id"
+            v-for="definition_infos in definitions_referring_to_sheet_to_display"
+            v-bind:key="'reverse-definition-' + definition_infos[0].definition._id"
           >
             <th v-bind:style="`top: ${sticky_top_amount}px`">
-              {{ definition_info.sheet.name }}
-              -
-              {{ definition_info.definition.name }}
+              {{ definition_infos[0].definition.name }} (INBOUND)
 
-              <a role="button" data-toggle="modal" v-on:click="filter_reverse_definition(definition_info.definition)">
+              <!-- FIXME -->
+              <a role="button" data-toggle="modal" v-on:click="filter_reverse_definition(definition_infos)">
                 <Icon
                   name="filter"
                   v-bind:class="{
-                    notice: currently_edited_reverse_definition === definition_info.definition,
-                    warning: filtering_on(definition_info.definition._id),
+                    notice: currently_edited_reverse_definition === definition_infos[0].definition.name,
+                    warning: filtering_on(definition_infos[0].definition.name),
                   }"
                 ></Icon>
               </a>
@@ -237,27 +243,30 @@
           </template>
 
           <td
-            v-bind:key="'reverse-definition-' + definition_info.definition._id"
-            v-for="definition_info in definitions_referring_to_sheet_to_display"
+            v-for="definition_infos in definitions_referring_to_sheet_to_display"
+            v-bind:key="'reverse-definition-' + definition_infos[0].definition._id"
           >
-            <References
-              v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
-              v-bind:record="record"
-              v-bind:definition="definition_info.definition"
-              v-bind:database="sheet.database"
-              v-bind:sheet="definition_info.sheet"
-              v-bind:use_source_record="true"
-              v-on:record-clicked="edit_record"
-            />
+            <div v-for="definition_info in definition_infos" v-bind:key="definition_info.definition._id">
+              <References
+                v-bind:value="referencer_reference_references_for(sheet, definition_info.definition, record)"
+                v-bind:record="record"
+                v-bind:definition="definition_info.definition"
+                v-bind:database="sheet.database"
+                v-bind:sheet="definition_info.sheet"
+                v-bind:use_source_record="true"
+                v-on:record-clicked="edit_record"
+              />
+            </div>
+
             <RecordsSearch
               v-bind:record_ids_to_skip="
-                referencer_reference_references_for_record_ids_to_skip(sheet, definition_info.definition, record)
+                referencer_reference_references_for_record_ids_to_skip(sheet, definition_infos, record)
               "
               v-bind:database="sheet.database"
               v-bind:use_source_record="true"
-              v-bind:sheet_ids_to_search="[definition_info.sheet._id]"
+              v-bind:sheet_ids_to_search="definition_infos.map((info) => info.sheet._id)"
               v-on:record-selected="
-                reverse_reference_record_selected(record, definition_info.definition, $event)
+                reverse_reference_record_selected(record, definition_infos, $event)
               "
             />
           </td>
@@ -355,7 +364,7 @@ export default defineComponent({
     current_edit_new_record_position: string
     currently_edited_definition: db.Definition | null
     currently_filtered_definition: db.Definition | null
-    currently_edited_reverse_definition: db.Definition | null
+    currently_edited_reverse_definition: string | null
     sticky_top_amount: number
   } {
 
@@ -398,17 +407,24 @@ export default defineComponent({
     sheet_definition_ids_to_display_set(): Set<string> {
       return new Set(this.sheet.definition_ids_to_display)
     },
-    sheet_definition_ids_referring_to_sheet_to_display_set(): Set<string> {
-      return new Set(this.sheet.definition_ids_referring_to_sheet_to_display)
+    sheet_definition_names_referring_to_sheet_to_display_set(): Set<string> {
+      return new Set(this.sheet.definition_names_referring_to_sheet_to_display)
     },
 
-    definitions_referring_to_sheet(): { definition: db.Definition; sheet: db.Sheet }[] {
-      return this.sheet.database.definitions_referring_to(this.sheet)
+    definitions_referring_to_sheet(): { definition: db.Definition; sheet: db.Sheet }[][] {
+      return _(this.sheet.database.definitions_referring_to(this.sheet))
+              .groupBy((definition_info) => definition_info.definition.name)
+              .values()
+              .value()
     },
-    definitions_referring_to_sheet_to_display(): { definition: db.Definition; sheet: db.Sheet }[] {
-      return _.filter(
-        this.sheet.database.definitions_referring_to(this.sheet),
-        this.should_display_definition_referring_to_sheet,
+    definitions_referring_to_sheet_to_display(): { definition: db.Definition; sheet: db.Sheet }[][] {
+      return(
+        this.definitions_referring_to_sheet
+        .map((list) => {
+          return list.filter(this.should_display_definition_referring_to_sheet)
+        }).filter((list) => {
+          return list.length > 0
+        })
       )
     },
     definitions_to_display(): (db.Definition | db.ReferencesDefinition)[] {
@@ -420,7 +436,7 @@ export default defineComponent({
       return this.sheet_definition_ids_to_display_set.has(definition._id)
     },
     should_display_definition_referring_to_sheet(definition_info: db.ReferencesDefinitionResult): boolean {
-      return this.sheet_definition_ids_referring_to_sheet_to_display_set.has(definition_info.definition._id)
+      return this.sheet_definition_names_referring_to_sheet_to_display_set.has(definition_info.definition.name)
     },
     record_focused(record: db.Record) {
       if (!this.current_focus) {
@@ -461,10 +477,14 @@ export default defineComponent({
     },
     reverse_reference_record_selected(
       record: db.Record,
-      definition: db.ReferencesDefinition,
+      definition_infos: db.ReferencesDefinitionResult[],
       chosen_record: db.Record,
     ) {
-      this.add_reference(chosen_record, definition, record)
+      definition_infos.forEach((definition_info) => {
+        if (chosen_record.sheet._id === definition_info.sheet._id) {
+          this.add_reference(chosen_record, definition_info.definition, record)
+        }
+      })
     },
     referencer_reference_references_for(sheet: db.Sheet, definition: db.ReferencesDefinition, record: any) {
       let test = this.database_reference_referencer_references[record._id]
@@ -473,11 +493,13 @@ export default defineComponent({
     },
     referencer_reference_references_for_record_ids_to_skip(
       sheet: db.Sheet,
-      definition: db.ReferencesDefinition,
+      definition_infos: db.ReferencesDefinitionResult[],
       record: db.Record,
     ) {
       return [record._id].concat(
-        _.map(this.referencer_reference_references_for(sheet, definition, record), 'source_record._id'),
+        _.flatMap(definition_infos, (definition_info) => {
+          return _.map(this.referencer_reference_references_for(sheet, definition_info.definition, record), 'source_record._id')
+        })
       )
     },
     set_filter(definition_id: string, value: (record: any) => boolean) {
@@ -544,7 +566,7 @@ export default defineComponent({
       return new db.ReferencesDefinition({
         _id: definition_info.definition._id,
         type: 'reverse_references',
-        name: `${definition_info.sheet.name} - ${definition_info.definition.name}`,
+        name: definition_info.definition.name,
         referenceable_sheet_ids: [definition_info.sheet._id],
       })
     },
@@ -561,14 +583,11 @@ export default defineComponent({
       this.currently_edited_record = null
     },
 
-    set_currently_filtered_definition(definition: db.Definition) {
-      this.currently_filtered_definition = definition
+    clear_currently_filtered_definitions() {
+      this.currently_filtered_definition = null
       this.currently_edited_reverse_definition = null
     },
-    set_currently_edited_reverse_definition(definition: db.Definition) {
-      this.currently_filtered_definition = null
-      this.currently_edited_reverse_definition = definition
-    },
+
     edit_definition(definition: db.Definition) {
       this.currently_edited_definition = definition
 
@@ -580,9 +599,12 @@ export default defineComponent({
       this.currently_filtered_definition = definition
       $(`#definition-filter-modal-${definition._id}`).modal('show')
     },
-    filter_reverse_definition(definition: db.Definition) {
-      this.currently_edited_reverse_definition = definition
-      $(`#reverse-definition-filter-modal-${definition._id}`).modal('show')
+    filter_reverse_definition(definition_infos: db.ReferencesDefinitionResult[0]) {
+      this.currently_edited_reverse_definition = definition_infos[0].definition.name
+      $(`#reverse-definition-filter-modal-${this.collapse_string(definition_infos[0].definition.name)}`).modal('show')
+    },
+    collapse_string: (string) => {
+      return string.replace(' ', '')
     }
   },
 })
