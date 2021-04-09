@@ -182,7 +182,7 @@ export class Sheet {
       _id: this._id,
       name: this.name,
       hex_color: this.hex_color,
-      definitions: this.definitions,
+      definitions: this.definitions.map((def) => def.json_data()),
       definition_ids_to_display: this.definition_ids_to_display,
       definition_names_referring_to_sheet_to_display: this.definition_names_referring_to_sheet_to_display,
       display_referencers: this.display_referencers,

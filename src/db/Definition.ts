@@ -21,6 +21,10 @@ export class Definition {
   public to_reference_definition() {
     return new ReferencesDefinition(this)
   }
+
+  public json_data() {
+    return _.pick(this, ['_id', 'name', 'type', 'unique_id', 'options'])
+  }
 }
 
 export class ReferencesDefinition extends Definition {
@@ -47,6 +51,10 @@ export class ReferencesDefinition extends Definition {
 
   public to_definition() {
     return new Definition(_.omit(this, ['definitions', '_referenceable_sheet_ids']))
+  }
+
+  public json_data() {
+    return _.merge(super.json_data(), _.pick(this, ['referenceable_sheet_ids']))
   }
 }
 
