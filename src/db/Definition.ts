@@ -54,7 +54,7 @@ export class ReferencesDefinition extends Definition {
   }
 
   public json_data() {
-    return _.merge(super.json_data(), _.pick(this, ['referenceable_sheet_ids']))
+    return _.merge(super.json_data(), _.pick(this, ['referenceable_sheet_ids', 'definitions']))
   }
 }
 
