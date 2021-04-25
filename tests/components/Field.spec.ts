@@ -130,7 +130,11 @@ describe('Field', () => {
     })
 
     let sheet = database.sheets[0];
-
+    // console.log( {
+    //     record: sheet.records[1],
+    //     definition: sheet.definitions[0],
+    //     database: database,
+    //   })
     let wrapper = mount(Field, {
       props: {
         record: sheet.records[1],

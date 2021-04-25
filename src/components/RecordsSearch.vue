@@ -31,7 +31,8 @@
               </span>
               »
               <RecordResult
-                v-bind:data="record.description_data()"
+                v-bind:definitions="[record.sheet.unique_id_definition()]"
+                v-bind:data_object="record"
                 v-bind:show_keys="false"
                 v-on:clicked="choose(record)"
                 look="right-arrow"
@@ -56,7 +57,7 @@ import * as db from '../db'
 export default defineComponent({
   name: 'References',
   components: {
-    RecordResult: RecordResult,
+    RecordResult,
   },
   data(): any {
     return {

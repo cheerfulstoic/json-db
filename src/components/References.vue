@@ -14,13 +14,17 @@
         </a>
 
         <RecordResult
-          v-bind:data="record_to_display(reference).description_data()"
+          v-bind:definitions="[record_to_display(reference).sheet.unique_id_definition()]"
+          v-bind:data_object="record_to_display(reference)"
           v-bind:show_keys="false"
           v-on:clicked="$emit('record-clicked', record_to_display(reference))"
           look="right-arrow"
         />
 
-        <RecordResult v-bind:data="record_data(reference)" />
+        <RecordResult
+          v-bind:definitions="definition.definitions"
+          v-bind:data_object="reference"
+          />
       </div>
     </div>
 
@@ -59,7 +63,7 @@ export default defineComponent({
   components: {
     BootstrapModal,
     Icon,
-    RecordResult: RecordResult,
+    RecordResult,
     Field: defineAsyncComponent(() => import('./Field.vue') as any),
   },
   data(): any {
@@ -117,15 +121,6 @@ export default defineComponent({
       } else {
         return true
       }
-    },
-    record_data(record: db.Record): object {
-      return _.reduce(
-        this.definition.definitions,
-        (result: object, references_definition: db.Definition): object => {
-          return _.set(result, references_definition.name, record.value_for_definition(references_definition))
-        },
-        {},
-      )
     },
   },
 })

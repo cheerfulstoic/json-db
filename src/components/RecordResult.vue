@@ -1,12 +1,12 @@
 <template>
   <div class="record-result">
-    <span v-for="(value, key) in data" v-bind:key="key" class="property" v-on:click="$emit('clicked')">
-      <span class="key" v-if="show_keys">{{ key }}</span>
-      <span v-bind:class="['value', look]">
-        <span v-if="is_blank(value)">
+    <span v-for="definition in definitions" v-bind:key="definition._id" class="property" v-on:click="$emit('clicked')">
+      <span class="key" v-if="show_keys">{{ definition.name }}</span>
+      <span v-bind:class="['value', look, (error_for(definition) ? 'error' : '')]">
+        <span v-if="data_object.is_blank_for_definition(definition)">
           <strong>-</strong>
         </span>
-        <span v-if="!is_blank(value)">{{ value }}</span>
+        <span v-if="!data_object.is_blank_for_definition(definition)">{{ data_object.value_for_definition(definition) }}</span>
       </span>
     </span>
   </div>
@@ -15,16 +15,23 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
+import _ from 'lodash'
+import * as db from '../db'
+
 export default defineComponent({
   name: 'Sheet',
   props: {
-    data: Object,
+    data_object: db.Record,
+    definitions: { type: Array },
     show_keys: { type: Boolean, default: true },
     look: { type: String, default: 'pill' },
   },
   methods: {
     is_blank(value: any): boolean {
       return value == null || value === ''
+    },
+    error_for(definition: db.Definition): boolean {
+      return definition.required && this.data_object.is_blank_for_definition(definition)
     },
   },
 })
@@ -41,6 +48,7 @@ export default defineComponent({
 $border-color: black;
 
 .property {
+
   .key {
     border: 1px solid $border-color;
     border-radius: 0;
@@ -61,6 +69,10 @@ $border-color: black;
     margin-right: 0.5em;
 
     background-color: white;
+
+    &.error {
+      background-color: #ff8c98;
+    }
 
     &.right-arrow {
       padding-right: 7px;

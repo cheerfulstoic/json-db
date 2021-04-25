@@ -89,8 +89,8 @@ describe('db.Sheet', () => {
         definition_names_referring_to_sheet_to_display: [],
         display_referencers: true,
         definitions: [
-          { _id: 'the_refs', name: 'the_refs', type: 'references', definitions: [], _referenceable_sheet_ids: []  },
-          { _id: 'the_other_refs', name: 'the_other_refs', type: 'references', definitions: [], _referenceable_sheet_ids: [] },
+          { _id: 'the_refs', name: 'the_refs', type: 'references', definitions: [], referenceable_sheet_ids: []  },
+          { _id: 'the_other_refs', name: 'the_other_refs', type: 'references', definitions: [], referenceable_sheet_ids: [] },
         ]
       })
 

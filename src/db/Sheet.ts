@@ -156,9 +156,13 @@ export class Sheet {
   }
 
   public unique_id_field(): string {
-    const definition = _(this.definitions).find({ unique_id: true })
+    const definition = this.unique_id_definition();
 
     return definition ? definition.name : '_id'
+  }
+
+  public unique_id_definition(): Definition {
+    return _(this.definitions).find({ unique_id: true })
   }
 
   public duplicate_records_for(definition : Definition): Record[] {

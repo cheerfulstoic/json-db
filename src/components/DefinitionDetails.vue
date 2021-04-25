@@ -16,6 +16,13 @@
 
     <div class="form-group">
       <label>
+        Required?
+        <input type="checkbox" id="required" v-model="value.required" />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
         Type
         <select class="form-control" v-model="value.type">
           <option disabled value="">Select one</option>

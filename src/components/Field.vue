@@ -35,6 +35,10 @@
       v-bind:database="database"
       v-on:input="update_value"
     />
+
+    <div class="errors">
+      <div class="alert alert-danger" v-for="error in errors" v-bind:key="error">{{error}}</div>
+    </div>
   </span>
 </template>
 
@@ -87,6 +91,14 @@ export default defineComponent({
         return undefined
       }
     },
+    errors(): string[] {
+      let errors = [];
+      if (this.definition.required && this.record.is_blank_for_definition(this.definition)) {
+        errors.push('Field is required')
+      }
+
+      return errors
+    },
   },
   emits: ['record-clicked', 'add-reference', 'reference-record-selected'],
   methods: {
@@ -132,4 +144,9 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.errors {
+  margin-top: 1em;
+}
+
+</style>
