@@ -9,7 +9,7 @@
 
       <button
         type="button"
-        class="btn btn btn-primary"
+        class="btn btn-primary"
         data-toggle="modal"
         data-target="#edit-sheets"
       >

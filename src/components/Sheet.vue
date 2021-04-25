@@ -2,16 +2,14 @@
   <div>
     <button
       type="button"
-      class="btn btn btn-primary btn-secondary"
+      class="btn btn-spaced btn-primary btn-secondary"
       data-toggle="modal"
       data-target="#edit-sheet-modal"
     >
       Edit Sheet
     </button>
 
-    <button class="btn btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
-
-    <button class="btn btn-primary add-row-btn" v-on:click="add_record('top')">Add Record</button>
+    <button class="btn btn-spaced btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
 
     <BootstrapModal
       v-for="definition in sheet.definitions"
@@ -124,6 +122,21 @@
 
         <tr class="columns-to-display" ref="columns_to_display">
           <th colspan="100%">
+            <div class="btn-group" role="group" style="float: right">
+              <button class="btn btn-primary add-row-btn" v-on:click="add_record('top', false)">Add Record</button>
+
+              <div class="btn-group" role="group">
+                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+                  <a class="dropdown-item" v-on:click="add_record('top', false)">Add to top (default)</a>
+                  <a class="dropdown-item" v-on:click="add_record('bottom', false)">Add to bottom</a>
+                  <a class="dropdown-item" v-on:click="add_record('top', true)">Add with modal</a>
+                </div>
+              </div>
+            </div>
+
             <h3>Attributes to Display</h3>
             <div
               class="form-check form-check-inline"
@@ -225,7 +238,7 @@
           v-bind:id="'record-' + record._id"
         >
           <td>
-            <button v-on:click="edit_record(record)" type="button" class="btn btn btn-primary btn-secondary">
+            <button v-on:click="edit_record(record)" type="button" class="btn btn-spaced btn-primary btn-secondary">
               Edit
             </button>
           </td>
@@ -277,7 +290,6 @@
         </tr>
       </template>
     </table>
-    <button class="btn btn-primary add-row-btn" v-on:click="add_record('bottom')">Add Record</button>
 
     <BootstrapModal ok-only id="edit-sheet-modal" title="Edit Sheet">
       <div class="form-group">
@@ -570,12 +582,14 @@ export default defineComponent({
         referenceable_sheet_ids: [definition_info.sheet._id],
       })
     },
-    add_record(position: string): void {
+    add_record(position: string, in_modal: boolean): void {
       let record = this.sheet.add_row(position)
 
-      this.currently_edited_record = record
+      if (in_modal) {
+        this.currently_edited_record = record
 
-      this.edit_record(record)
+        this.edit_record(record)
+      }
 
       this.current_edit_new_record_position = position
     },
@@ -640,7 +654,7 @@ tr.selected td {
   background-color: rgba(0, 0, 0, 0.075);
 }
 
-.btn {
+.btn-spaced {
   margin: 1em;
 }
 
