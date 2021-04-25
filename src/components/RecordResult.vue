@@ -3,10 +3,10 @@
     <span v-for="definition in definitions" v-bind:key="definition._id" class="property" v-on:click="$emit('clicked')">
       <span class="key" v-if="show_keys">{{ definition.name }}</span>
       <span v-bind:class="['value', look, (error_for(definition) ? 'error' : '')]">
-        <span v-if="data_object.is_blank_for_definition(definition)">
+        <span v-if="blank_definitions.has(definition)">
           <strong>-</strong>
         </span>
-        <span v-if="!data_object.is_blank_for_definition(definition)">{{ data_object.value_for_definition(definition) }}</span>
+        <span v-if="!blank_definitions.has(definition)">{{ data_object.value_for_definition(definition) }}</span>
       </span>
     </span>
   </div>
@@ -26,10 +26,12 @@ export default defineComponent({
     show_keys: { type: Boolean, default: true },
     look: { type: String, default: 'pill' },
   },
-  methods: {
-    is_blank(value: any): boolean {
-      return value == null || value === ''
+  computed: {
+    blank_definitions() : Set<db.Definition> {
+      return new Set(_.filter(this.definitions, (def) => this.data_object.is_blank_for_definition(def)))
     },
+  },
+  methods: {
     error_for(definition: db.Definition): boolean {
       return definition.required && this.data_object.is_blank_for_definition(definition)
     },
