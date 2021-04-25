@@ -4,7 +4,7 @@
       type="button"
       class="btn btn btn-primary btn-secondary"
       data-toggle="modal"
-      v-bind:data-target="'#sheet-modal-' + sheet._id"
+      data-target="#edit-sheet-modal"
     >
       Edit Sheet
     </button>
@@ -279,7 +279,7 @@
     </table>
     <button class="btn btn-primary add-row-btn" v-on:click="add_record('bottom')">Add Record</button>
 
-    <BootstrapModal ok-only v-bind:id="'sheet-modal-' + sheet._id" title="Edit Sheet">
+    <BootstrapModal ok-only id="edit-sheet-modal" title="Edit Sheet">
       <div class="form-group">
         <label>
           Name

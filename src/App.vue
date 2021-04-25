@@ -7,6 +7,15 @@
         Edit Global Variables
       </button>
 
+      <button
+        type="button"
+        class="btn btn btn-primary"
+        data-toggle="modal"
+        data-target="#edit-sheets"
+      >
+        Reorder Sheets
+      </button>
+
       <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
       <button
@@ -77,6 +86,21 @@
         />
       </BootstrapModal>
     </div>
+
+    <BootstrapModal ok-only id="edit-sheets" title="Edit Sheets">
+      <h1>Sheet order</h1>
+      <h2>(drag to reorder)</h2>
+
+      <draggable class="dragArea list-group w-full" :list="database.sheets" @change="log">
+        <div
+          class="list-group-item bg-gray-300 m-1 p-3 rounded-md text-center"
+          v-for="sheet in database.sheets"
+          :key="sheet._id"
+        >
+          {{ sheet.name }}
+        </div>
+      </draggable>
+    </BootstrapModal>
   </div>
 </template>
 
@@ -88,6 +112,8 @@ import VariableEditor from './components/VariableEditor.vue'
 // import Graph from './components/Graph.vue';
 import RecordsSearch from './components/RecordsSearch.vue'
 import BootstrapModal from './components/BootstrapModal.vue'
+
+import { VueDraggableNext } from 'vue-draggable-next'
 
 import _ from 'lodash'
 
@@ -101,6 +127,8 @@ export default defineComponent({
     Sheet,
     RecordsSearch,
     BootstrapModal,
+
+    Draggable: VueDraggableNext,
   },
   data(): {
     database: db.Database
