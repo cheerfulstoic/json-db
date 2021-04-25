@@ -395,6 +395,7 @@ export default defineComponent({
     sheet: { type: db.Sheet, required: true },
     current_focus: Object,
   },
+  emits: ['record-selected'],
   computed: {
     records_to_display(): any[] {
       return _(this.filters)
@@ -592,6 +593,8 @@ export default defineComponent({
       }
 
       this.current_edit_new_record_position = position
+
+      this.$emit('record-selected', record)
     },
     stop_editing_record(): void {
       this.currently_edited_record = null
