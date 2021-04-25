@@ -13,7 +13,7 @@
         data-toggle="modal"
         data-target="#edit-sheets"
       >
-        Reorder Sheets
+        Edit Sheets
       </button>
 
       <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
@@ -99,6 +99,8 @@
           :key="sheet._id"
         >
           {{ sheet.name }}
+
+          <a v-on:click="remove_sheet(sheet)" class="remove"><Icon name="trash" style="float: right" /></a>
         </div>
       </draggable>
     </BootstrapModal>
@@ -113,6 +115,7 @@ import VariableEditor from './components/VariableEditor.vue'
 // import Graph from './components/Graph.vue';
 import RecordsSearch from './components/RecordsSearch.vue'
 import BootstrapModal from './components/BootstrapModal.vue'
+import Icon from './components/Icon.vue'
 
 import { VueDraggableNext } from 'vue-draggable-next'
 
@@ -128,6 +131,7 @@ export default defineComponent({
     Sheet,
     RecordsSearch,
     BootstrapModal,
+    Icon,
 
     Draggable: VueDraggableNext,
   },
@@ -234,6 +238,15 @@ export default defineComponent({
     },
     toggle_json() {
       this.show_json = !this.show_json
+    },
+    remove_sheet(sheet: db.Sheet) {
+      if (confirm(`Are you sure you want to remove the sheet: '${sheet.name}'?`)) {
+        this.database.sheets = _.reject(this.database.sheets, {_id: sheet._id})
+
+        if (sheet._id === this.current_sheet_id) {
+          this.current_sheet_id = this.database.sheets[0]._id;
+        }
+      }
     },
   },
 })
