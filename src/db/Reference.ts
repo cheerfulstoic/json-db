@@ -17,9 +17,12 @@ export class Reference extends DataObject {
   }
 
   remove(): void {
-    this.source_record.transform_value(this.definition, (value) => {
-      return _.reject(value, (reference: Reference) => {
-        return reference.record._id == this.record._id
+    this.source_record.transform_value(this.definition, (references) => {
+      return _.reject(references, (reference: Reference) => {
+        return(
+          reference.record._id === this.record._id &&
+          _.isEqual(reference.data, this.data)
+        )
       })
     })
   }
