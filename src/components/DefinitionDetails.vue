@@ -69,7 +69,7 @@
       </label>
     </div>
 
-    <button class="btn btn-danger" v-on:click="emit_remove">Delete Definition</button>
+    <button class="btn btn-danger" v-on:click="emit_remove">Delete Column</button>
 
     <div class="mt-2" v-if="value.type == 'references'">
       <div class="form-group">
