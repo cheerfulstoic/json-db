@@ -3,11 +3,12 @@
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
       <input id="project_name" class="form-control mx-2" type="text" v-model="database.project_name" />
 
-      <button data-toggle="modal" data-target="#global-variables-modal" class="btn btn-primary mx-2">
+      <button v-if="!view_mode" data-toggle="modal" data-target="#global-variables-modal" class="btn btn-primary mx-2">
         Edit Global Variables
       </button>
 
       <button
+        v-if="!view_mode"
         type="button"
         class="btn btn-primary"
         data-toggle="modal"
@@ -16,7 +17,7 @@
         Edit Sheets
       </button>
 
-      <button class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
+      <button v-if="!view_mode" class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
       <button
         class="btn btn-primary mx-2"
@@ -34,6 +35,17 @@
         v-bind:sheet_ids_to_search="[]"
         v-on:record-selected="focus_record"
       />
+
+      <div class="btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-primary" style="white-space: nowrap">
+          <input type="checkbox" checked v-model="view_mode" autocomplete="off">
+          Switch to: 
+          <template v-if="!view_mode">View Mode</template>
+          <template v-if="view_mode">Edit Mode</template>
+        </label>
+      </div>
+
+
       <!--
       <Graph id="graph"
              v-bind:database="database"
@@ -60,6 +72,7 @@
           v-if="current_sheet_id === sheet._id"
           v-bind:sheet="sheet"
           v-bind:current_focus="current_focus"
+          v-bind:view_mode="view_mode"
           v-on:focus-sheet-and-record="focus_sheet_and_record"
           v-on:record-selected="focus_record"
         />
@@ -140,7 +153,8 @@ export default defineComponent({
     current_sheet_id: string | null
     current_focus: { sheet_id: string; record_id: string } | null
     upload_highlighted: boolean
-    show_json: boolean
+    show_json: boolean,
+    view_mode: boolean,
   } {
     let database = new db.Database('Project Name', {})
 
@@ -150,6 +164,7 @@ export default defineComponent({
       current_focus: null,
       upload_highlighted: false,
       show_json: false,
+      view_mode: false,
     }
   },
   mounted() {

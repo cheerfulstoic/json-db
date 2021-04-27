@@ -1,6 +1,7 @@
 <template>
   <div>
     <button
+      v-if="!view_mode"
       type="button"
       class="btn btn-spaced btn-primary btn-secondary"
       data-toggle="modal"
@@ -9,7 +10,7 @@
       Edit Sheet
     </button>
 
-    <button class="btn btn-spaced btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
+    <button v-if="!view_mode" class="btn btn-spaced btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
 
     <BootstrapModal
       v-for="definition in sheet.definitions"
@@ -70,6 +71,7 @@
               v-bind:record="currently_edited_record"
               v-bind:definition="definition"
               v-bind:database="sheet.database"
+              v-bind:view_mode="view_mode"
               v-on:add-reference="add_reference"
               v-on:record-clicked="edit_record"
               v-on:reference-record-selected="
@@ -122,7 +124,7 @@
 
         <tr class="columns-to-display" ref="columns_to_display">
           <th colspan="100%">
-            <div class="btn-group" role="group" style="float: right">
+            <div v-if="!view_mode" class="btn-group" role="group" style="float: right">
               <button class="btn btn-primary add-row-btn" v-on:click="add_record('top', false)">Add Record</button>
 
               <div class="btn-group" role="group">
@@ -175,7 +177,7 @@
         </tr>
 
         <tr class="table-header" ref="table_header">
-          <th v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
+          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
 
           <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
             <th class="field-cell" v-bind:style="`top: ${sticky_top_amount}px`">
@@ -183,7 +185,7 @@
               <br />
               <span v-if="definition.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
               <a role="button" data-toggle="modal" v-on:click="edit_definition(definition)" data-cy="edit-column">
-                <Icon name="pencil-alt" alt_text="Edit Column" />
+                <Icon v-if="!view_mode" name="pencil-alt" alt_text="Edit Column" />
               </a>
 
               <a role="button" data-toggle="modal" v-on:click="filter_definition(definition)">
@@ -228,7 +230,7 @@
             </th>
           </template>
 
-          <th v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
+          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
         </tr>
       </thead>
 
@@ -237,7 +239,7 @@
           v-bind:class="{ selected: record_focused(record) }"
           v-bind:id="'record-' + record._id"
         >
-          <td>
+          <td v-if="!view_mode">
             <button v-on:click="edit_record(record)" type="button" class="btn btn-spaced btn-primary btn-secondary">
               Edit
             </button>
@@ -249,6 +251,7 @@
                 v-bind:record="record"
                 v-bind:definition="definition"
                 v-bind:database="sheet.database"
+                v-bind:view_mode="view_mode"
                 v-on:record-clicked="edit_record"
                 v-on:reference-record-selected="reference_record_selected(record, definition, $event)"
               />
@@ -272,6 +275,7 @@
             </div>
 
             <RecordsSearch
+              v-if="!view_mode"
               v-bind:record_ids_to_skip="
                 referencer_reference_references_for_record_ids_to_skip(sheet, definition_infos, record)
               "
@@ -284,7 +288,7 @@
             />
           </td>
 
-          <td>
+          <td v-if="!view_mode">
             <a v-on:click="remove_row(record._id)" class="remove"><Icon name="trash" /></a>
           </td>
         </tr>
@@ -394,6 +398,7 @@ export default defineComponent({
   props: {
     sheet: { type: db.Sheet, required: true },
     current_focus: Object,
+    view_mode: Boolean,
   },
   emits: ['record-selected'],
   computed: {

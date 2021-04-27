@@ -1,14 +1,29 @@
 <template>
   <span>
-    <String v-if="definition.type === 'string'" v-bind:value="record_value" v-on:input="update_value" />
-    <TextArea v-if="definition.type === 'text_area'" v-bind:value="record_value" v-on:input="update_value" />
-    <Integer v-if="definition.type === 'integer'" v-bind:value="record_value" v-on:input="update_value" />
-    <SelectOne
-      v-if="definition.type === 'select_one'"
-      v-bind:value="record_value"
-      v-bind:definition="definition"
-      v-on:input="update_value"
-    />
+    <template v-if="!view_mode">
+      <String v-if="definition.type === 'string'" v-bind:value="record_value" v-on:input="update_value" />
+      <TextArea v-if="definition.type === 'text_area'" v-bind:value="record_value" v-on:input="update_value" />
+      <Integer v-if="definition.type === 'integer'" v-bind:value="record_value" v-on:input="update_value" />
+      <SelectOne
+        v-if="definition.type === 'select_one'"
+        v-bind:value="record_value"
+        v-bind:definition="definition"
+        v-on:input="update_value"
+      />
+
+      <Expression
+        v-if="definition.type === 'expression'"
+        v-bind:value="record_value"
+        v-bind:definition="definition"
+        v-bind:database="database"
+        v-on:input="update_value"
+      />
+    </template>
+
+    <template v-if="view_mode && definition.type !== 'references'">
+      {{record_value}}
+    </template>
+
     <template v-if="definition.type === 'references' && record_value">
       <div v-for="references_group in grouped_references()" v-bind:key="references_group.sheet._id">
         <References v-bind:value="references_group.references"
@@ -16,25 +31,20 @@
                     v-bind:definition="definition"
                     v-bind:database="database"
                     v-bind:sheet="references_group.sheet"
+                    v-bind:view_mode="view_mode"
                     v-on:record-clicked="record_clicked" />
       </div>
     </template>
 
-    <RecordsSearch
-      v-if="definition.type === 'references'"
-      v-bind:record_ids_to_skip="record_ids_to_skip()"
-      v-bind:database="database"
-      v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
-      v-on:record-selected="reference_record_selected"
-    />
-
-    <Expression
-      v-if="definition.type === 'expression'"
-      v-bind:value="record_value"
-      v-bind:definition="definition"
-      v-bind:database="database"
-      v-on:input="update_value"
-    />
+    <div v-if="!view_mode">
+      <RecordsSearch
+        v-if="definition.type === 'references'"
+        v-bind:record_ids_to_skip="record_ids_to_skip()"
+        v-bind:database="database"
+        v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
+        v-on:record-selected="reference_record_selected"
+      />
+    </div>
 
     <div class="errors">
       <div class="alert alert-danger" v-for="error in errors" v-bind:key="error">{{error}}</div>
@@ -71,6 +81,7 @@ export default defineComponent({
     record: { type: Object, required: true },
     definition: { type: Object, required: true },
     database: db.Database,
+    view_mode: Boolean,
   },
   data() {
     return { recompute: 0 }

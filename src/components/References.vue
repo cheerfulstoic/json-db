@@ -5,13 +5,15 @@
         {{ sheet.name }}
       </span>
       <div v-for="reference in value" v-bind:key="record_to_display(reference)._id" class="referenced-record">
-        <a v-on:click.stop="edit_properties(reference)" class="edit">
-          <Icon name="pencil-alt" />
-        </a>
+        <template v-if="!view_mode">
+          <a v-on:click.stop="edit_properties(reference)" class="edit">
+            <Icon name="pencil-alt" />
+          </a>
 
-        <a v-on:click.stop="remove(reference)" class="remove">
-          <Icon name="trash" />
-        </a>
+          <a v-on:click.stop="remove(reference)" class="remove">
+            <Icon name="trash" />
+          </a>
+        </template>
 
         <RecordResult
           v-bind:definitions="[record_to_display(reference).sheet.unique_id_definition()]"
@@ -79,6 +81,7 @@ export default defineComponent({
     database: Object,
     use_source_record: Boolean,
     sheet: db.Sheet,
+    view_mode: Boolean,
   },
   computed: {
     definition_referenceable_sheet_ids_set(): Set<string> {
