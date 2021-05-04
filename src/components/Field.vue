@@ -3,7 +3,12 @@
     <template v-if="!view_mode">
       <String v-if="definition.type === 'string'" v-bind:value="record_value" v-on:input="update_value" />
       <TextArea v-if="definition.type === 'text_area'" v-bind:value="record_value" v-on:input="update_value" />
-      <Integer v-if="definition.type === 'integer'" v-bind:value="record_value" v-on:input="update_value" />
+      <Number
+        v-if="definition.type === 'number'"
+        v-bind:sub_type="definition.sub_type"
+        v-bind:value="record_value"
+        v-on:input="update_value"
+        />
       <SelectOne
         v-if="definition.type === 'select_one'"
         v-bind:value="record_value"
@@ -56,7 +61,7 @@
 import { defineComponent } from 'vue'
 
 import Expression from './types/Expression.vue'
-import Integer from './types/Integer.vue'
+import Number from './types/Number.vue'
 import References from './References.vue';
 import RecordsSearch from './RecordsSearch.vue'
 import SelectOne from './types/SelectOne.vue'
@@ -70,7 +75,7 @@ export default defineComponent({
   name: 'Field',
   components: {
     Expression,
-    Integer,
+    Number,
     References,
     RecordsSearch,
     SelectOne,

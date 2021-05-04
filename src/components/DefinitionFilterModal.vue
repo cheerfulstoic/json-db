@@ -52,8 +52,8 @@
         v-bind:database="database"
       />
 
-      <Integer
-        v-if="definition.type === 'integer'"
+      <Number
+        v-if="definition.type === 'number'"
         v-on:input="handle_input"
         v-bind:definition="definition"
         v-bind:values="values"
@@ -91,7 +91,7 @@ import _ from 'lodash'
 import $ from 'jquery'
 
 import BootstrapModal from './BootstrapModal.vue'
-import Integer from './DefinitionFilterModal/Integer.vue'
+import Number from './DefinitionFilterModal/Number.vue'
 import References from './DefinitionFilterModal/References.vue'
 import SelectOne from './DefinitionFilterModal/SelectOne.vue'
 import Stringy from './DefinitionFilterModal/Stringy.vue'
@@ -104,7 +104,7 @@ export default defineComponent({
   name: 'DefinitionFilterModal',
   components: {
     BootstrapModal,
-    Integer,
+    Number,
     References,
     SelectOne,
     Stringy,

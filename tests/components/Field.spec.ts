@@ -64,7 +64,7 @@ describe('Field', () => {
       sheets: {
         SheetName: {
           name: "SheetName",
-          definitions: [ { name: 'Name', type: 'integer' }, ],
+          definitions: [ { name: 'Name', type: 'number', sub_type: 'integer' }, ],
         },
       },
       records: { SheetName: [ { Name: 43 } ], },

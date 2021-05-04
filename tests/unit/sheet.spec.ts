@@ -14,7 +14,7 @@ describe('db.Sheet', () => {
       let database = new db.Database('The name', {})
       let sheet = new db.Sheet(database, 'a_few_values', null, null, [
         { _id: 'abc123', name: 'name', type: 'string' },
-        { name: 'age', type: 'integer' },
+        { name: 'age', type: 'number', sub_type: 'integer' },
       ], null, null, true, [
         { name: 'Caravan', age: 32 },
         { name: 'Palace', age: 35 },
@@ -30,7 +30,7 @@ describe('db.Sheet', () => {
         definition_names_referring_to_sheet_to_display: [],
         display_referencers: true,
         definitions: [
-          { _id: uuid_regex, name: 'age', type: 'integer' },
+          { _id: uuid_regex, name: 'age', type: 'number', sub_type: 'integer' },
         ]
       })
 

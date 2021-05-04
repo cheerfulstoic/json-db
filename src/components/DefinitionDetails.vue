@@ -28,10 +28,18 @@
           <option disabled value="">Select one</option>
           <option value="string">String</option>
           <option value="text_area">Text Area</option>
-          <option value="integer">Integer</option>
+          <option value="number">Number</option>
           <option value="select_one">Select One</option>
           <option value="references" v-if="!sub_definition">References</option>
           <option value="expression">Expression</option>
+        </select>
+      </label>
+
+      <label v-if="value.type === 'number'">
+        Sub-type
+        <select class="form-control" v-model="value.sub_type">
+          <option value="integer">Integer</option>
+          <option value="float">Float</option>
         </select>
       </label>
     </div>

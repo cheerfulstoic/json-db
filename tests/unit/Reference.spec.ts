@@ -23,7 +23,7 @@ describe('db.Reference', () => {
               {
                 _id: 'the_refs', name: 'the_refs', type: 'references',
                 definitions: [
-                  { _id: 'the_sub_def_id', name: 'value', type: 'integer' },
+                  { _id: 'the_sub_def_id', name: 'value', type: 'number', sub_type: 'integer' },
                 ],
               },
             ],

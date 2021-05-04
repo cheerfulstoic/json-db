@@ -3,9 +3,9 @@
     <div>Smallest value: {{ min_min }}</div>
     <div>Biggest value: {{ max_max }}</div>
     <div class="input-group mb-3">
-      <input type="number" class="form-control" v-model="min" v-bind:min="min_min" v-bind:max="max" />
+      <input type="number" class="form-control" v-model="min" v-bind:step="step" v-bind:min="min_min" v-bind:max="max" />
 
-      <input type="number" class="form-control" v-model="max" v-bind:min="min" v-bind:max="max_max" />
+      <input type="number" class="form-control" v-model="max" v-bind:step="step" v-bind:min="min" v-bind:max="max_max" />
 
       <div class="input-group-append">
         <button type="button" class="btn btn-primary" v-on:click="reset">Reset</button>
@@ -20,7 +20,7 @@ import { defineComponent } from 'vue'
 import _ from 'lodash'
 
 export default defineComponent({
-  name: 'Integer',
+  name: 'Number',
   props: ['definition', 'database', 'values'],
   data() {
     return {
@@ -28,6 +28,8 @@ export default defineComponent({
       min_min: _.min(this.values),
       max: _.max(this.values),
       max_max: _.max(this.values),
+      step: this.definition.sub_type === 'float' ? 0.00001 : 1,
+      parseFn: this.definition.sub_type === 'float' ? parseFloat : parseInt,
     }
   },
   watch: {
@@ -45,8 +47,8 @@ export default defineComponent({
       this.max = this.max_max
     },
     emit_function(): void {
-      let min = parseInt(`${this.min}`)
-      let max = parseInt(`${this.max}`)
+      let min = this.parseFn(`${this.min}`)
+      let max = this.parseFn(`${this.max}`)
       if (min === this.min_min && max === this.max_max) {
         this.$emit('input', this.definition._id, null)
       } else {

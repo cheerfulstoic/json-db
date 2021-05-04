@@ -7,6 +7,7 @@ export class Definition {
   public _id: string
   public name: string
   public type: string
+  public sub_type: string
   public unique_id: boolean
   public required: boolean
   public options?: string[]
@@ -15,6 +16,8 @@ export class Definition {
     this._id = data._id || uuid()
     this.name = data.name
     this.type = data.type
+    if (this.type === 'integer') { this.type = 'number' }
+    this.sub_type = data.sub_type || 'integer'
     this.unique_id = data.unique_id
     this.required = data.required
     this.options = data.options
@@ -25,7 +28,7 @@ export class Definition {
   }
 
   public json_data() {
-    return _.pick(this, ['_id', 'name', 'type', 'unique_id', 'required', 'options'])
+    return _.pick(this, ['_id', 'name', 'type', 'sub_type', 'unique_id', 'required', 'options'])
   }
 }
 
