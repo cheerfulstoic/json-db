@@ -270,6 +270,7 @@
                 v-bind:database="sheet.database"
                 v-bind:sheet="definition_info.sheet"
                 v-bind:use_source_record="true"
+                v-bind:view_mode="view_mode"
                 v-on:record-clicked="edit_record"
               />
             </div>
