@@ -1,0 +1,551 @@
+{
+  "project_name": "Dungeon Danger!",
+  "global_variables": {},
+  "sheets": {
+    "Enemies": {
+      "_id": "b13d3270-ab85-11eb-8ee6-17e16f40caff",
+      "name": "Enemies",
+      "hex_color": "#d11141",
+      "definitions": [
+        {
+          "_id": "f02097c0-ab85-11eb-8ee6-17e16f40caff",
+          "name": "Name",
+          "type": "string",
+          "sub_type": "integer",
+          "unique_id": true,
+          "required": true
+        },
+        {
+          "_id": "0cf59300-ab86-11eb-8ee6-17e16f40caff",
+          "name": "Attack",
+          "type": "number",
+          "sub_type": "integer",
+          "required": true
+        },
+        {
+          "_id": "4af13060-ab86-11eb-8ee6-17e16f40caff",
+          "name": "Shield",
+          "type": "number",
+          "sub_type": "integer"
+        },
+        {
+          "_id": "926322f0-ab86-11eb-8ee6-17e16f40caff",
+          "name": "Movement",
+          "type": "number",
+          "sub_type": "integer"
+        },
+        {
+          "_id": "e07e19e0-ab86-11eb-8ee6-17e16f40caff",
+          "name": "Drops",
+          "type": "references",
+          "sub_type": "integer",
+          "referenceable_sheet_ids": [
+            "c72cc720-ab86-11eb-8ee6-17e16f40caff"
+          ],
+          "definitions": [
+            {
+              "_id": "32ec0860-ad15-11eb-9c24-1b3af91d3e66",
+              "name": "Chance",
+              "type": "number",
+              "sub_type": "float",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "definition_ids_to_display": [
+        "f02097c0-ab85-11eb-8ee6-17e16f40caff",
+        "0cf59300-ab86-11eb-8ee6-17e16f40caff",
+        "4af13060-ab86-11eb-8ee6-17e16f40caff",
+        "926322f0-ab86-11eb-8ee6-17e16f40caff",
+        "e07e19e0-ab86-11eb-8ee6-17e16f40caff"
+      ],
+      "definition_names_referring_to_sheet_to_display": [],
+      "display_referencers": true
+    },
+    "Items": {
+      "_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+      "name": "Items",
+      "hex_color": "#00B159",
+      "definitions": [
+        {
+          "_id": "ca330240-ab86-11eb-8ee6-17e16f40caff",
+          "name": "Name",
+          "type": "string",
+          "sub_type": "integer",
+          "unique_id": true,
+          "required": true
+        },
+        {
+          "_id": "e89738a0-af6e-11eb-8453-f7b3b163d12f",
+          "name": "Wieldable",
+          "type": "select_one",
+          "sub_type": "integer",
+          "required": true,
+          "options": [
+            "Yes",
+            "No"
+          ]
+        },
+        {
+          "_id": "0f5d9000-af70-11eb-a988-156bd2a422f4",
+          "name": "Consumed Effects",
+          "type": "references",
+          "sub_type": "integer",
+          "referenceable_sheet_ids": [
+            "1f008da0-af70-11eb-a988-156bd2a422f4"
+          ],
+          "definitions": [
+            {
+              "_id": "5fb0eac0-af70-11eb-8241-2f2237fa801c",
+              "name": "Amount",
+              "type": "number",
+              "sub_type": "integer",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "definition_ids_to_display": [
+        "ca330240-ab86-11eb-8ee6-17e16f40caff",
+        "e89738a0-af6e-11eb-8453-f7b3b163d12f",
+        "0f5d9000-af70-11eb-a988-156bd2a422f4"
+      ],
+      "definition_names_referring_to_sheet_to_display": [
+        "Drops"
+      ],
+      "display_referencers": true
+    },
+    "Crafting": {
+      "_id": "7f133d10-af6f-11eb-8453-f7b3b163d12f",
+      "name": "Crafting",
+      "hex_color": "#F37735",
+      "definitions": [
+        {
+          "_id": "84bb7340-af6f-11eb-8453-f7b3b163d12f",
+          "name": "Ingredients",
+          "type": "references",
+          "sub_type": "integer",
+          "referenceable_sheet_ids": [
+            "c72cc720-ab86-11eb-8ee6-17e16f40caff"
+          ],
+          "definitions": []
+        },
+        {
+          "_id": "a866eb80-af6f-11eb-8453-f7b3b163d12f",
+          "name": "Creates",
+          "type": "references",
+          "sub_type": "integer",
+          "referenceable_sheet_ids": [
+            "c72cc720-ab86-11eb-8ee6-17e16f40caff"
+          ],
+          "definitions": []
+        }
+      ],
+      "definition_ids_to_display": [
+        "84bb7340-af6f-11eb-8453-f7b3b163d12f",
+        "8eff9fc0-af6f-11eb-8453-f7b3b163d12f",
+        "a866eb80-af6f-11eb-8453-f7b3b163d12f"
+      ],
+      "definition_names_referring_to_sheet_to_display": [],
+      "display_referencers": true
+    },
+    "Player Attributes": {
+      "_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+      "name": "Player Attributes",
+      "hex_color": "#302cf3",
+      "definitions": [
+        {
+          "_id": "2873fca0-af70-11eb-a988-156bd2a422f4",
+          "name": "Name",
+          "type": "string",
+          "sub_type": "integer",
+          "unique_id": true
+        }
+      ],
+      "definition_ids_to_display": [
+        "2873fca0-af70-11eb-a988-156bd2a422f4"
+      ],
+      "definition_names_referring_to_sheet_to_display": [],
+      "display_referencers": true
+    },
+    "Spells": {
+      "_id": "359f4380-af70-11eb-a988-156bd2a422f4",
+      "name": "Spells",
+      "hex_color": "#FFC425",
+      "definitions": [
+        {
+          "_id": "22f04170-b0fc-11eb-9807-db55dc33da44",
+          "name": "Name",
+          "type": "string",
+          "sub_type": "integer",
+          "unique_id": true,
+          "required": true
+        },
+        {
+          "_id": "23ca4dc0-b0fc-11eb-9807-db55dc33da44",
+          "name": "Player Effects",
+          "type": "references",
+          "sub_type": "integer",
+          "required": true,
+          "referenceable_sheet_ids": [
+            "1f008da0-af70-11eb-a988-156bd2a422f4"
+          ],
+          "definitions": [
+            {
+              "_id": "6592d1a0-b0fc-11eb-93e2-d95554188582",
+              "name": "Amount",
+              "type": "number",
+              "sub_type": "integer",
+              "required": true
+            }
+          ]
+        },
+        {
+          "_id": "a181d620-b0fc-11eb-93e2-d95554188582",
+          "name": "Generates",
+          "type": "references",
+          "sub_type": "integer",
+          "referenceable_sheet_ids": [],
+          "definitions": []
+        }
+      ],
+      "definition_ids_to_display": [
+        "22f04170-b0fc-11eb-9807-db55dc33da44",
+        "23ca4dc0-b0fc-11eb-9807-db55dc33da44",
+        "a181d620-b0fc-11eb-93e2-d95554188582"
+      ],
+      "definition_names_referring_to_sheet_to_display": [],
+      "display_referencers": true
+    }
+  },
+  "records": {
+    "Enemies": [
+      {
+        "_id": "0b38a0c0-ab86-11eb-8ee6-17e16f40caff",
+        "Name": "Rat",
+        "Attack": 2,
+        "Movement": 3,
+        "Drops": [
+          {
+            "record_id": "3cd4f580-ad15-11eb-9c24-1b3af91d3e66",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.7
+            },
+            "Name": "Rat Meat"
+          }
+        ]
+      },
+      {
+        "_id": "2a0685d0-ab86-11eb-8ee6-17e16f40caff",
+        "Name": "Hound",
+        "Attack": 5,
+        "Movement": 3,
+        "Drops": []
+      },
+      {
+        "_id": "36cddac0-ab86-11eb-8ee6-17e16f40caff",
+        "Name": "Troll",
+        "Attack": 8,
+        "Shield": 2,
+        "Movement": 2,
+        "Drops": [
+          {
+            "record_id": "4ad0abc0-ad15-11eb-9c24-1b3af91d3e66",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.6
+            },
+            "Name": "Coin"
+          },
+          {
+            "record_id": "4bc6a480-ad15-11eb-9c24-1b3af91d3e66",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.1
+            },
+            "Name": "Dagger"
+          },
+          {
+            "record_id": "20a88dc0-af6f-11eb-8453-f7b3b163d12f",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.05
+            },
+            "Name": "Mana Potion"
+          }
+        ]
+      },
+      {
+        "_id": "48234350-ab86-11eb-8ee6-17e16f40caff",
+        "Name": "Sorcerer",
+        "Attack": 12,
+        "Drops": [
+          {
+            "record_id": "4ad0abc0-ad15-11eb-9c24-1b3af91d3e66",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.7
+            },
+            "Name": "Coin"
+          },
+          {
+            "record_id": "87cc6550-ad15-11eb-9c24-1b3af91d3e66",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.1
+            },
+            "Name": "Fire Wand"
+          },
+          {
+            "record_id": "20a88dc0-af6f-11eb-8453-f7b3b163d12f",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.15
+            },
+            "Name": "Mana Potion"
+          }
+        ],
+        "Shield": 1,
+        "Movement": 3
+      },
+      {
+        "_id": "4bb0f110-af6f-11eb-8453-f7b3b163d12f",
+        "Name": "Demon",
+        "Attack": 14,
+        "Shield": 3,
+        "Movement": 1,
+        "Drops": [
+          {
+            "record_id": "66585df0-af6f-11eb-8453-f7b3b163d12f",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {
+              "Chance": 0.4
+            },
+            "Name": "Demon Tooth"
+          }
+        ]
+      }
+    ],
+    "Items": [
+      {
+        "_id": "434fbff0-af70-11eb-a988-156bd2a422f4",
+        "Name": "Water",
+        "Wieldable": "No",
+        "Consumed Effects": [
+          {
+            "record_id": "2e551d20-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": 1
+            },
+            "Name": "Health"
+          }
+        ]
+      },
+      {
+        "_id": "3cd4f580-ad15-11eb-9c24-1b3af91d3e66",
+        "Name": "Rat Meat",
+        "Wieldable": "No",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "4ad0abc0-ad15-11eb-9c24-1b3af91d3e66",
+        "Name": "Coin",
+        "Wieldable": "No",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "4bc6a480-ad15-11eb-9c24-1b3af91d3e66",
+        "Name": "Dagger",
+        "Wieldable": "Yes",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "87cc6550-ad15-11eb-9c24-1b3af91d3e66",
+        "Name": "Fire Wand",
+        "Wieldable": "Yes",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "e53f0cf0-af6e-11eb-8453-f7b3b163d12f",
+        "Name": "Sword",
+        "Wieldable": "Yes",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "20a88dc0-af6f-11eb-8453-f7b3b163d12f",
+        "Name": "Mana Potion",
+        "Wieldable": "No",
+        "Consumed Effects": [
+          {
+            "record_id": "32fb4ca0-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": 4
+            },
+            "Name": "Mana"
+          }
+        ]
+      },
+      {
+        "_id": "66585df0-af6f-11eb-8453-f7b3b163d12f",
+        "Name": "Demon Tooth",
+        "Wieldable": "No",
+        "Consumed Effects": []
+      },
+      {
+        "_id": "76f09b90-af70-11eb-8241-2f2237fa801c",
+        "Name": "Health Potion",
+        "Wieldable": "No",
+        "Consumed Effects": [
+          {
+            "record_id": "2e551d20-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": 4
+            },
+            "Name": "Health"
+          }
+        ]
+      },
+      {
+        "_id": "960351d0-af70-11eb-8241-2f2237fa801c",
+        "Name": "Blood",
+        "Wieldable": "No",
+        "Consumed Effects": []
+      }
+    ],
+    "Crafting": [
+      {
+        "_id": "94677190-af6f-11eb-8453-f7b3b163d12f",
+        "Ingredients": [
+          {
+            "record_id": "434fbff0-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Water"
+          },
+          {
+            "record_id": "66585df0-af6f-11eb-8453-f7b3b163d12f",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Demon Tooth"
+          }
+        ],
+        "Creates": [
+          {
+            "record_id": "20a88dc0-af6f-11eb-8453-f7b3b163d12f",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Mana Potion"
+          }
+        ]
+      },
+      {
+        "_id": "957efc10-af6f-11eb-8453-f7b3b163d12f",
+        "Ingredients": [
+          {
+            "record_id": "434fbff0-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Water"
+          },
+          {
+            "record_id": "960351d0-af70-11eb-8241-2f2237fa801c",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Blood"
+          }
+        ],
+        "Creates": [
+          {
+            "record_id": "76f09b90-af70-11eb-8241-2f2237fa801c",
+            "sheet_id": "c72cc720-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Items",
+            "data": {},
+            "Name": "Health Potion"
+          }
+        ]
+      }
+    ],
+    "Player Attributes": [
+      {
+        "_id": "2e551d20-af70-11eb-a988-156bd2a422f4",
+        "Name": "Health"
+      },
+      {
+        "_id": "32fb4ca0-af70-11eb-a988-156bd2a422f4",
+        "Name": "Mana"
+      }
+    ],
+    "Spells": [
+      {
+        "_id": "53fd79e0-b0fc-11eb-93e2-d95554188582",
+        "Name": "Heal Self",
+        "Player Effects": [
+          {
+            "record_id": "2e551d20-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": 2
+            },
+            "Name": "Health"
+          },
+          {
+            "record_id": "32fb4ca0-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": -3
+            },
+            "Name": "Mana"
+          }
+        ],
+        "Generates": []
+      },
+      {
+        "_id": "8740a520-b0fc-11eb-93e2-d95554188582",
+        "Name": "Summon Minion",
+        "Player Effects": [
+          {
+            "record_id": "32fb4ca0-af70-11eb-a988-156bd2a422f4",
+            "sheet_id": "1f008da0-af70-11eb-a988-156bd2a422f4",
+            "sheet_name": "Player Attributes",
+            "data": {
+              "Amount": -5
+            },
+            "Name": "Mana"
+          }
+        ],
+        "Generates": [
+          {
+            "record_id": "0b38a0c0-ab86-11eb-8ee6-17e16f40caff",
+            "sheet_id": "b13d3270-ab85-11eb-8ee6-17e16f40caff",
+            "sheet_name": "Enemies",
+            "data": {},
+            "Name": "Rat"
+          }
+        ]
+      }
+    ]
+  }
+}
