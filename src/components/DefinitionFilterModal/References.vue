@@ -6,11 +6,11 @@
       <a v-on:click.stop="remove(record)" class="remove">
         <Icon name="trash" />
       </a>
-      <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
-        <Icon name="pencil-alt" />
-      </a>
 
-      <RecordResult v-bind:data="record.description_data()" />
+      <RecordResult
+        v-bind:definitions="[record.sheet.unique_id_definition()]"
+        v-bind:data_object="record"
+        />
     </div>
 
     <RecordsSearch
