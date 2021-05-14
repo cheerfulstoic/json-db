@@ -34,6 +34,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo $KNOWN_HOSTS_LINE >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh/known_hosts
 
           yarn install
           yarn build
