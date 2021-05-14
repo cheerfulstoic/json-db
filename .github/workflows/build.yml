@@ -28,8 +28,9 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and deploy
         env:
-          DEPLOY_USERNAME: Mona
-          DEPLOY_HOST: The
+          DEPLOY_USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
         run: |
           yarn install
           yarn build
