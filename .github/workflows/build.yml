@@ -31,15 +31,14 @@ jobs:
           RSYNC_PASSWORD: ${{ secrets.RSYNC_PASSWORD }}
           ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
           KNOWN_HOSTS_LINE: ${{ secrets.KNOWN_HOSTS_LINE }}
+          DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo $KNOWN_HOSTS_LINE >> ~/.ssh/known_hosts
           chmod 700 ~/.ssh/known_hosts
 
-          touch rsync_pass
-          chmod 600 rsync_pass
-          echo $RSYNC_PASSWORD > rsync_pass
+          echo $DEPLOY_PRIVATE_KEY > ~/.ssh/id_rsa
 
           yarn install
           yarn build
-          rsync -arz --password-file=rsync_pass dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
+          rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
