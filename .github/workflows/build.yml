@@ -38,6 +38,7 @@ jobs:
           chmod 700 ~/.ssh/known_hosts
 
           echo $DEPLOY_PRIVATE_KEY > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/id_rsa
 
           yarn install
           yarn build
