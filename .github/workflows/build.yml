@@ -30,6 +30,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           RSYNC_PASSWORD: ${{ secrets.RSYNC_PASSWORD }}
           ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
+          KNOWN_HOSTS_LINE: ${{ secrets.KNOWN_HOSTS_LINE }}
         run: |
           mkdir -p ~/.ssh
           echo $KNOWN_HOSTS_LINE >> ~/.ssh/known_hosts
