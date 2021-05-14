@@ -32,4 +32,7 @@ jobs:
         run: |
           yarn install
           yarn build
+          echo 1
+          echo $DEPLOY_HOST
+          echo 2
           rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
