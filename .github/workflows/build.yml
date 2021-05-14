@@ -38,4 +38,4 @@ jobs:
 
           yarn install
           yarn build
-          rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
+          rsync -arz --verbose dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
