@@ -16,6 +16,7 @@
     "lodash": "^4.17.20",
     "moment": "^2.24.0",
     "popper.js": "^1.14.3",
+    "rollbar": "^2.21.1",
     "uuid": "^8.0.0",
     "vis-data": "^6.3.1",
     "vis-network": "^6.5.0",
