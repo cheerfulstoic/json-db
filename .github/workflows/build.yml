@@ -27,10 +27,10 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Build and deploy
+        env:
+          DEPLOY_USERNAME: Mona
+          DEPLOY_HOST: The
         run: |
           yarn install
           yarn build
-          echo "blah"
-          echo $DEPLOY_HOST
-          echo "bluh"
           rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
