@@ -32,7 +32,7 @@ jobs:
           ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
+          echo $KNOWN_HOSTS_LINE >> ~/.ssh/known_hosts
 
           yarn install
           yarn build
