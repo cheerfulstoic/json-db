@@ -28,11 +28,9 @@ jobs:
         env:
           DEPLOY_USERNAME: ${{ secrets.DEPLOY_USERNAME }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          RSYNC_PASSWORD: ${{ secrets.RSYNC_PASSWORD }}
           ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
         run: |
           yarn install
           yarn build
-          echo 1
-          echo $DEPLOY_HOST
-          echo 2
           rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
