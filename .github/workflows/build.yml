@@ -31,6 +31,9 @@ jobs:
           RSYNC_PASSWORD: ${{ secrets.RSYNC_PASSWORD }}
           ROLLBAR_POST_CLIENT_ITEM_TOKEN: ${{ secrets.ROLLBAR_POST_CLIENT_ITEM_TOKEN }}
         run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
+
           yarn install
           yarn build
           rsync -arz dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
