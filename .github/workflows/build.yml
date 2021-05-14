@@ -36,6 +36,10 @@ jobs:
           echo $KNOWN_HOSTS_LINE >> ~/.ssh/known_hosts
           chmod 700 ~/.ssh/known_hosts
 
+          touch rsync_pass
+          chmod 600 rsync_pass
+          echo $RSYNC_PASSWORD > rsync_pass
+
           yarn install
           yarn build
-          rsync -arz --verbose dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
+          rsync -arz --password-file=rsync_pass dist/* $DEPLOY_USERNAME@$DEPLOY_HOST:~/json-db.brian-underwood.codes/
