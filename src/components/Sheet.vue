@@ -559,14 +559,18 @@ export default defineComponent({
       // debugger
       // this.sheet.replace_definition(id, definition);
 
-
       let index = _.findIndex(this.sheet.definitions, { _id: id })
 
       // this.sheet.definitions = _.set(this.sheet.definitions, index, definition);
+
       this.sheet.definitions.splice(index, 1, definition);
+
+      if (definition._id === this.currently_edited_definition?._id) {
+        this.currently_edited_definition = definition;
+      }
+
       // this.sheet.definitions[index] = definition;
 
-      // _.set(this.sheet, 'definitions', this.sheet.definitions)
     },
     add_sub_definition(id: string, definition: db.Definition): void {
       let index = _.findIndex(this.sheet.definitions, { _id: id })

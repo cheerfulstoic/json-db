@@ -21,7 +21,7 @@
       </label>
     </div>
 
-    <div class="form-group">
+    <div class="form-group">      
       <label>
         Type
         <select class="form-control" v-model="value.type">
@@ -82,7 +82,6 @@
     <div class="mt-2" v-if="value.type == 'references'">
       <div class="form-group">
         <p>Limit sheets which can be referenced (select none to allow reference of any sheet):</p>
-
         <label class="referenceable-sheet-option" v-for="sheet in database.sheets" v-bind:key="sheet._id">
           <input type="checkbox" v-bind:value="sheet._id" v-model="value.referenceable_sheet_ids" />
           {{ sheet.name }}
@@ -153,11 +152,11 @@ export default defineComponent({
     },
   },
   watch: {
-    value_type: function (new_value, _old_value) {
-      if (new_value instanceof db.Definition) {
-        this.$emit('input', new_value.to_reference_definition())
-      } else if (new_value instanceof db.ReferencesDefinition) {
-        this.$emit('input', new_value.to_definition())
+    value_type: function (new_value, old_value) {
+      if (new_value === "references") {
+        this.$emit('input', this.value.to_reference_definition())
+      } else if (old_value === "references" && this.value instanceof db.ReferencesDefinition) {
+        this.$emit('input', this.value.to_definition())
       }
     },
   },
