@@ -470,6 +470,8 @@ export default defineComponent({
     },
     remove_definition(definition: db.Definition): void {
       this.sheet.delete_definition(definition._id)
+      $('#edit-definition-modal').modal('hide')
+      this.currently_edited_definition = null;
     },
     remove_sub_definition(definition: db.ReferencesDefinition, sub_definition: db.Definition): void {
       this.sheet.delete_sub_definition(definition, sub_definition)
