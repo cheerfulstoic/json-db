@@ -348,21 +348,6 @@ import { defineComponent, nextTick, reactive } from 'vue'
 
 export default defineComponent({
   name: 'Sheet',
-  mounted() {
-    let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th')
-    // let sticky_top_amount: number
-    if (columns_element) {
-      let relative_height = columns_element.getBoundingClientRect().height || 0
-      this.sticky_top_amount = Math.round(relative_height) + 90
-    } else {
-      this.sticky_top_amount = 170
-    }
-    // let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>('th')
-
-    // _.each(header_cells, (e): void => {
-    //   e.style.top = `${this.sticky_top_amount}px`
-    // })
-  },
   components: {
     BootstrapModal,
     DefinitionDetails,
@@ -374,6 +359,39 @@ export default defineComponent({
 
     Draggable: VueDraggableNext,
   },
+  props: {
+    sheet: { type: db.Sheet, required: true },
+    current_focus: Object,
+    view_mode: Boolean,
+    scroll_position: { type: Number, required: false },
+  },
+  mounted() {
+    let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th')
+    // let sticky_top_amount: number
+    if (columns_element) {
+      let relative_height = columns_element.getBoundingClientRect().height || 0
+      this.sticky_top_amount = Math.round(relative_height) + 90
+    } else {
+      this.sticky_top_amount = 170
+    }
+    
+    // let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>('th')
+
+    // _.each(header_cells, (e): void => {
+    //   e.style.top = `${this.sticky_top_amount}px`
+    // })
+  },
+  // beforeUpdate() {
+  //   console.log('loading -> true')
+  //   // this.loading = true;
+  //   this.$emit('updating')
+  // },
+  updated() {
+  //   console.log('loading -> false')
+  //   // this.loading = false;
+  //   this.$emit('updated')
+    window.scrollTo(0, this.scroll_position || 0);
+  },
   data(): {
     filters: { [key: string]: db.RecordsFilter }
     currently_edited_record: db.Record | null
@@ -382,7 +400,7 @@ export default defineComponent({
     currently_edited_definition: db.Definition | null
     currently_filtered_definition: db.Definition | null
     currently_edited_reverse_definition: string | null
-    sticky_top_amount: number
+    sticky_top_amount: number,
   } {
 
     return {
@@ -396,11 +414,7 @@ export default defineComponent({
       sticky_top_amount: 170,
     }
   },
-  props: {
-    sheet: { type: db.Sheet, required: true },
-    current_focus: Object,
-    view_mode: Boolean,
-  },
+
   emits: ['record-selected'],
   computed: {
     records_to_display(): any[] {

@@ -69,10 +69,12 @@
 
       <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
         <Sheet
+          v-cloak
           v-if="current_sheet_id === sheet._id"
           v-bind:sheet="sheet"
           v-bind:current_focus="current_focus"
           v-bind:view_mode="view_mode"
+          v-bind:scroll_position="sheet_scroll_positions[sheet._id]"
           v-on:focus-sheet-and-record="focus_sheet_and_record"
           v-on:record-selected="focus_record"
         />
@@ -155,6 +157,7 @@ export default defineComponent({
     upload_highlighted: boolean
     show_json: boolean,
     view_mode: boolean,
+    sheet_scroll_positions: object,
   } {
     let database = new db.Database('Project Name', {})
 
@@ -165,6 +168,7 @@ export default defineComponent({
       upload_highlighted: false,
       show_json: false,
       view_mode: false,
+      sheet_scroll_positions: {},
     }
   },
   mounted() {
@@ -219,6 +223,8 @@ export default defineComponent({
       this.current_sheet_id = sheet._id
     },
     change_sheet(id: string) {
+      this.sheet_scroll_positions[this.current_sheet_id] = window.scrollY;
+
       this.current_sheet_id = id
     },
     focus_record(record: db.Record) {
@@ -268,6 +274,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -310,15 +317,16 @@ nav button {
 }
 
 ul.nav.nav-tabs {
-  top: 53px;
+  top: 54px;
   background-color: white;
   margin-bottom: 2em;
   z-index: 100;
 
   .nav-item a.active {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid black;
 
     &.selected {
+      border-color: black;
       border-bottom: 1px solid transparent;
     }
   }
