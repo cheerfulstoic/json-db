@@ -16,8 +16,12 @@ export class Definition {
     this._id = data._id || uuid()
     this.name = data.name
     this.type = data.type
+    this.sub_type = data.sub_type;
     if (this.type === 'integer') { this.type = 'number' }
-    this.sub_type = data.sub_type || 'integer'
+
+    if (this.type === 'number') { this.sub_type = this.sub_type || 'integer' }
+    if (this.type === 'text_area') { this.sub_type = this.sub_type || 'plain' }
+
     this.unique_id = data.unique_id
     this.required = data.required
     this.options = data.options

@@ -1,23 +1,27 @@
 import Rollbar from 'rollbar';
 
-Vue.prototype.$rollbar = new Rollbar({
-  accessToken: process.env.ROLLBAR_POST_CLIENT_ITEM_TOKEN,
-  captureUncaught: true,
-  captureUnhandledRejections: true,
-});
-
 
 import { createApp } from 'vue'
 import App from './App.vue'
+
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
 import 'bootstrap'
 
 let app = createApp(App)
 
-app.config.errorHandler = (err, vm, info) => {
-  vm.$rollbar.error(err);
-  throw err; // rethrow
-};
+// const rollbar = new Rollbar({
+//   accessToken: 'c81487aebe7342ab809354511bf5f997',
+//   captureUncaught: true,
+//   captureUnhandledRejections: true,
+// });
+
+// app.config.errorHandler = (err, vm, info) => {
+//   rollbar.error(err);
+//   throw err; // rethrow
+// };
+
+app.use(CKEditor)
 
 app.mount('#app')
 

@@ -8,6 +8,8 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^27.1.0",
+    "@ckeditor/ckeditor5-vue": "^2.0.1",
     "bootstrap": "^4.5.3",
     "core-js": "^3.4.4",
     "expr-eval": "^2.0.2",

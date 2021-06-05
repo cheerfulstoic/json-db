@@ -42,6 +42,15 @@
           <option value="float">Float</option>
         </select>
       </label>
+
+      <label v-if="value.type === 'text_area'">
+        Sub-type
+        <select class="form-control" v-model="value.sub_type">
+          <option value="plain">Plain Text</option>
+          <option value="rich_html">Rich Text - HTML</option>
+          <option value="rich_github_markdown">Rich Text - Markdown</option>
+        </select>
+      </label>
     </div>
 
     <div class="form-group" v-if="value.type == 'select_one'">
@@ -153,6 +162,9 @@ export default defineComponent({
   },
   watch: {
     value_type: function (new_value, old_value) {
+      if (new_value === 'number') { this.$emit('input', _.set(this.value, 'sub_type', this.value.sub_type || 'integer')) }
+      if (new_value === 'text_area') { this.$emit('input', _.set(this.value, 'sub_type', this.value.sub_type || 'plain')) }
+
       if (new_value === "references") {
         this.$emit('input', this.value.to_reference_definition())
       } else if (old_value === "references" && this.value instanceof db.ReferencesDefinition) {

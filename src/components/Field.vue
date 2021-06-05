@@ -2,7 +2,11 @@
   <span>
     <template v-if="!view_mode">
       <String v-if="definition.type === 'string'" v-bind:value="record_value" v-on:input="update_value" />
-      <TextArea v-if="definition.type === 'text_area'" v-bind:value="record_value" v-on:input="update_value" />
+      <template v-if="definition.type === 'text_area'">
+        <RichTextArea v-if="definition.sub_type === 'rich_html'" mode="html" v-bind:value="record_value" v-on:input="update_value" />
+        <!-- <RichTextArea v-if="definition.sub_type === 'rich_markdown'" mode="rich_github_markdown" v-bind:value="record_value" v-on:input="update_value" /> -->
+        <TextArea v-if="definition.sub_type === 'plain'" v-bind:value="record_value" v-on:input="update_value" />
+      </template>
       <Number
         v-if="definition.type === 'number'"
         v-bind:sub_type="definition.sub_type"
@@ -67,6 +71,7 @@ import RecordsSearch from './RecordsSearch.vue'
 import SelectOne from './types/SelectOne.vue'
 import String from './types/String.vue'
 import TextArea from './types/TextArea.vue'
+import RichTextArea from './types/RichTextArea.vue'
 
 import * as db from '../db'
 import _ from 'lodash'
@@ -81,6 +86,7 @@ export default defineComponent({
     SelectOne,
     String,
     TextArea,
+    RichTextArea,
   },
   props: {
     record: { type: Object, required: true },
