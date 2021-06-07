@@ -1,6 +1,6 @@
 <template>
   <div class="input-group">
-    <ckeditor :editor="editor" v-bind:value="value" v-on:input="update_value" v-bind:config="editorConfig"></ckeditor>
+    <ckeditor v-bind:editor="editor" v-bind:model-value="value" v-on:input="update_value" v-bind:config="editorConfig"></ckeditor>
   </div>
 </template>
 
@@ -15,7 +15,14 @@ export default defineComponent({
     return {
       editor: ClassicEditor,
       editorConfig: {
-        plugins: this.plugins(),
+        toolbar: {
+          items: [
+            'Bold', 'Italic',
+            'Link',
+            'BulletedList', 'NumberedList',
+            'undo', 'redo',
+          ]
+        }
       }
     }
   },
