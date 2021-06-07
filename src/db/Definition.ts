@@ -20,6 +20,9 @@ export class Definition {
     if (this.type === 'integer') { this.type = 'number' }
 
     if (this.type === 'number') { this.sub_type = this.sub_type || 'integer' }
+    // Whoops!
+    if (this.type !== 'number' && this.sub_type === 'integer') { this.sub_type = undefined }
+
     if (this.type === 'text_area') { this.sub_type = this.sub_type || 'plain' }
 
     this.unique_id = data.unique_id
