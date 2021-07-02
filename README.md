@@ -114,4 +114,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Thanks
 
-A huge thanks to @AmandaWarner for her help in testing and developing this application!
+A huge thanks to [@AmandaWarner](https://github.com/AmandaWarner/) for her help in testing and developing this application!
