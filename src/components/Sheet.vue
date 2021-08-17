@@ -386,7 +386,7 @@ export default defineComponent({
   //   // this.loading = true;
   //   this.$emit('updating')
   // },
-  updated() {
+  mounted() {
   //   console.log('loading -> false')
   //   // this.loading = false;
   //   this.$emit('updated')
