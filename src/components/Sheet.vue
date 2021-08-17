@@ -374,7 +374,9 @@ export default defineComponent({
     } else {
       this.sticky_top_amount = 170
     }
-    
+
+    window.scrollTo(0, this.scroll_position || 0);
+
     // let header_cells = (this.$refs.table_header as HTMLElement).querySelectorAll<HTMLElement>('th')
 
     // _.each(header_cells, (e): void => {
@@ -386,12 +388,12 @@ export default defineComponent({
   //   // this.loading = true;
   //   this.$emit('updating')
   // },
-  mounted() {
+  // mounted() {
   //   console.log('loading -> false')
   //   // this.loading = false;
   //   this.$emit('updated')
-    window.scrollTo(0, this.scroll_position || 0);
-  },
+    // window.scrollTo(0, this.scroll_position || 0);
+  // },
   data(): {
     filters: { [key: string]: db.RecordsFilter }
     currently_edited_record: db.Record | null
