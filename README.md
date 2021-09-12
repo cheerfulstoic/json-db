@@ -2,7 +2,7 @@
 
 The JSON DB project is a UI for configuration files which are easy for anybody to edit and which can be simply integrated into your application.
 
-[Try it here](http://blog.brian-underwood.codes/json-db/dist/)
+[Try it here](http://json-db.brian-underwood.codes/)
 
 ## Who is this for?
 
