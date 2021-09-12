@@ -14,7 +14,7 @@ A configuration file for a fictional game [Dungeon Danger!](http://json-db.brian
 
 ## Features
 
-In the JSON DB you can create multiple *sheets*.  Each sheet can have one or more *records* and one or more *attributes* which define *values* for each record / attribute.
+In the JSON DB you can create multiple **sheets**.  Each sheet can have one or more **records** and one or more **attributes** which define **values** for each record / attribute.
 
  * Attributes
    * Basic attributes: string, number, select one/enumerable
@@ -35,9 +35,11 @@ The JSON DB project was created in collaboration with [@AmandaWarner](https://gi
 
 ## File Format
 
-The file format of JSON DB is designed to be simple to use from any language that can read a JSON file.
+JSON DB creates files with extension of `.db.json`.  The file format of JSON DB is designed to be simple to use from any language that can read a JSON file.
 
-JSON DB creates files with extension of `.db.json` which looks like:
+When reading the file from your application the `records` key is the main place that you can look for the data.  The other keys (i.e. `sheets` and `global_variables`) are metadata for JSON DB to do it's job of presenting a helpful UI to a user editing the configuration.
+
+A JSON DB file looks something like this:
 
 ```json
 {
@@ -84,10 +86,6 @@ JSON DB creates files with extension of `.db.json` which looks like:
   }
 }
 ```
-
-The `records` key is intentionally kept separate from the `sheets` / `global_variables` keys and is designed to be the main/only thing another application would access.  The other keys exist to help JSON DB do it's job of presenting a helpful UI to a user editing the configuration.
-
-In the future the JSON DB application should be able to import general JSON (/CSV/etc...) files and convert them (with some help from the user) to `.db.json` files.
 
 ## Schema
 
@@ -175,11 +173,12 @@ In the future the JSON DB application should be able to import general JSON (/CS
    * Dates / DateTimes
    * Arrays of any type
 
+
 TODO: Examples of why expressions would be useful
 
 TODO: Screenshot of graph visualization?
 
-
+Adding the ability to load generic JSON / CSV files and turn them into JSON DB databases.
 
 
 
