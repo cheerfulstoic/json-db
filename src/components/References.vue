@@ -1,6 +1,6 @@
 <template>
   <div class="input-group referenced-records">
-    <div v-bind:class="{ sheet: true, valid: valid_sheet(sheet) }" v-if="value.length">
+    <div v-bind:class="{ 'sheet-box': true, valid: valid_sheet(sheet) }" v-if="value.length">
       <span class="sheet-name" v-bind:style="'background-color:' + sheet.hex_color">
         {{ sheet.name }}
       </span>
@@ -130,7 +130,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.sheet {
+.sheet-box {
   border: 5px solid red;
 
   &.valid {
@@ -139,7 +139,7 @@ export default defineComponent({
 
   overflow: hidden;
   border-radius: 1em 1em 0 0;
-  margin-bottom: 1em;
+  margin-bottom: 0.1em;
 }
 
 .remove,

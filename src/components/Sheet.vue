@@ -1,17 +1,5 @@
 <template>
-  <div>
-    <button
-      v-if="!view_mode"
-      type="button"
-      class="btn btn-spaced btn-primary btn-secondary"
-      data-toggle="modal"
-      data-target="#edit-sheet-modal"
-    >
-      Edit Sheet
-    </button>
-
-    <button v-if="!view_mode" class="btn btn-spaced btn-primary" v-on:click="sheet.add_definition()">Add Column</button>
-
+  <div class="sheet">
     <BootstrapModal
       v-for="definition in sheet.definitions"
       v-bind:key="definition._id + '-modal'"
@@ -113,12 +101,26 @@
       <thead class="thead-light">
         <tr>
           <th colspan="100%">
-            <h4>
+            <h4 class="d-inline-block">
               {{ total_count }} total rows
               <span v-bind:class="{ 'filter-display': true, 'filter-has-limited-rows': filter_has_limited_rows }">
                 (filtered to {{ records_to_display.length }} record(s))
               </span>
             </h4>
+
+            <div v-if="!view_mode" class="btn-group" role="group" style="float: right">
+              <button v-if="!view_mode" class="btn btn-spaced btn-primary mx-2 my-0" v-on:click="sheet.add_definition()">Add Column</button>
+
+              <button
+                v-if="!view_mode"
+                type="button"
+                class="btn btn-spaced btn-primary btn-secondary mx-2 my-0"
+                data-toggle="modal"
+                data-target="#edit-sheet-modal"
+              >
+                Edit Sheet
+              </button>
+            </div>
           </th>
         </tr>
 
@@ -129,7 +131,7 @@
 
               <div class="btn-group" role="group">
                 <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  
+
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
                   <a class="dropdown-item" v-on:click="add_record('top', false)">Add to top (default)</a>
@@ -139,7 +141,6 @@
               </div>
             </div>
 
-            <h3>Attributes to Display</h3>
             <div
               class="form-check form-check-inline"
               v-for="definition in sheet.definitions"
@@ -156,7 +157,7 @@
               </label>
             </div>
 
-            <h3>Inbound Relationships to Display</h3>
+            <hr/>
 
             <div
               class="form-check form-check-inline"
@@ -656,6 +657,12 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.sheet {
+  border: 1px solid black;
+  position: relative;
+  top: -1px;
+}
+
 .columns-to-display th,
 .table-header th {
   position: sticky;
@@ -671,6 +678,14 @@ export default defineComponent({
 
 .table-header {
   z-index: 50;
+}
+
+.table {
+  border: 1px solid black;
+}
+
+.table th, .table td {
+  padding: 0.5rem;
 }
 
 tr {
@@ -719,5 +734,10 @@ tr.selected td {
       float: left;
     }
   }
+}
+
+hr {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 </style>

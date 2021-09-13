@@ -319,13 +319,13 @@ nav button {
 ul.nav.nav-tabs {
   top: 54px;
   background-color: white;
-  margin-bottom: 2em;
   z-index: 100;
 
   .nav-item a.active {
     border-bottom: 1px solid black;
 
     &.selected {
+      background-color: #e9ecef; /* color should match bootstrap table header */
       border-color: black;
       border-bottom: 1px solid transparent;
     }

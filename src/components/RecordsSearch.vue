@@ -179,6 +179,7 @@ export default defineComponent({
 
 .search {
   display: block;
+  width: 100%;
 
   .results {
     position: absolute;
