@@ -109,24 +109,21 @@
             </h4>
 
             <div v-if="!view_mode" class="btn-group" role="group" style="float: right">
-              <button v-if="!view_mode" class="btn btn-spaced btn-primary mx-2 my-0" v-on:click="sheet.add_definition()">Add Column</button>
+              <button
+                v-if="!view_mode"
+                type="button"
+                class="btn btn-primary"
+                v-on:click="sheet.add_definition()"
+              >Add Column</button>
 
               <button
                 v-if="!view_mode"
                 type="button"
-                class="btn btn-spaced btn-primary btn-secondary mx-2 my-0"
+                class="btn btn-primary"
                 data-toggle="modal"
                 data-target="#edit-sheet-modal"
-              >
-                Edit Sheet
-              </button>
-            </div>
-          </th>
-        </tr>
+              >Edit Sheet</button>
 
-        <tr class="columns-to-display" ref="columns_to_display">
-          <th colspan="100%">
-            <div v-if="!view_mode" class="btn-group" role="group" style="float: right">
               <button class="btn btn-primary add-row-btn" v-on:click="add_record('top', false)">Add Record</button>
 
               <div class="btn-group" role="group">
@@ -139,8 +136,13 @@
                   <a class="dropdown-item" v-on:click="add_record('top', true)">Add with modal</a>
                 </div>
               </div>
-            </div>
 
+            </div>
+          </th>
+        </tr>
+
+        <tr class="columns-to-display" ref="columns_to_display">
+          <th colspan="100%"  v-bind:style="`top: ${sticky_top_amount}px`">
             <div
               class="form-check form-check-inline"
               v-for="definition in sheet.definitions"
@@ -174,14 +176,16 @@
                 {{ definition_infos[0].definition.name }}
               </label>
             </div>
+
+            <hr/>
           </th>
         </tr>
 
         <tr class="table-header" ref="table_header">
-          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
+          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount + 89}px`">&nbsp;</th>
 
           <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
-            <th class="field-cell" v-bind:style="`top: ${sticky_top_amount}px`">
+            <th class="field-cell" v-bind:style="`top: ${sticky_top_amount + 89}px`">
               {{ definition.name }}
               <br />
               <span v-if="definition.unique_id"><Icon name="lightning-bolt" style="color: red" /></span>
@@ -215,7 +219,7 @@
             v-for="definition_infos in definitions_referring_to_sheet_to_display"
             v-bind:key="'reverse-definition-' + definition_infos[0].definition._id"
           >
-            <th v-bind:style="`top: ${sticky_top_amount}px`">
+            <th v-bind:style="`top: ${sticky_top_amount + 47}px`">
               {{ definition_infos[0].definition.name }} (INBOUND)
 
               <!-- FIXME -->
@@ -231,7 +235,7 @@
             </th>
           </template>
 
-          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount}px`">&nbsp;</th>
+          <th v-if="!view_mode" v-bind:style="`top: ${sticky_top_amount + 47}px`">&nbsp;</th>
         </tr>
       </thead>
 
@@ -368,10 +372,13 @@ export default defineComponent({
   },
   mounted() {
     let columns_element = (this.$refs.columns_to_display as HTMLElement).querySelector('th')
+    console.log({columns_element})
     // let sticky_top_amount: number
     if (columns_element) {
       let relative_height = columns_element.getBoundingClientRect().height || 0
-      this.sticky_top_amount = Math.round(relative_height) + 90
+      console.log({relative_height})
+      this.sticky_top_amount = Math.round(relative_height) + 22
+      console.log({sticky_top_amount: this.sticky_top_amount})
     } else {
       this.sticky_top_amount = 170
     }
@@ -660,13 +667,16 @@ export default defineComponent({
 .sheet {
   border: 1px solid black;
   position: relative;
-  top: -1px;
 }
 
 .columns-to-display th,
 .table-header th {
   position: sticky;
   z-index: 1;
+}
+
+.table-bordered th, .table-bordered td {
+  border: 1px solid #ebebeb;
 }
 
 .columns-to-display th {
@@ -684,8 +694,16 @@ export default defineComponent({
   border: 1px solid black;
 }
 
+.table th label {
+  margin-bottom: 0;
+}
+
+th.field-cell {
+  border-right: 1px solid #333;
+}
+
 .table th, .table td {
-  padding: 0.5rem;
+  padding: 0.2rem;
 }
 
 tr {

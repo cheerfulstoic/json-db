@@ -55,7 +55,7 @@
       />
     </div>
 
-    <div class="errors">
+    <div class="errors" v-if="errors.length > 0">
       <div class="alert alert-danger" v-for="error in errors" v-bind:key="error">{{error}}</div>
     </div>
   </span>

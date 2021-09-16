@@ -322,12 +322,13 @@ ul.nav.nav-tabs {
   z-index: 100;
 
   .nav-item a.active {
-    border-bottom: 1px solid black;
 
     &.selected {
       background-color: #e9ecef; /* color should match bootstrap table header */
       border-color: black;
       border-bottom: 1px solid transparent;
+      position: relative;
+      top: 1px;
     }
   }
 }
