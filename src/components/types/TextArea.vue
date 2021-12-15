@@ -1,6 +1,6 @@
 <template>
   <div class="input-group">
-    <textarea class="form-control" v-bind:value="value" ref="the_input" v-on:input="update_value" rows="3"></textarea>
+    <textarea class="form-control" v-bind:value="value" ref="the_input" v-on:input="update_value" v-bind:rows="definition.rows || 3"></textarea>
   </div>
 </template>
 
@@ -14,6 +14,7 @@ export default defineComponent({
   },
   props: {
     value: String,
+    definition: { type: Object, required: true },
   },
   emits: ['input'],
   methods: {

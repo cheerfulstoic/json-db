@@ -53,6 +53,13 @@
       </label>
     </div>
 
+    <div v-if="value.type === 'text_area'">
+      <label>
+        Rows
+        <input type="number" style="width: 100px" v-model="value.rows" />
+      </label>
+    </div>
+
     <div class="form-group" v-if="value.type == 'select_one'">
       <label>
         <ul class="list-group">
@@ -163,7 +170,9 @@ export default defineComponent({
   watch: {
     value_type: function (new_value, old_value) {
       if (new_value === 'number') { this.$emit('input', _.set(this.value, 'sub_type', this.value.sub_type || 'integer')) }
-      if (new_value === 'text_area') { this.$emit('input', _.set(this.value, 'sub_type', this.value.sub_type || 'plain')) }
+      if (new_value === 'text_area') {
+        this.$emit('input', _(this.value).set('sub_type', this.value.sub_type || 'plain').update('rows', (existing) => existing || 3).value())
+      }
 
       if (new_value === "references") {
         this.$emit('input', this.value.to_reference_definition())

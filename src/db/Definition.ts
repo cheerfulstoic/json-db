@@ -11,6 +11,7 @@ export class Definition {
   public unique_id: boolean
   public required: boolean
   public options?: string[]
+  public rows?: number
 
   constructor(data: any) {
     this._id = data._id || uuid()
@@ -23,7 +24,10 @@ export class Definition {
     // Whoops!
     if (this.type !== 'number' && this.sub_type === 'integer') { this.sub_type = undefined }
 
-    if (this.type === 'text_area') { this.sub_type = this.sub_type || 'plain' }
+    if (this.type === 'text_area') {
+      this.sub_type = this.sub_type || 'plain'
+      this.rows = 3;
+    }
 
     this.unique_id = data.unique_id
     this.required = data.required

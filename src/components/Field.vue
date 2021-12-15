@@ -5,7 +5,7 @@
       <template v-if="definition.type === 'text_area'">
         <RichTextArea v-if="definition.sub_type === 'rich_html'" mode="html" v-bind:value="record_value" v-on:input="update_value" />
         <!-- <RichTextArea v-if="definition.sub_type === 'rich_markdown'" mode="rich_github_markdown" v-bind:value="record_value" v-on:input="update_value" /> -->
-        <TextArea v-if="definition.sub_type === 'plain'" v-bind:value="record_value" v-on:input="update_value" />
+        <TextArea v-if="definition.sub_type === 'plain'" v-bind:value="record_value" v-bind:definition="definition" v-on:input="update_value" />
       </template>
       <Number
         v-if="definition.type === 'number'"
