@@ -39,7 +39,7 @@ export class Definition {
   }
 
   public json_data() {
-    return _.pick(this, ['_id', 'name', 'type', 'sub_type', 'unique_id', 'required', 'options'])
+    return _.pick(this, ['_id', 'name', 'type', 'sub_type', 'unique_id', 'required', 'rows', 'options'])
   }
 }
 
