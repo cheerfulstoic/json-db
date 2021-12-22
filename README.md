@@ -117,55 +117,8 @@ A JSON DB file looks something like this:
 |                                                              |                                                                                                                                                                                        |
 |                                                              |                                                                                                                                                                                        |
 |                                                              |                                                                                                                                                                                        |
-{
-        "_id": "09a194c0-a42d-11eb-abfe-4d77c93a6986",
-        "Label": "FizzyFocusGiveaway",
-        "Client": [
-          {
-            "record_id": "748b54f0-7f58-11eb-9977-239aeceecafc",
-            "sheet_id": "164e6c60-7f58-11eb-9977-239aeceecafc",
-            "sheet_name": "Clients",
-            "data": {},
-            "Label": "FizzyFocusCorporationClient"
-          }
-        ],
-        "Title": "FizzyFocus giveaway",
-        "Summary": "FizzyFocusGiveaway enters top 5 sharables on social media.",
-        "Description": "Greetings from FizzyFocus, Inc.\n\nWe create a premier, focus-enhancing beverage that is improving the productivity of the world, one sip at a time.\n\nTo celebrate the introduction of FizzyFocus in Tiar, we are offering a limited-time free giveaway!\n\nWe will be marketing the giveaway ourselves via traditional channels. Can you synergize with our efforts by amplifying the enthusiasm on social media?",
-        "Payment": "3000",
-        "SuggestedSharables": [
-          {
-            "record_id": "9a7332c0-586a-11ea-86de-b9c0a083be4d",
-            "sheet_id": "cb37b4c0-3831-11ea-a178-1d815a833476",
-            "sheet_name": "Sharables",
-            "data": {},
-            "Label": "FizzyFocusGiveaway"
-          }
-        ],
-        "DayToUnlock": {
-          "expression_string": "FizzyFocusIntroduced",
-          "calculated_value": "1"
-        },
-        "UnlockRequirements": [],
-        "DaysToComplete": 3,
-        "MessageOnSuccess": "Thank you for your help!\n\nWe are very pleased with the number of people who are interested in leveraging FizzyFocus as part of a productivity-enhanced lifestyle.\n\nStill, we need some time to drill down into the numbers before deciding whether to move forward in this market. We’ll circle back soon.",
-        "MessageOnFailure": "Our giveaway is not nearly popular enough. Perhaps we have made a mistake in entrusting you with this very simple task.",
-        "StateChangeRelationships": [
-          {
-            "record_id": "d0ea5190-3839-11ea-a178-1d815a833476",
-            "sheet_id": "46b44140-3832-11ea-a178-1d815a833476",
-            "sheet_name": "Articles",
-            "data": {
-              "Trigger": "Released",
-              "Action": "MakeReleasable"
-            },
-            "Label": "ZarraFizzyFocus"
-          }
-        ],
-        "RelatedOpinionSets": [],
-        "Conflict": [],
-        "ReputationOnSuccess": 10
-      }
+
+
 ## Potential future improvements
 
  * New kinds of types:
