@@ -92,6 +92,12 @@
         Drag here to upload file
       </div>
 
+      ... or choose a file below:
+
+      <form action="/action_page.php">
+        <input type="file" name="filename" v-on:change="upload" ref="file_chooser">
+      </form>
+
       <hr />
 
       <BootstrapModal id="global-variables-modal" title="Global Variables">
@@ -198,10 +204,17 @@ export default defineComponent({
     upload(event: any) {
       this.upload_highlighted = false
 
-      if (event.dataTransfer.files.length > 1) {
-        alert('You cannot upload more than one file')
+      let file;
+      if (event.dataTransfer) {
+        // Drag-and-drop case
+        if (event.dataTransfer.files.length > 1) {
+          alert('You cannot upload more than one file')
+        }
+        file = event.dataTransfer.files[0]
+      } else {
+        // File chooser case
+        file = this.$refs.file_chooser.files[0];
       }
-      let file = event.dataTransfer.files[0]
 
       var reader = new FileReader()
       reader.onload = (e: any) => {
