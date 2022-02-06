@@ -1,73 +1,79 @@
 <template>
   <div id="app">
-    <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
-      <input id="project_name" class="form-control mx-2" type="text" v-model="database.project_name" />
+    <table>
+      <tr>
+        <th colspan="100%">
 
-      <button v-if="!view_mode" data-toggle="modal" data-target="#global-variables-modal" class="btn btn-primary mx-2">
-        Edit Global Variables
-      </button>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <input id="project_name" class="form-control mx-2" type="text" v-model="database.project_name" />
 
-      <button
-        v-if="!view_mode"
-        type="button"
-        class="btn btn-primary"
-        data-toggle="modal"
-        data-target="#edit-sheets"
-      >
-        Edit Sheets
-      </button>
+            <button v-if="!view_mode" data-toggle="modal" data-target="#global-variables-modal" class="btn btn-primary mx-2">
+              Edit Global Variables
+            </button>
 
-      <button v-if="!view_mode" class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
+            <button
+              v-if="!view_mode"
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#edit-sheets"
+            >
+              Edit Sheets
+            </button>
 
-      <button
-        class="btn btn-primary mx-2"
-        v-if="database.sheets.length"
-        href="#"
-        v-bind:download="database.project_name + '.db.json'"
-        v-on:click.prevent="download_json_file_data"
-      >
-        Save JSON
-      </button>
+            <button v-if="!view_mode" class="btn btn-primary mx-2" v-on:click="add_sheet">Add Sheet</button>
 
-      <RecordsSearch
-        v-bind:record_ids_to_skip="[]"
-        v-bind:database="database"
-        v-bind:sheet_ids_to_search="[]"
-        v-on:record-selected="focus_record"
-      />
+            <button
+              class="btn btn-primary mx-2"
+              v-if="database.sheets.length"
+              href="#"
+              v-bind:download="database.project_name + '.db.json'"
+              v-on:click.prevent="download_json_file_data"
+            >
+              Save JSON
+            </button>
 
-      <div class="btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-primary" style="white-space: nowrap">
-          <input type="checkbox" checked v-model="view_mode" autocomplete="off">
-          Switch to: 
-          <template v-if="!view_mode">View Mode</template>
-          <template v-if="view_mode">Edit Mode</template>
-        </label>
-      </div>
+            <RecordsSearch
+              v-bind:record_ids_to_skip="[]"
+              v-bind:database="database"
+              v-bind:sheet_ids_to_search="[]"
+              v-on:record-selected="focus_record"
+            />
+
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-primary" style="white-space: nowrap">
+                <input type="checkbox" checked v-model="view_mode" autocomplete="off">
+                Switch to: 
+                <template v-if="!view_mode">View Mode</template>
+                <template v-if="view_mode">Edit Mode</template>
+              </label>
+            </div>
 
 
-      <!--
-      <Graph id="graph"
-             v-bind:database="database"
-             v-bind:current_focus="current_focus"
-             v-on:focus-sheet-and-record="focus_sheet_and_record" />
-      -->
-    </nav>
+            <!--
+            <Graph id="graph"
+                   v-bind:database="database"
+                   v-bind:current_focus="current_focus"
+                   v-on:focus-sheet-and-record="focus_sheet_and_record" />
+            -->
+          </nav>
 
-    <div class="container-fluid">
-      <ul class="nav nav-tabs sticky-top">
-        <li class="nav-item" v-for="sheet in database.sheets" v-bind:key="sheet._id">
-          <a
-            v-bind:class="['nav-link', 'active', { selected: current_sheet_id === sheet._id }]"
-            v-on:click="change_sheet(sheet._id)"
-            v-bind:style="`background-color:${sheet.hex_color}; color: ${contrastingColor(sheet.hex_color)}`"
-          >
-            {{ sheet.name }}
-          </a>
-        </li>
-      </ul>
+          <ul class="nav nav-tabs">
+            <li class="nav-item" v-for="sheet in database.sheets" v-bind:key="sheet._id">
+              <a
+                v-bind:class="['nav-link', 'active', { selected: current_sheet_id === sheet._id }]"
+                v-on:click="change_sheet(sheet._id)"
+                v-bind:style="`background-color:${sheet.hex_color}; color: ${contrastingColor(sheet.hex_color)}`"
+              >
+                {{ sheet.name }}
+              </a>
+            </li>
+          </ul>
+          <hr style="margin: 0" />
+        </th>
+      </tr>
 
-      <div v-for="sheet in database.sheets" v-bind:key="sheet._id">
+      <template v-for="sheet in database.sheets" v-bind:key="sheet._id">
         <Sheet
           v-cloak
           v-if="current_sheet_id === sheet._id"
@@ -78,36 +84,36 @@
           v-on:focus-sheet-and-record="focus_sheet_and_record"
           v-on:record-selected="focus_record"
         />
-      </div>
+      </template>
+    </table>
 
-      <div
-        id="file-upload"
-        v-cloak
-        v-if="!database.sheets.length"
-        v-on:drop.prevent="upload"
-        v-on:dragover.prevent="highlight_upload"
-        v-on:dragleave.prevent="unhighlight_upload"
-        v-bind:class="{ hover: upload_highlighted }"
-      >
-        Drag here to upload file
-      </div>
-
-      ... or choose a file below:
-
-      <form action="/action_page.php">
-        <input type="file" name="filename" v-on:change="upload" ref="file_chooser">
-      </form>
-
-      <hr />
-
-      <BootstrapModal id="global-variables-modal" title="Global Variables">
-        <VariableEditor
-          v-bind:variables="database.global_variables"
-          v-on:update="update_global_variables"
-          v-on:delete="delete_global_variables_key"
-        />
-      </BootstrapModal>
+    <div
+      id="file-upload"
+      v-cloak
+      v-if="!database.sheets.length"
+      v-on:drop.prevent="upload"
+      v-on:dragover.prevent="highlight_upload"
+      v-on:dragleave.prevent="unhighlight_upload"
+      v-bind:class="{ hover: upload_highlighted }"
+    >
+      Drag here to upload file
     </div>
+
+    ... or choose a file below:
+
+    <form action="/action_page.php">
+      <input type="file" name="filename" v-on:change="upload" ref="file_chooser">
+    </form>
+
+    <hr />
+
+    <BootstrapModal id="global-variables-modal" title="Global Variables">
+      <VariableEditor
+        v-bind:variables="database.global_variables"
+        v-on:update="update_global_variables"
+        v-on:delete="delete_global_variables_key"
+      />
+    </BootstrapModal>
 
     <BootstrapModal ok-only id="edit-sheets" title="Edit Sheets">
       <h1>Sheet order</h1>
@@ -300,6 +306,13 @@ export default defineComponent({
   color: #2c3e50;
 }
 
+table th {
+  top: 0;
+  position: sticky;
+  z-index: 1;
+}
+
+
 div.modal {
   top: 50px;
 }
@@ -334,7 +347,6 @@ nav button {
 }
 
 ul.nav.nav-tabs {
-  top: 54px;
   background-color: white;
   z-index: 100;
 
