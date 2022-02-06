@@ -60,9 +60,9 @@
           <a
             v-bind:class="['nav-link', 'active', { selected: current_sheet_id === sheet._id }]"
             v-on:click="change_sheet(sheet._id)"
+            v-bind:style="`background-color:${sheet.hex_color}; color: ${contrastingColor(sheet.hex_color)}`"
           >
             {{ sheet.name }}
-            <div class="marker" v-bind:style="'background-color:' + sheet.hex_color">&nbsp;</div>
           </a>
         </li>
       </ul>
@@ -144,6 +144,8 @@ import _ from 'lodash'
 
 import * as db from './db'
 
+import * as helpers from './helpers'
+
 export default defineComponent({
   name: 'app',
   components: {
@@ -186,6 +188,8 @@ export default defineComponent({
     }
   },
   methods: {
+    contrastingColor: helpers.contrastingColor,
+
     load_database_from_url(url: string) {
       fetch(url).then((response) => {
         response.json().then((data) => {
@@ -359,7 +363,7 @@ ul.nav.nav-tabs {
 
 .nav-item {
   font-weight: bold;
-  a.nav-link { padding: 0.3em 0.3em 0 0.3em }
+  a.nav-link { padding: 0.5em 0.3em 0.5em 0.3em }
 
   .marker {
     display: inline-block;
