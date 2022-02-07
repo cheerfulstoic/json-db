@@ -1,73 +1,78 @@
 <template>
   <tbody class="sheet">
     <tr>
-      <td colspan="100%" v-if="currently_edited_definition != null">
-        <BootstrapModal
-          v-for="definition in sheet.definitions"
-          v-bind:key="definition._id + '-modal'"
-          v-bind:id="`definition-filter-modal-${definition._id}`"
-          v-bind:title="'Filter: ' + definition.name"
-        >
-          <div>
-            <DefinitionFilterModal
-              v-on:input="set_filter"
-              v-on:definition-filter-modal-hidden="clear_currently_filtered_definitions()"
-              v-bind:definition="definition"
-              v-bind:values="values_for(definition)"
-              v-bind:database="sheet.database"
-              v-show="currently_filtered_definition === definition"
-            />
-          </div>
-        </BootstrapModal>
-
-        <!-- FIXME -->
-        <BootstrapModal
-          v-for="definition_infos in definitions_referring_to_sheet"
-          v-bind:key="'reverse-definition-test-' + definition_infos[0].definition._id"
-          v-bind:id="`reverse-definition-filter-modal-${collapse_string(definition_infos[0].definition.name)}`"
-          v-bind:title="'Filter: ' + definition_infos[0].definition.name"
-        >
-          <div>
-            <template
-                v-for="definition_info in definition_infos" v-bind:key="definition_info.definition._id"
-                v-show="currently_edited_reverse_definition === definition_infos.definition.name" >
-              <hr/>
-              <h1>{{definition_info.sheet.name}}</h1>
-
+      <td colspan="100%">
+        <div v-if="currently_edited_definition != null">
+          <BootstrapModal
+            v-for="definition in sheet.definitions"
+            v-bind:key="definition._id + '-modal'"
+            v-bind:id="`definition-filter-modal-${definition._id}`"
+            v-bind:title="'Filter: ' + definition.name"
+          >
+            <div>
               <DefinitionFilterModal
                 v-on:input="set_filter"
                 v-on:definition-filter-modal-hidden="clear_currently_filtered_definitions()"
-                v-bind:definition="reverse_references_definition(definition_info)"
-                v-bind:values="source_values_for(definition_info)"
+                v-bind:definition="definition"
+                v-bind:values="values_for(definition)"
                 v-bind:database="sheet.database"
+                v-show="currently_filtered_definition === definition"
               />
-            </template>
-          </div>
-        </BootstrapModal>
+            </div>
+          </BootstrapModal>
 
-        <BootstrapModal ok-only size="lg" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
+          <!-- FIXME -->
+          <BootstrapModal
+            v-for="definition_infos in definitions_referring_to_sheet"
+            v-bind:key="'reverse-definition-test-' + definition_infos[0].definition._id"
+            v-bind:id="`reverse-definition-filter-modal-${collapse_string(definition_infos[0].definition.name)}`"
+            v-bind:title="'Filter: ' + definition_infos[0].definition.name"
+          >
+            <div>
+              <template
+                  v-for="definition_info in definition_infos" v-bind:key="definition_info.definition._id"
+                  v-show="currently_edited_reverse_definition === definition_infos.definition.name" >
+                <hr/>
+                <h1>{{definition_info.sheet.name}}</h1>
+
+                <DefinitionFilterModal
+                  v-on:input="set_filter"
+                  v-on:definition-filter-modal-hidden="clear_currently_filtered_definitions()"
+                  v-bind:definition="reverse_references_definition(definition_info)"
+                  v-bind:values="source_values_for(definition_info)"
+                  v-bind:database="sheet.database"
+                />
+              </template>
+            </div>
+          </BootstrapModal>
+        </div>
+
+        <BootstrapModal ok-only size="xl" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
           <div v-if="currently_edited_record">
             <button v-on:click="focus_sheet_and_record(currently_edited_record.sheet._id, currently_edited_record._id)">
               Focus Record in Sheet
             </button>
             <div
-              class="form-inline"
               v-for="definition in currently_edited_record.sheet.definitions"
               v-bind:key="definition._id"
             >
-              <label>
-                <strong>{{ definition.name }}</strong>
-                <Field
-                  v-bind:record="currently_edited_record"
-                  v-bind:definition="definition"
-                  v-bind:database="sheet.database"
-                  v-bind:view_mode="view_mode"
-                  v-on:add-reference="add_reference"
-                  v-on:record-clicked="edit_record"
-                  v-on:reference-record-selected="
-                    reference_record_selected(currently_edited_record, definition, $event)
-                  "
-                />
+              <label style="width: 100%">
+                <div class="form-group row">
+                  <div class="font-weight-bold col-sm-3 col-form-label">{{ definition.name }}</div>
+                  <div class="col-sm-9">
+                    <Field
+                      v-bind:record="currently_edited_record"
+                      v-bind:definition="definition"
+                      v-bind:database="sheet.database"
+                      v-bind:view_mode="view_mode"
+                      v-on:add-reference="add_reference"
+                      v-on:record-clicked="edit_record"
+                      v-on:reference-record-selected="
+                        reference_record_selected(currently_edited_record, definition, $event)
+                      "
+                    />
+                  </div>
+                </div>
               </label>
             </div>
             <!-- <template v-slot:modal-footer v-if="current_edit_new_record_position"> -->
