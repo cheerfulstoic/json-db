@@ -2,7 +2,7 @@
   <tbody class="sheet">
     <tr>
       <td colspan="100%">
-        <div v-if="currently_edited_definition != null">
+        <div>
           <BootstrapModal
             v-for="definition in sheet.definitions"
             v-bind:key="definition._id + '-modal'"
@@ -21,7 +21,6 @@
             </div>
           </BootstrapModal>
 
-          <!-- FIXME -->
           <BootstrapModal
             v-for="definition_infos in definitions_referring_to_sheet"
             v-bind:key="'reverse-definition-test-' + definition_infos[0].definition._id"
@@ -374,6 +373,7 @@ export default defineComponent({
     current_focus: Object,
     view_mode: Boolean,
     scroll_position: { type: Number, required: false },
+    filters: Object,
   },
   mounted() {
     window.scrollTo(0, this.scroll_position || 0);
@@ -391,7 +391,6 @@ export default defineComponent({
     // window.scrollTo(0, this.scroll_position || 0);
   // },
   data(): {
-    filters: { [key: string]: db.RecordsFilter }
     currently_edited_record: db.Record | null
     recompute_database_reference_referencer_references: number
     current_edit_new_record_position: string
@@ -401,7 +400,6 @@ export default defineComponent({
   } {
 
     return {
-      filters: {},
       currently_edited_record: null,
       recompute_database_reference_referencer_references: 0,
       current_edit_new_record_position: 'top',
@@ -411,7 +409,7 @@ export default defineComponent({
     }
   },
 
-  emits: ['record-selected'],
+  emits: ['record-selected', 'set-filter'],
   computed: {
     records_to_display(): any[] {
       return _(this.filters)
@@ -534,7 +532,7 @@ export default defineComponent({
       )
     },
     set_filter(definition_id: string, value: (record: any) => boolean) {
-      _.set(this.filters, definition_id, value)
+      this.$emit('set-filter', this.sheet, definition_id, value)
     },
     filtering_on(definition_id: string): db.RecordsFilter {
       return this.filters[definition_id]

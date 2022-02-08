@@ -81,8 +81,10 @@
           v-bind:current_focus="current_focus"
           v-bind:view_mode="view_mode"
           v-bind:scroll_position="sheet_scroll_positions[sheet._id]"
+          v-bind:filters="filters[sheet._id] || []"
           v-on:focus-sheet-and-record="focus_sheet_and_record"
           v-on:record-selected="focus_record"
+          v-on:set-filter="set_filter"
         />
       </template>
     </table>
@@ -172,6 +174,7 @@ export default defineComponent({
     show_json: boolean,
     view_mode: boolean,
     sheet_scroll_positions: object,
+    filters: object,
   } {
     let database = new db.Database('Project Name', {})
 
@@ -183,6 +186,7 @@ export default defineComponent({
       show_json: false,
       view_mode: false,
       sheet_scroll_positions: {},
+      filters: {},
     }
   },
   mounted() {
@@ -292,6 +296,9 @@ export default defineComponent({
         }
       }
     },
+    set_filter(sheet, definition_id, value) {
+      _.set(this.filters, [sheet._id, definition_id], value)
+    }
   },
 })
 </script>
