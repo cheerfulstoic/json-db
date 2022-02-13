@@ -1,7 +1,7 @@
 <template>
   <tbody class="sheet">
     <tr>
-      <td colspan="100%">
+      <td colspan="100%" style="position: absolute; height: 0">
         <div>
           <BootstrapModal
             v-for="definition in sheet.definitions"
@@ -92,8 +92,8 @@
       </td>
     </tr>
 
-    <tr>
-      <td colspan="100%" v-if="currently_edited_definition != null">
+    <tr v-if="currently_edited_definition != null">
+      <td>
         <BootstrapModal id="edit-definition-modal" v-bind:title="`Edit Definition: ${currently_edited_definition.name}`">
           <DefinitionDetails
             v-bind:value="currently_edited_definition"
@@ -107,7 +107,7 @@
       </td>
     </tr>
 
-    <tr>
+    <tr class="header">
       <th colspan="100%" style="border-bottom: 1px solid black;">
         <h4 class="d-inline-block">
           {{ total_count }} total rows
@@ -182,12 +182,10 @@
             {{ definition_infos[0].definition.name }}
           </label>
         </div>
-
-        <hr/>
       </th>
     </tr>
 
-    <tr class="headers">
+    <tr class="column-headers">
       <th v-if="!view_mode">&nbsp;</th>
 
       <template v-for="definition in definitions_to_display" v-bind:key="definition._id">
@@ -653,22 +651,17 @@ export default defineComponent({
 }
 
 th {
-  background-color: white;
   top: 100px;
   position: sticky;
   z-index: 1;
 }
 
-tr.headers th {
-  top: 253px;
+tr.column-headers th {
+  top: 248px;
 }
 
 .table-bordered th, .table-bordered td {
   border: 1px solid #ebebeb;
-}
-
-.table-header {
-  z-index: 50;
 }
 
 .table {
@@ -679,12 +672,19 @@ tr.headers th {
   margin-bottom: 0;
 }
 
-th.field-cell {
-  border-right: 1px solid #333;
-}
+table {
+  th, td {
+    padding: 0.75rem;
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+  }
+  th {
+    background-color: white;
+  }
 
-.table th, .table td {
-  padding: 0.2rem;
+  tr.header th {
+    padding-bottom: 0;
+  }
 }
 
 tr {
