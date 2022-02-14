@@ -18,16 +18,27 @@
 import { defineComponent } from 'vue'
 
 import _ from 'lodash'
+import store_data_mixin from '../../store_data_mixin'
 
 export default defineComponent({
   name: 'Number',
   props: ['definition', 'database', 'values'],
+  mixins: [store_data_mixin({
+    min: (component) => {
+      return { path: [component.definition._id], initial:  _.min(component.values) }
+    },
+    min_min: (component) => {
+      return { path: [component.definition._id], initial:  _.min(component.values) }
+    },
+    max: (component) => {
+      return { path: [component.definition._id], initial:  _.max(component.values) }
+    },
+    max_max: (component) => {
+      return { path: [component.definition._id], initial:  _.max(component.values) }
+    },
+  })],
   data() {
     return {
-      min: _.min(this.values),
-      min_min: _.min(this.values),
-      max: _.max(this.values),
-      max_max: _.max(this.values),
       step: this.definition.sub_type === 'float' ? 0.00001 : 1,
       parseFn: this.definition.sub_type === 'float' ? parseFloat : parseInt,
     }

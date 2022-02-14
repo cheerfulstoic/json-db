@@ -20,15 +20,16 @@
 import _ from 'lodash'
 
 import { defineComponent } from 'vue'
+import store_data_mixin from '../../store_data_mixin'
 
 export default defineComponent({
   name: 'SelectOne',
   props: ['definition', 'database', 'values'],
-  data() {
-    return {
-      items: _(this.values).uniq().sort().value(),
-    }
-  },
+  mixins: [store_data_mixin({
+    items: (component) => {
+      return { path: [component.definition._id], initial: _(component.values).uniq().sort().value()  }
+    },
+  })],
   emits: ['input'],
   watch: {
     items: {

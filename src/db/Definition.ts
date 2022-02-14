@@ -13,7 +13,7 @@ export class Definition {
   public options?: string[]
   public rows?: number
 
-  constructor(data: any) {
+  constructor(data: any, sheet: Sheet) {
     this._id = data._id || uuid()
     this.name = data.name
     this.type = data.type
@@ -32,10 +32,12 @@ export class Definition {
     this.unique_id = data.unique_id
     this.required = data.required
     this.options = data.options
+
+    this.sheet = sheet;
   }
 
   public to_reference_definition() {
-    return new ReferencesDefinition(this)
+    return new ReferencesDefinition(this, this.sheet)
   }
 
   public json_data() {
@@ -47,8 +49,8 @@ export class ReferencesDefinition extends Definition {
   public definitions: Definition[]
   public _referenceable_sheet_ids: string[]
 
-  constructor(data: any) {
-    super(data)
+  constructor(data: any, sheet: Sheet) {
+    super(data, sheet)
 
     this.definitions = _.map(data.definitions, (data) => new Definition(data)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
@@ -71,6 +73,15 @@ export class ReferencesDefinition extends Definition {
 
   public json_data() {
     return _.merge(super.json_data(), _.pick(this, ['referenceable_sheet_ids', 'definitions']))
+  }
+
+  public reverse_definition(): db.ReferencesDefinition {
+    return new db.ReferencesDefinition({
+      _id: this._id,
+      type: 'reverse_references',
+      name: this.name,
+      referenceable_sheet_ids: [this.sheet._id],
+    })
   }
 }
 

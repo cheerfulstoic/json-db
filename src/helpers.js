@@ -7,8 +7,6 @@ export const contrastingColor = (hexColor) => {
   // Formula from https://www.w3.org/TR/AERT/#color-contrast
   let brightness = ((parts[0] * 299) + (parts[1] * 587) + (parts[2] * 114)) / 1000;
 
-  console.log({brightness});
-
   if (brightness > 128) {
     return("#000000");
   } else {

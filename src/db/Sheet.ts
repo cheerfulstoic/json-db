@@ -45,9 +45,9 @@ export class Sheet {
 
     this.definitions = _.map(definitions, (definition_data: any) => {
       if (definition_data.type === 'references') {
-        return new ReferencesDefinition(definition_data)
+        return new ReferencesDefinition(definition_data, this)
       } else {
-        return new Definition(definition_data)
+        return new Definition(definition_data, this)
       }
     })
 
@@ -91,7 +91,7 @@ export class Sheet {
 
   public add_definition() {
     const number = this.definitions.length + 1
-    const definition = new Definition(helpers.add_id({ name: `Column #${number}`, type: 'string' }))
+    const definition = new Definition(helpers.add_id({ name: `Column #${number}`, type: 'string' }), this)
     this.definitions.push(definition)
     this.update_definition_caches()
     this.definition_ids_to_display.push(definition._id)

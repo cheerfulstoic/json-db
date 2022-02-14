@@ -1,8 +1,9 @@
 import Rollbar from 'rollbar';
 
-
 import { createApp } from 'vue'
 import App from './App.vue'
+
+import store from './store'
 
 import CKEditor from '@ckeditor/ckeditor5-vue';
 
@@ -22,6 +23,7 @@ let app = createApp(App)
 // };
 
 app.use(CKEditor)
+app.use(store)
 
 app.mount('#app')
 

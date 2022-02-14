@@ -1,10 +1,5 @@
 import { Sheet } from './Sheet'
 
-export interface ReferencesDefinitionResult {
-  sheet: Sheet
-  definition: ReferencesDefinition
-}
-
 export interface ReferenceQueryResult {
   sheet: Sheet
   id: string

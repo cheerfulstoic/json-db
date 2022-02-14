@@ -212,18 +212,12 @@ export class Database {
     )
   }
 
-  public definitions_referring_to(given_sheet: Sheet): ReferencesDefinitionResult[] {
-    return _.flatMap(this.sheets, (sheet: Sheet): ReferencesDefinitionResult[] => {
-      return _(sheet.definitions)
+  public definitions_referring_to(given_sheet: Sheet): Definition[] {
+    return _.flatMap(this.sheets, (sheet: Sheet): Definition[] => {
+      return sheet.definitions
         .filter((definition: any): boolean => {
           return !!definition.references_sheet && !!definition.references_sheet(given_sheet)
         })
-        .map(
-          (definition: any): ReferencesDefinitionResult => {
-            return { sheet: sheet, definition: definition }
-          },
-        )
-        .value()
     })
   }
 

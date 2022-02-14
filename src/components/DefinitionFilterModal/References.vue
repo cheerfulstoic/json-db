@@ -30,6 +30,7 @@ import RecordResult from '../RecordResult.vue'
 import RecordsSearch from '../RecordsSearch.vue'
 
 import * as db from '../../db'
+import store_data_mixin from '../../store_data_mixin'
 import _ from 'lodash'
 
 export default defineComponent({
@@ -44,10 +45,14 @@ export default defineComponent({
     RecordResult,
     RecordsSearch,
   },
-  data(): { currently_filtered_records: db.Record[]; match_text: null | string } {
+  mixins: [store_data_mixin({
+    currently_filtered_records: (component) => {
+      return { path: [component.definition._id], initial: [] }
+    },
+  })],
+  data(): { match_text: null | string } {
     return {
       match_text: null,
-      currently_filtered_records: [],
     }
   },
   emits: ['input'],

@@ -27,6 +27,7 @@
     "vue-color": "^2.8.1",
     "vue-draggable-next": "2.0.x",
     "vue-template-compiler": "^2.6.12",
+    "vuex": "^4.0.2",
     "yard": "^1.0.3"
   },
   "devDependencies": {

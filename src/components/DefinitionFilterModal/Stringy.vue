@@ -14,21 +14,22 @@
 import { defineComponent } from 'vue'
 
 import * as db from '../../db'
+import store_data_mixin from '../../store_data_mixin'
 import _ from 'lodash'
 import Fuse from 'fuse.js'
 
 export default defineComponent({
   name: 'Stringy',
   props: ['definition', 'database', 'values'],
-  data() {
-    return {
-      search_query: '',
-    }
-  },
+  mixins: [store_data_mixin({
+    search_query: (component) => { return { path: [component.definition._id] } },
+  })],
   emits: ['input'],
   watch: {
     search_query: {
       handler(_new_search_query: string, _old_search_query: string) {
+        // store_helpers.commit_data(this.$store, 'search_query', [this.definition_id], this.search_query)
+
         if (_.trim(this.search_query) === '') {
           this.$emit('input', this.definition._id, null)
         } else {
