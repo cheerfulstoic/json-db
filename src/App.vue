@@ -316,7 +316,7 @@ export default defineComponent({
 table th {
   top: 0;
   position: sticky;
-  z-index: 1;
+  z-index: 2;
 }
 
 
