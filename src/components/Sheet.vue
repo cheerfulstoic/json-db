@@ -3,15 +3,17 @@
     <tr>
       <!-- <td colspan="100%" style="position: absolute; height: 0"> -->
       <td colspan="100%">
-        <div>
-          |{{!!current_filter_edit_definition}}|
-          <DefinitionFilterModal
+        <BootstrapModal
+          id="definition-filter-modal"
+          v-bind:title="'Filter: ' + current_filter_edit_definition?.name"
+        >
+          <FilterDefinitionDetails
             v-if="current_filter_edit_definition"
             v-on:input="set_filter"
             v-on:modal-hidden="clear_currently_filtered_definitions()"
             v-bind:definition="current_filter_edit_definition"
           />
-        </div>
+        </BootstrapModal>
 
         <BootstrapModal ok-only size="xl" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
           <div v-if="currently_edited_record">
@@ -33,43 +35,44 @@
                       v-bind:view_mode="view_mode"
                       v-on:add-reference="add_reference"
                       v-on:record-clicked="edit_record"
-                      v-on:reference-record-selected="
-                        reference_record_selected(currently_edited_record, definition, $event)
-                      "
+                      v-on:reference-record-selected="reference_record_selected(currently_edited_record, definition, $event)"
+                      v-on:currently-edited-reference="set_currently_edited_reference"
                     />
                   </div>
                 </div>
               </label>
             </div>
-            <!-- <template v-slot:modal-footer v-if="current_edit_new_record_position"> -->
-            <!--   <div class="w-100"> -->
-            <!--     <button -->
-            <!--       v-on:click="add_record(current_edit_new_record_position)" -->
-            <!--       type="button" -->
-            <!--       class="btn float-right btn-primary" -->
-            <!--     > -->
-            <!--       Save and Add New -->
-            <!--     </button> -->
-
-            <!--     <button v-on:click="stop_editing_record()" type="button" class="btn float-right btn-primary">Save</button> -->
-            <!--   </div> -->
-            <!-- </template> -->
           </div>
         </BootstrapModal>
-      </td>
-    </tr>
 
-    <tr v-if="currently_edited_definition != null">
-      <td>
-        <BootstrapModal id="edit-definition-modal" v-bind:title="`Edit Definition: ${currently_edited_definition.name}`">
-          <DefinitionDetails
-            v-bind:value="currently_edited_definition"
-            v-on:input="replace_definition(currently_edited_definition._id, $event)"
-            v-on:add-sub-definition="add_sub_definition(currently_edited_definition._id, $event)"
-            v-on:remove="remove_definition"
-            v-on:remove-sub-definition="remove_sub_definition"
-            v-bind:database="sheet.database"
-          />
+        <BootstrapModal id="edit-definition-modal" v-bind:title="`Edit Definition: ${currently_edited_definition?.name}`">
+          <div v-if="currently_edited_definition != null">
+            <DefinitionDetails
+              v-bind:value="currently_edited_definition"
+              v-on:input="replace_definition(currently_edited_definition._id, $event)"
+              v-on:add-sub-definition="add_sub_definition(currently_edited_definition._id, $event)"
+              v-on:remove="remove_definition"
+              v-on:remove-sub-definition="remove_sub_definition"
+              v-bind:database="sheet.database"
+            />
+          </div>
+        </BootstrapModal>
+
+        <BootstrapModal id="edit-reference-modal" title="Edit reference properties" >
+          <div v-if="currently_edited_reference != null">
+            <div v-for="reference_definition in currently_edited_reference.definition.definitions" v-bind:key="reference_definition._id">
+              {{ reference_definition.name }}
+              <Field
+                v-bind:record="currently_edited_reference"
+                v-bind:definition="reference_definition"
+                v-bind:database="database"
+                v-bind:view_mode="view_mode"
+                v-on:currently-edited-reference="set_currently_edited_reference"
+              />
+            </div>
+
+            <hr />
+          </div>
         </BootstrapModal>
       </td>
     </tr>
@@ -229,6 +232,7 @@
               v-bind:view_mode="view_mode"
               v-on:record-clicked="edit_record"
               v-on:reference-record-selected="reference_record_selected(record, definition, $event)"
+              v-on:currently-edited-reference="set_currently_edited_reference"
             />
           </td>
         </template>
@@ -247,6 +251,7 @@
               v-bind:use_source_record="true"
               v-bind:view_mode="view_mode"
               v-on:record-clicked="edit_record"
+              v-on:currently-edited-reference="set_currently_edited_reference"
             />
           </div>
 
@@ -304,7 +309,7 @@
 <script lang="ts">
 import BootstrapModal from './BootstrapModal.vue'
 import DefinitionDetails from './DefinitionDetails.vue'
-import DefinitionFilterModal from './DefinitionFilterModal.vue'
+import FilterDefinitionDetails from './FilterDefinitionDetails.vue'
 import Icon from './Icon.vue'
 
 import References from './References.vue'
@@ -325,7 +330,7 @@ export default defineComponent({
   components: {
     BootstrapModal,
     DefinitionDetails,
-    DefinitionFilterModal,
+    FilterDefinitionDetails,
     Icon,
     References,
     RecordsSearch,
@@ -360,6 +365,7 @@ export default defineComponent({
     recompute_database_reference_referencer_references: number
     current_edit_new_record_position: string
     currently_edited_definition: db.Definition | null
+    currently_edited_reference: db.Reference | null
     current_filter_edit_definition: db.Definition | null
     // currently_edited_reverse_definition: string | null
   } {
@@ -369,6 +375,7 @@ export default defineComponent({
       recompute_database_reference_referencer_references: 0,
       current_edit_new_record_position: 'top',
       currently_edited_definition: null,
+      currently_edited_reference: null,
       current_filter_edit_definition: null,
       // currently_edited_reverse_definition: null,
     }
@@ -542,11 +549,12 @@ export default defineComponent({
       this.sheet.definitions[index].definitions.push(definition)
     },
     edit_record(record: db.Record): void {
+      console.log({record})
       this.current_edit_new_record_position = 'top'
       this.currently_edited_record = record
       $('#edit-record-modal').modal('show')
     },
-    // Create a fake definition for compatibility with DefinitionFilterModal(/References)
+    // Create a fake definition for compatibility with FilterDefinitionDetails(/References)
     // so that the reverse reference filtering works
 
     add_record(position: string, in_modal: boolean): void {
@@ -574,10 +582,21 @@ export default defineComponent({
     edit_definition(definition: db.Definition) {
       this.currently_edited_definition = definition
 
+      this.activate_modal_by_id('edit-definition-modal')
+    },
+    set_currently_edited_reference(reference) {
+      console.log({reference})
+      this.currently_edited_reference = reference;
+
+      this.activate_modal_by_id('edit-reference-modal')
+    },
+
+    activate_modal_by_id(id) {
       setTimeout(() => {
-        $('#edit-definition-modal').modal('show')
+        $(`#${id}`).modal('show')
       }, 1)
     },
+
     filter_definition(definition: db.Definition) {
       this.current_filter_edit_definition = definition
     },

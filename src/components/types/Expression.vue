@@ -25,7 +25,8 @@ export default defineComponent({
   },
   computed: {
     calculated_value_and_error(): db.ExpressionResult {
-      return this.database.evaluate_expression(this.value)
+      // if (this.definition.sheet == null) { debugger }
+      return this.definition.sheet.database.evaluate_expression(this.value)
     },
     calculated_value(): number | null {
       return this.calculated_value_and_error[0]

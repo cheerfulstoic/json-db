@@ -52,7 +52,7 @@ export class ReferencesDefinition extends Definition {
   constructor(data: any, sheet: Sheet) {
     super(data, sheet)
 
-    this.definitions = _.map(data.definitions, (data) => new Definition(data)) || []
+    this.definitions = _.map(data.definitions, (data) => new Definition(data, sheet)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
   }
 
@@ -68,7 +68,7 @@ export class ReferencesDefinition extends Definition {
   }
 
   public to_definition() {
-    return new Definition(_.omit(this, ['definitions', '_referenceable_sheet_ids']))
+    return new Definition(_.omit(this, ['definitions', '_referenceable_sheet_ids']), this.sheet)
   }
 
   public json_data() {

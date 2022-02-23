@@ -41,7 +41,9 @@
                     v-bind:database="database"
                     v-bind:sheet="references_group.sheet"
                     v-bind:view_mode="view_mode"
-                    v-on:record-clicked="record_clicked" />
+                    v-on:record-clicked="record_clicked"
+                    v-on:currently-edited-reference="emit_currently_edited_reference"
+                  />
       </div>
     </template>
 
@@ -122,7 +124,7 @@ export default defineComponent({
       return errors
     },
   },
-  emits: ['record-clicked', 'add-reference', 'reference-record-selected'],
+  emits: ['record-clicked', 'add-reference', 'reference-record-selected', 'currently-edited-reference'],
   methods: {
     record_clicked(record: db.Record) {
       this.$emit('record-clicked', record)
@@ -162,6 +164,9 @@ export default defineComponent({
         })
         .value()
     },
+    emit_currently_edited_reference(reference) {
+      this.$emit('currently-edited-reference', reference);
+    }
   },
 })
 </script>

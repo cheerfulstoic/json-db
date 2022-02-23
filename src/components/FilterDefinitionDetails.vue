@@ -1,94 +1,88 @@
 <template>
-  <BootstrapModal
-    id="definition-filter-modal"
-    v-bind:title="'Filter: ' + definition.name"
-  >
-    <div>
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <a
-            v-bind:class="{'nav-link': true, active: current_tab === 'general'}"
-            id="home-tab"
-            data-toggle="tab"
-            href="#general"
-            role="tab"
-            aria-controls="home"
-            v-on:click="reset_blank(); current_tab = 'general'"
-            >General filter</a
+  <div>
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a
+          v-bind:class="{'nav-link': true, active: current_tab === 'general'}"
+          id="home-tab"
+          data-toggle="tab"
+          href="#general"
+          role="tab"
+          aria-controls="home"
+          v-on:click="reset_blank(); current_tab = 'general'"
+          >General filter</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          v-bind:class="{'nav-link': true, active: current_tab === 'blank'}"
+          id="blank-tab"
+          data-toggle="tab"
+          href="#blank"
+          role="tab"
+          aria-controls="blank"
+          v-on:click="current_tab = 'blank'"
+          >Blank filter</a
+        >
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'general'}" id="general" role="tabpanel" aria-labelledby="general-tab">
+        <References
+          v-if="definition.type === 'references' || definition.type === 'reverse_references'"
+          v-on:input="handle_input"
+          v-bind:definition="definition"
+          v-bind:values="record_values()"
+          v-bind:database="definition.sheet.database"
+        />
+
+        <SelectOne
+          v-if="definition.type === 'select_one'"
+          v-on:input="handle_input"
+          v-bind:definition="definition"
+          v-bind:values="values"
+          v-bind:database="definition.sheet.database"
+        />
+
+        <Stringy
+          v-if="['string', 'text_area'].includes(definition.type)"
+          v-on:input="handle_input"
+          v-bind:definition="definition"
+          v-bind:values="values"
+          v-bind:database="definition.sheet.database"
+        />
+
+        <Number
+          v-if="definition.type === 'number'"
+          v-on:input="handle_input"
+          v-bind:definition="definition"
+          v-bind:values="values"
+          v-bind:database="definition.sheet.database"
+        />
+      </div>
+      <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'blank'}" id="blank" role="tabpanel" aria-labelledby="blank-tab">
+        <div class="btn-group" role="group">
+          <button
+            v-on:click="show_only_blank()"
+            v-bind:aria-pressed="blankness_filter === true"
+            type="button"
+            v-bind:class="{btn: true, 'btn-secondary': true, active: blankness_filter === true}"
           >
-        </li>
-        <li class="nav-item" role="presentation">
-          <a
-            v-bind:class="{'nav-link': true, active: current_tab === 'blank'}"
-            id="blank-tab"
-            data-toggle="tab"
-            href="#blank"
-            role="tab"
-            aria-controls="blank"
-            v-on:click="current_tab = 'blank'"
-            >Blank filter</a
+            Show only empty
+          </button>
+          <button
+            v-on:click="show_only_non_blank()"
+            v-bind:aria-pressed="blankness_filter === false"
+            type="button"
+            v-bind:class="{btn: true, 'btn-secondary': true, active: blankness_filter === false}"
           >
-        </li>
-      </ul>
-
-      <div class="tab-content">
-        <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'general'}" id="general" role="tabpanel" aria-labelledby="general-tab">
-          <References
-            v-if="definition.type === 'references' || definition.type === 'reverse_references'"
-            v-on:input="handle_input"
-            v-bind:definition="definition"
-            v-bind:values="record_values()"
-            v-bind:database="definition.sheet.database"
-          />
-
-          <SelectOne
-            v-if="definition.type === 'select_one'"
-            v-on:input="handle_input"
-            v-bind:definition="definition"
-            v-bind:values="values"
-            v-bind:database="definition.sheet.database"
-          />
-
-          <Stringy
-            v-if="['string', 'text_area'].includes(definition.type)"
-            v-on:input="handle_input"
-            v-bind:definition="definition"
-            v-bind:values="values"
-            v-bind:database="definition.sheet.database"
-          />
-
-          <Number
-            v-if="definition.type === 'number'"
-            v-on:input="handle_input"
-            v-bind:definition="definition"
-            v-bind:values="values"
-            v-bind:database="definition.sheet.database"
-          />
-        </div>
-        <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'blank'}" id="blank" role="tabpanel" aria-labelledby="blank-tab">
-          <div class="btn-group" role="group">
-            <button
-              v-on:click="show_only_blank()"
-              v-bind:aria-pressed="blankness_filter === true"
-              type="button"
-              v-bind:class="{btn: true, 'btn-secondary': true, active: blankness_filter === true}"
-            >
-              Show only empty
-            </button>
-            <button
-              v-on:click="show_only_non_blank()"
-              v-bind:aria-pressed="blankness_filter === false"
-              type="button"
-              v-bind:class="{btn: true, 'btn-secondary': true, active: blankness_filter === false}"
-            >
-              Show only non-empty
-            </button>
-          </div>
+            Show only non-empty
+          </button>
         </div>
       </div>
     </div>
-  </BootstrapModal>
-
+  </div>
 </template>
 
 <script lang="ts">
@@ -100,20 +94,18 @@ import $ from 'jquery'
 
 import store_data_mixin from '../store_data_mixin'
 
-import BootstrapModal from './BootstrapModal.vue'
-import Number from './DefinitionFilterModal/Number.vue'
-import References from './DefinitionFilterModal/References.vue'
-import SelectOne from './DefinitionFilterModal/SelectOne.vue'
-import Stringy from './DefinitionFilterModal/Stringy.vue'
+import Number from './FilterDefinitionDetails/Number.vue'
+import References from './FilterDefinitionDetails/References.vue'
+import SelectOne from './FilterDefinitionDetails/SelectOne.vue'
+import Stringy from './FilterDefinitionDetails/Stringy.vue'
 
 const is_blank = (value: any) => {
   return value == null || value === '' || (Array.isArray(value) && value.length === 0)
 }
 
 export default defineComponent({
-  name: 'DefinitionFilterModal',
+  name: 'FilterDefinitionDetails',
   components: {
-    BootstrapModal,
     Number,
     References,
     SelectOne,
