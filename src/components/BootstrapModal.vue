@@ -1,6 +1,6 @@
 <template>
   <div class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl" role="document">
+    <div v-bind:class="['modal-dialog', `modal-${size || 'xl'}`]" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ title }}</h5>
@@ -31,6 +31,7 @@ export default defineComponent({
   },
   props: {
     title: String,
+    size: String,
   },
   emits: [],
   methods: {},

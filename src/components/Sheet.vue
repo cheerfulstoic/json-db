@@ -15,7 +15,7 @@
           />
         </BootstrapModal>
 
-        <BootstrapModal ok-only size="xl" id="edit-record-modal" modal-class="record-modal" title="Edit Record">
+        <BootstrapModal ok-only id="edit-record-modal" modal-class="record-modal" title="Edit Record">
           <div v-if="currently_edited_record">
             <button v-on:click="focus_sheet_and_record(currently_edited_record.sheet._id, currently_edited_record._id)">
               Focus Record in Sheet
@@ -58,7 +58,7 @@
           </div>
         </BootstrapModal>
 
-        <BootstrapModal id="edit-reference-modal" title="Edit reference properties" >
+        <BootstrapModal size="lg" id="edit-reference-modal" title="Edit reference properties" >
           <div v-if="currently_edited_reference != null">
             <div v-for="reference_definition in currently_edited_reference.definition.definitions" v-bind:key="reference_definition._id">
               {{ reference_definition.name }}
