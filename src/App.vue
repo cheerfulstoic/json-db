@@ -270,7 +270,19 @@ export default defineComponent({
       }, 1)
     },
     json() {
-      return JSON.stringify(this.database.json_data(), null, 2)
+      let seen = new Set();
+      return JSON.stringify(this.database.json_data(), (key, value) => {
+        if (value != null && typeof value == "object") {
+          if (seen.has(value)) {
+            console.log("Object seen multiple times when stringifying:")
+            console.log(value)
+          }
+
+          seen.add(value);
+        }
+
+        return(value);
+      }, 2)
     },
     json_file_data_url() {
       let file = new Blob([this.json()], { type: 'application/json' })
