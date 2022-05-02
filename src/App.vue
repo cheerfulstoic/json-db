@@ -271,8 +271,10 @@ export default defineComponent({
     },
     json() {
       let seen = new Set();
+      // console.log({here_we_go: this.database.json_data()})
       return JSON.stringify(this.database.json_data(), (key, value) => {
         if (value != null && typeof value == "object") {
+          // console.log({key, value})
           if (seen.has(value)) {
             console.log("Object seen multiple times when stringifying:")
             console.log(value)

@@ -72,7 +72,12 @@ export class ReferencesDefinition extends Definition {
   }
 
   public json_data() {
-    return _.merge(super.json_data(), _.pick(this, ['referenceable_sheet_ids', 'definitions']))
+    return(
+      _(super.json_data())
+        .set('referenceable_sheet_ids', this.referenceable_sheet_ids)
+        .set('definitions', _.map(this.definitions, (definition) => definition.json_data()))
+        .value()
+    )
   }
 
   public reverse_definition(): db.ReferencesDefinition {
