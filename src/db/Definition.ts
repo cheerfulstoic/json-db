@@ -80,13 +80,13 @@ export class ReferencesDefinition extends Definition {
     )
   }
 
-  public reverse_definition(): db.ReferencesDefinition {
-    return new db.ReferencesDefinition({
+  public reverse_definition(): ReferencesDefinition {
+    return new ReferencesDefinition({
       _id: this._id,
       type: 'reverse_references',
       name: this.name,
       referenceable_sheet_ids: [this.sheet._id],
-    })
+    }, this.sheet)
   }
 }
 

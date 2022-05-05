@@ -38,7 +38,7 @@ export default defineComponent({
   props: {
     definition: { type: db.Definition, required: true },
     database: db.Database,
-    values: Array, // Record objects
+    values: Array, // Reference objects
   },
   components: {
     Icon,
@@ -73,7 +73,6 @@ export default defineComponent({
       this.emit_input()
     },
     emit_input() {
-      let current_records = this.currently_filtered_records
       let current_record_ids = _.map(this.currently_filtered_records, '_id')
       let def = this.definition
       if (current_record_ids.length === 0) {
@@ -81,15 +80,12 @@ export default defineComponent({
       } else {
         this.$emit('input', this.definition._id, (records: db.Record[]) => {
           return _.filter(records, (record) => {
-            if (def.type === 'reverse_references') {
-              return _.some(current_records, (filtered_record) => {
-                return _.some(filtered_record.value_for_definition(def), (reference) => {
-                  return reference.record._id === record._id
-                })
-              })
-            } else {
-              return !_(record.value_for_definition(def) || []).map('record._id').intersection(current_record_ids).isEmpty()
-            }
+            return (
+              !_(record.value_for_definition(def) || [])
+                .map((reference) => reference.record_for_definition(def)._id )
+                .intersection(current_record_ids)
+                .isEmpty()
+              )
           })
         })
       }

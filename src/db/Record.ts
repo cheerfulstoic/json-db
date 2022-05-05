@@ -4,6 +4,7 @@ import * as helpers from './helpers'
 import { DataObject } from './DataObject'
 import { Definition, ReferencesDefinition } from './Definition'
 import { Sheet } from './Sheet'
+import { Reference } from './Reference'
 
 // The `Record` class is coupled with the Sheet class because it needs to see the definitions
 export class Record extends DataObject {
@@ -52,6 +53,18 @@ export class Record extends DataObject {
         return _.set(value, 'data', _.omit(value.data, sub_definition._id))
       })
     })
+  }
+
+  public add_reference(definition, target_record) {
+    this.transform_value(definition, (references) => {
+      let new_reference = new Reference(target_record, this, definition, {})
+      if (references == null) {
+        references = []
+      }
+      references.splice(references.length, 1, new_reference)
+      return references
+    })
+    this.sheet.database.clear_referencer_reference_references_cache();
   }
 
   public transform_value(definition: Definition, transform_fn: (value: any) => any): void {

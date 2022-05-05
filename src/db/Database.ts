@@ -180,6 +180,18 @@ export class Database {
   }
 
   public referencer_reference_references() {
+    if (this.referencer_reference_references_cache == null) {
+      this.referencer_reference_references_cache = this.calculate_referencer_reference_references();
+    }
+
+    return this.referencer_reference_references_cache;
+  }
+
+  public clear_referencer_reference_references_cache() {
+    delete this.referencer_reference_references_cache;
+  }
+
+  private calculate_referencer_reference_references() {
     return _.mapValues(
       _.reduce(
         this.sheets,

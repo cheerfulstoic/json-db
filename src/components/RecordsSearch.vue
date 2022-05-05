@@ -70,7 +70,6 @@ export default defineComponent({
     record_ids_to_skip: Array,
     record_ids_to_limit_to: Array,
     database: Object,
-    use_source_record: Boolean,
     sheet_ids_to_search: Array,
   },
   watch: {

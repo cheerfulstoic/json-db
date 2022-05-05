@@ -1,32 +1,35 @@
 <template>
   <div class="input-group referenced-records">
-    <div v-bind:class="{ 'sheet-box': true, valid: valid_sheet(sheet) }" v-if="value.length">
-      <span class="sheet-name" v-bind:style="'background-color:' + sheet.hex_color">
-        {{ sheet.name }}
-      </span>
-      <div v-for="reference in value" v-bind:key="record_to_display(reference)._id" class="referenced-record">
-        <template v-if="!view_mode">
-          <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
-            <Icon name="pencil-alt" />
-          </a>
+    <div v-if="values.length">
+      <div v-for="references_group in grouped_references()" class="sheet-references-group" v-bind:key="references_group.sheet._id">
+        <span class="sheet-name" v-bind:style="'background-color:' + references_group.sheet.hex_color">
+          {{ references_group.sheet.name }}
+        </span>
 
-          <a v-on:click.stop="remove(reference)" class="remove">
-            <Icon name="trash" />
-          </a>
-        </template>
+        <div v-for="reference in references_group.references" v-bind:key="record_to_display(reference)._id" class="referenced-record">
+          <template v-if="!view_mode">
+            <a v-if="reference.definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
+              <Icon name="pencil-alt" />
+            </a>
 
-        <RecordResult
-          v-bind:definitions="[record_to_display(reference).sheet.unique_id_definition()]"
-          v-bind:data_object="record_to_display(reference)"
-          v-bind:show_keys="false"
-          v-on:clicked="$emit('record-clicked', record_to_display(reference))"
-          look="right-arrow"
-        />
+            <a v-on:click.stop="remove(reference)" class="remove">
+              <Icon name="trash" />
+            </a>
+          </template>
 
-        <RecordResult
-          v-bind:definitions="definition.definitions"
-          v-bind:data_object="reference"
+          <RecordResult
+            v-bind:definitions="[record_to_display(reference).sheet.unique_id_definition()]"
+            v-bind:data_object="record_to_display(reference)"
+            v-bind:show_keys="false"
+            v-on:clicked="$emit('record-clicked', record_to_display(reference))"
+            look="right-arrow"
           />
+
+          <RecordResult
+            v-bind:definitions="reference.definition.definitions"
+            v-bind:data_object="reference"
+            />
+        </div>
       </div>
     </div>
   </div>
@@ -56,61 +59,41 @@ export default defineComponent({
     }
   },
   props: {
-    value: Array,
-    record: Object,
-    definition: db.ReferencesDefinition,
-    database: Object,
-    use_source_record: Boolean,
-    sheet: db.Sheet,
+    values: Array,
+    side_to_display: String,
     view_mode: Boolean,
-  },
-  computed: {
-    definition_referenceable_sheet_ids_set(): Set<string> {
-      if (this.use_source_record) {
-        // For incoming references just use to the referencing sheet
-        return new Set([this.sheet._id])
-      } else {
-        // Use sheets from definition for outgoing references
-        return this.definition ? new Set(this.definition.referenceable_sheet_ids) : new Set()
-      }
-    },
   },
   emits: ['record-clicked', 'currently-edited-reference'],
   methods: {
+    grouped_references(): any {
+      let groups: object = _.groupBy(this.values, `${this.side_to_display}.sheet._id`)
+
+      return _(Object.values(groups))
+        .sortBy((references: db.Reference[]) => {
+          return references[0][this.side_to_display].sheet._id
+        })
+        .map((references: db.Reference[]) => {
+          let sheet = references[0][this.side_to_display].sheet
+          return { references: _.uniq(references), sheet: sheet }
+        })
+        .value()
+    },
     record_to_display(reference: db.Reference): db.Record {
-      return this.use_source_record ? reference.source_record : reference.record
+      return reference[this.side_to_display];
     },
     remove(reference_to_remove: db.Reference): void {
       reference_to_remove.remove()
-      // this.$emit('input', _.reject(this.value, (reference : db.Reference) => {
-      //   return(reference.record._id == record_to_remove._id)
-      // }))
     },
     edit_properties(reference: db.Reference): void {
       this.$emit('currently-edited-reference', reference);
-    },
-    valid_sheet(sheet: db.Sheet): boolean {
-      if (this.definition) {
-        return (
-          this.definition_referenceable_sheet_ids_set.size == 0 ||
-          this.definition_referenceable_sheet_ids_set.has(sheet._id)
-        )
-      } else {
-        return true
-      }
     },
   },
 })
 </script>
 
 <style scoped lang="scss">
-.sheet-box {
-  border: 5px solid red;
-
-  &.valid {
-    border: 1px solid black;
-  }
-
+.sheet-references-group {
+  border: 1px solid black;
   overflow: hidden;
   border-radius: 1em 1em 0 0;
   margin-bottom: 0.1em;

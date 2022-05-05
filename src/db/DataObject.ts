@@ -11,7 +11,11 @@ export class DataObject {
   }
 
   public value_for_definition(definition: Definition): any {
-    return this.data[definition._id]
+    if (definition.type === 'reverse_references') {
+      return _.get(definition.sheet.database.referencer_reference_references(), [this._id, definition._id]) || [];
+    } else {
+      return this.data[definition._id]
+    }
   }
 
   public is_blank_for_definition(definition : Definition): boolean {

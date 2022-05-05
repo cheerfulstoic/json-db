@@ -12,6 +12,7 @@
             v-on:input="set_filter"
             v-on:modal-hidden="clear_currently_filtered_definitions()"
             v-bind:definition="current_filter_edit_definition"
+            v-bind:sheet="sheet"
           />
         </BootstrapModal>
 
@@ -243,13 +244,8 @@
         >
           <div v-for="definition in definitions" v-bind:key="definition._id">
             <References
-              v-bind:value="referencer_reference_references_for(sheet, definition, record)"
-              v-bind:record="record"
-              v-bind:definition="definition"
-              v-bind:database="sheet.database"
-              v-bind:sheet="definition.sheet"
-              v-bind:use_source_record="true"
-              v-bind:view_mode="view_mode"
+              v-bind:values="referencer_reference_references_for(sheet, definition, record)"
+              v-bind:side_to_display="'source_record'"
               v-on:record-clicked="edit_record"
               v-on:currently-edited-reference="set_currently_edited_reference"
             />
@@ -261,8 +257,7 @@
               referencer_reference_references_for_record_ids_to_skip(sheet, definitions, record)
             "
             v-bind:database="sheet.database"
-            v-bind:use_source_record="true"
-            v-bind:sheet_ids_to_search="definitions.map((definition) => definition.sheet._id)"
+            v-bind:sheet_ids_to_search="definitions.flatMap((def) => def.referenceable_sheet_ids)"
             v-on:record-selected="
               reverse_reference_record_selected(record, definitions, $event)
             "
@@ -362,22 +357,18 @@ export default defineComponent({
   // },
   data(): {
     currently_edited_record: db.Record | null
-    recompute_database_reference_referencer_references: number
     current_edit_new_record_position: string
     currently_edited_definition: db.Definition | null
     currently_edited_reference: db.Reference | null
     current_filter_edit_definition: db.Definition | null
-    // currently_edited_reverse_definition: string | null
   } {
 
     return {
       currently_edited_record: null,
-      recompute_database_reference_referencer_references: 0,
       current_edit_new_record_position: 'top',
       currently_edited_definition: null,
       currently_edited_reference: null,
       current_filter_edit_definition: null,
-      // currently_edited_reverse_definition: null,
     }
   },
 
@@ -412,6 +403,7 @@ export default defineComponent({
 
     definitions_referring_to_sheet(): { definition: db.Definition; sheet: db.Sheet }[][] {
       return _(this.sheet.database.definitions_referring_to(this.sheet))
+              .invokeMap('reverse_definition')
               .groupBy((definition) => definition.name)
               .values()
               .value()
@@ -462,16 +454,7 @@ export default defineComponent({
       this.currently_edited_record = null
     },
     add_reference(source_record: db.Record, definition: db.ReferencesDefinition, target_record: db.Record): void {
-      source_record.transform_value(definition, (references) => {
-        let new_reference = new db.Reference(target_record, source_record, definition, {})
-        if (references == null) {
-          references = []
-        }
-        references.splice(references.length, 1, new_reference)
-        return references
-      })
-      this.recompute_database_reference_referencer_references =
-        this.recompute_database_reference_referencer_references + 1
+      source_record.add_reference(definition, target_record);
     },
     reference_record_selected(record: db.Record, definition: db.ReferencesDefinition, chosen_record: db.Record) {
       this.add_reference(record, definition, chosen_record)
@@ -576,7 +559,6 @@ export default defineComponent({
 
     clear_currently_filtered_definitions() {
       this.current_filter_edit_definition = null
-      // this.currently_edited_reverse_definition = null
     },
 
     edit_definition(definition: db.Definition) {
@@ -600,9 +582,6 @@ export default defineComponent({
     filter_definition(definition: db.Definition) {
       this.current_filter_edit_definition = definition
     },
-    // filter_reverse_definition(definitions: db.Definition[]) {
-    //   this.currently_edited_reverse_definition = definitions[0].name
-    // },
     collapse_string: (string) => {
       return string.replace(' ', '')
     }

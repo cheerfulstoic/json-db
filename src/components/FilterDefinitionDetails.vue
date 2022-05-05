@@ -33,8 +33,8 @@
           v-if="definition.type === 'references' || definition.type === 'reverse_references'"
           v-on:input="handle_input"
           v-bind:definition="definition"
-          v-bind:values="record_values()"
-          v-bind:database="definition.sheet.database"
+          v-bind:values="values"
+          v-bind:database="sheet.database"
         />
 
         <SelectOne
@@ -42,7 +42,7 @@
           v-on:input="handle_input"
           v-bind:definition="definition"
           v-bind:values="values"
-          v-bind:database="definition.sheet.database"
+          v-bind:database="sheet.database"
         />
 
         <Stringy
@@ -50,7 +50,7 @@
           v-on:input="handle_input"
           v-bind:definition="definition"
           v-bind:values="values"
-          v-bind:database="definition.sheet.database"
+          v-bind:database="sheet.database"
         />
 
         <Number
@@ -58,7 +58,7 @@
           v-on:input="handle_input"
           v-bind:definition="definition"
           v-bind:values="values"
-          v-bind:database="definition.sheet.database"
+          v-bind:database="sheet.database"
         />
       </div>
       <div v-bind:class="{'tab-pane': true, show: true, active: current_tab === 'blank'}" id="blank" role="tabpanel" aria-labelledby="blank-tab">
@@ -120,6 +120,7 @@ export default defineComponent({
   },
   props: {
     definition: { type: db.Definition, required: true },
+    sheet: { type: db.Sheet, required: true },
   },
   mixins: [store_data_mixin({
     current_tab: (component) => {
@@ -129,16 +130,12 @@ export default defineComponent({
   })],
   computed: {
     values() {
-      if (this.definition.type === 'reverse_references') {
-        return this.definition.sheet.records;
-      } else {
-        return _(this.definition.sheet.records)
-          .flatMap((record) => {
-            return record.value_for_definition(this.definition)
-          })
-          .compact()
-          .value()
-      }
+      return _(this.sheet.records)
+        .flatMap((record) => {
+          return record.value_for_definition(this.definition)
+        })
+        .compact()
+        .value()
     },
   },
   emits: ['input', 'modal-hidden'],
@@ -187,9 +184,6 @@ export default defineComponent({
         .value()
 
       return new Set(ids)
-    },
-    record_values() {
-      return _.map(this.values, 'record')
     },
   },
 })

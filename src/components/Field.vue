@@ -34,17 +34,11 @@
     </template>
 
     <template v-if="definition.type === 'references' && record_value">
-      <div v-for="references_group in grouped_references()" v-bind:key="references_group.sheet._id">
-        <References v-bind:value="references_group.references"
-                    v-bind:record="record"
-                    v-bind:definition="definition"
-                    v-bind:database="database"
-                    v-bind:sheet="references_group.sheet"
-                    v-bind:view_mode="view_mode"
-                    v-on:record-clicked="record_clicked"
-                    v-on:currently-edited-reference="emit_currently_edited_reference"
-                  />
-      </div>
+      <References v-bind:values="record_value"
+                  v-bind:side_to_display="'record'"
+                  v-on:record-clicked="record_clicked"
+                  v-on:currently-edited-reference="emit_currently_edited_reference"
+                />
     </template>
 
     <div v-if="!view_mode">
@@ -131,16 +125,16 @@ export default defineComponent({
     },
     add_reference(source_record: db.Record, definition: db.ReferencesDefinition, target_record: db.Record): void {
       this.$emit('add-reference', source_record, definition, target_record)
-      this.mark_for_recompute()
+      this.mark_for_recompute();
     },
 
     reference_record_selected(chosen_record: db.Record): void {
       this.$emit('reference-record-selected', chosen_record)
-      this.mark_for_recompute()
+      this.mark_for_recompute();
     },
 
     update_value(new_value: any) {
-      this.mark_for_recompute()
+      this.mark_for_recompute();
       this.record.update_value(this.definition, new_value)
     },
     mark_for_recompute() {
