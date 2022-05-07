@@ -48,12 +48,15 @@ export class Definition {
 export class ReferencesDefinition extends Definition {
   public definitions: Definition[]
   public _referenceable_sheet_ids: string[]
+  public originalReferenceId: string;
 
   constructor(data: any, sheet: Sheet) {
     super(data, sheet)
 
     this.definitions = _.map(data.definitions, (data) => new Definition(data, sheet)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
+
+    this.originalReferenceId = data.originalReferenceId;
   }
 
   references_sheet(sheet: Sheet) {
@@ -80,13 +83,14 @@ export class ReferencesDefinition extends Definition {
     )
   }
 
-  public reverse_definition(): ReferencesDefinition {
+  public reverse_definition(sheet): ReferencesDefinition {
     return new ReferencesDefinition({
-      _id: this._id,
+      _id: `${this._id}_reversed`,
       type: 'reverse_references',
       name: this.name,
       referenceable_sheet_ids: [this.sheet._id],
-    }, this.sheet)
+      originalReferenceId: this._id
+    }, sheet)
   }
 }
 

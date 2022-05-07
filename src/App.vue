@@ -85,6 +85,7 @@
           v-on:focus-sheet-and-record="focus_sheet_and_record"
           v-on:record-selected="focus_record"
           v-on:set-filter="set_filter"
+          v-on:clear-filters="clear_filters"
         />
       </template>
     </table>
@@ -271,10 +272,8 @@ export default defineComponent({
     },
     json() {
       let seen = new Set();
-      // console.log({here_we_go: this.database.json_data()})
       return JSON.stringify(this.database.json_data(), (key, value) => {
         if (value != null && typeof value == "object") {
-          // console.log({key, value})
           if (seen.has(value)) {
             console.log("Object seen multiple times when stringifying:")
             console.log(value)
@@ -312,7 +311,10 @@ export default defineComponent({
     },
     set_filter(sheet, definition_id, value) {
       _.set(this.filters, [sheet._id, definition_id], value)
-    }
+    },
+    clear_filters(sheet) {
+      _.set(this.filters, [sheet._id], {})
+    },
   },
 })
 </script>

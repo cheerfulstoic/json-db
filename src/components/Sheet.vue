@@ -83,7 +83,7 @@
         <h4 class="d-inline-block">
           {{ total_count }} total rows
           <span v-bind:class="{ 'filter-display': true, 'filter-has-limited-rows': filter_has_limited_rows }">
-            (filtered to {{ records_to_display.length }} record(s))
+            (filtered to {{ records_to_display.length }} record(s) - <a href="javascript:void(0)" v-on:click="clear_filters()">Clear</a>)
           </span>
         </h4>
 
@@ -197,13 +197,12 @@
         <th>
           {{ definitions[0].name }} (INBOUND)
 
-          <!-- FIXME -->
           <a role="button" data-toggle="modal" v-on:click="filter_definition(definitions[0])">
             <Icon
               name="filter"
               v-bind:class="{
                 notice: current_filter_edit_definition === definitions[0].name,
-                warning: filtering_on(definitions[0].name),
+                warning: filtering_on(definitions[0]._id),
               }"
             ></Icon>
           </a>
@@ -244,7 +243,7 @@
         >
           <div v-for="definition in definitions" v-bind:key="definition._id">
             <References
-              v-bind:values="referencer_reference_references_for(sheet, definition, record)"
+              v-bind:values="record.value_for_definition(definition)"
               v-bind:side_to_display="'source_record'"
               v-on:record-clicked="edit_record"
               v-on:currently-edited-reference="set_currently_edited_reference"
@@ -372,9 +371,10 @@ export default defineComponent({
     }
   },
 
-  emits: ['record-selected', 'set-filter'],
+  emits: ['record-selected', 'set-filter', 'clear-filters'],
   computed: {
     records_to_display(): any[] {
+      console.log({filterValues: _.values(this.filters).length})
       return _(this.filters)
         .values()
         .compact()
@@ -403,7 +403,7 @@ export default defineComponent({
 
     definitions_referring_to_sheet(): { definition: db.Definition; sheet: db.Sheet }[][] {
       return _(this.sheet.database.definitions_referring_to(this.sheet))
-              .invokeMap('reverse_definition')
+              .map((definition) => definition.reverse_definition(this.sheet))
               .groupBy((definition) => definition.name)
               .values()
               .value()
@@ -486,10 +486,13 @@ export default defineComponent({
         })
       )
     },
-    set_filter(definition_id: string, value: (record: any) => boolean) {
+    set_filter(definition_id: string, value: ((record: any) => boolean) | null) {
       this.$emit('set-filter', this.sheet, definition_id, value)
     },
-    filtering_on(definition_id: string): db.RecordsFilter {
+    clear_filters() {
+      this.$emit('clear-filters', this.sheet)
+    },
+    filtering_on(definition_id: string): Boolean {
       return this.filters[definition_id]
     },
     // Just for use with reverse reference definitions
@@ -532,7 +535,6 @@ export default defineComponent({
       this.sheet.definitions[index].definitions.push(definition)
     },
     edit_record(record: db.Record): void {
-      console.log({record})
       this.current_edit_new_record_position = 'top'
       this.currently_edited_record = record
       $('#edit-record-modal').modal('show')
@@ -567,7 +569,6 @@ export default defineComponent({
       this.activate_modal_by_id('edit-definition-modal')
     },
     set_currently_edited_reference(reference) {
-      console.log({reference})
       this.currently_edited_reference = reference;
 
       this.activate_modal_by_id('edit-reference-modal')

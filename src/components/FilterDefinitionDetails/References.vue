@@ -19,6 +19,14 @@
       v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
       v-on:record-selected="record_selected"
     />
+
+    <hr/>
+
+    <button
+      v-on:click="reset_filter()"
+      type="button"
+      v-bind:class="{btn: true, 'btn-secondary': true}"
+      >Clear Filter</button>
   </span>
 </template>
 
@@ -89,6 +97,10 @@ export default defineComponent({
           })
         })
       }
+    },
+    reset_filter() {
+      this.$emit('input', this.definition._id, null);
+      this.currently_filtered_records = [];
     },
   },
 })

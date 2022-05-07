@@ -80,6 +80,15 @@
             Show only non-empty
           </button>
         </div>
+
+        <button
+          v-on:click="reset_blank()"
+          type="button"
+          v-bind:class="{btn: true, 'btn-primary': true, active: blankness_filter === false}"
+          style="float: right"
+        >
+          Reset Blank Filter
+        </button>
       </div>
     </div>
   </div>
@@ -140,11 +149,10 @@ export default defineComponent({
   },
   emits: ['input', 'modal-hidden'],
   methods: {
-    handle_input(definition_id: string, value: db.RecordsFilter) {
+    handle_input(definition_id: string, value: db.RecordsFilter | null) {
       this.$emit('input', definition_id, value)
     },
     show_only_blank(): void {
-      console.log('show_only_blank')
       let definition = this.definition
       this.blankness_filter = true;
       this.$emit('input', this.definition._id, (records: any[]) => {
@@ -159,20 +167,13 @@ export default defineComponent({
       })
     },
     blankness_filter_func(definition: db.Definition): (record: db.Record) => boolean {
-      if (definition.type === 'reverse_references') {
-        let current_record_ids_referenced: Set<string> = this.current_record_ids_referenced(definition)
-
-        return (record) => {
-          return !current_record_ids_referenced.has(record._id)
-        }
-      } else {
-        return (record) => {
-          return is_blank(record.value_for_definition(definition))
-        }
+      return (record) => {
+        return is_blank(record.value_for_definition(definition))
       }
     },
     reset_blank(): void {
       this.blankness_filter = null;
+      this.$emit('input', this.definition._id, null);
     },
     current_record_ids_referenced(definition: db.Definition): Set<string> {
       let ids: any[] = _.chain(this.values)

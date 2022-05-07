@@ -7,6 +7,14 @@
         <button type="button" class="btn btn-primary" v-on:click="clear">Clear</button>
       </div>
     </div>
+
+    <hr/>
+
+    <button
+      v-on:click="clear_filter()"
+      type="button"
+      v-bind:class="{btn: true, 'btn-secondary': true}"
+      >Clear Filter</button>
   </span>
 </template>
 
@@ -50,6 +58,10 @@ export default defineComponent({
   methods: {
     clear() {
       this.search_query = ''
+    },
+    clear_filter(): void {
+      this.$emit('input', this.definition._id, null);
+      this.search_query = null;
     },
   },
 })
