@@ -48,7 +48,7 @@ export class Definition {
 export class ReferencesDefinition extends Definition {
   public definitions: Definition[]
   public _referenceable_sheet_ids: string[]
-  public sourceDefinition: string;
+  public source_definitions: Definition[];
 
   constructor(data: any, sheet: Sheet) {
     super(data, sheet)
@@ -56,7 +56,7 @@ export class ReferencesDefinition extends Definition {
     this.definitions = _.map(data.definitions, (data) => new Definition(data, sheet)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
 
-    this.sourceDefinition = data.sourceDefinition;
+    this.source_definitions = data.source_definitions;
   }
 
   references_sheet(sheet: Sheet) {
@@ -83,14 +83,29 @@ export class ReferencesDefinition extends Definition {
     )
   }
 
-  public reverse_definition(sheet): ReferencesDefinition {
+  public add_reference(source_record, record) {
+    if (this.type === 'reverse_references') {
+      this.source_definitions.forEach((source_definition) => {
+        if (source_record.sheet._id === source_definition.sheet._id) {
+          source_record.add_reference(source_definition, record);
+        }
+      })
+    } else {
+      // TODO
+    }
+  }
+
+  public static for(definitions, sheet): ReferencesDefinition {
     return new ReferencesDefinition({
-      _id: `${this._id}_reversed`,
+      _id: `${definitionsId(definitions)}_reversed`,
       type: 'reverse_references',
-      name: this.name,
-      referenceable_sheet_ids: [this.sheet._id],
-      sourceDefinition: this,
+      name: definitions[0].name,
+      referenceable_sheet_ids: _.map(definitions, 'sheet._id'),
+      source_definitions: definitions,
     }, sheet)
   }
 }
 
+function definitionsId(definitions) {
+  return _(definitions).map('_id').sort().join('|')
+}

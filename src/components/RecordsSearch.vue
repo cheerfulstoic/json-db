@@ -90,12 +90,12 @@ export default defineComponent({
 
       let result = _(this.database.search(`${this.match_text}`, new Set(this.sheet_ids_to_search)))
       if (this.record_ids_to_skip) {
-        result.reject((record) => {
+        result = result.reject((record) => {
           return this.record_ids_to_skip.includes(record._id)
         })
       }
       if (this.record_ids_to_limit_to) {
-        result.filter((record) => {
+        result = result.filter((record) => {
           return this.record_ids_to_limit_to.includes(record._id)
         })
       }

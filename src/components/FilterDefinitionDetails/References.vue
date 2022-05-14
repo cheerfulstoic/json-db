@@ -66,7 +66,11 @@ export default defineComponent({
   emits: ['input'],
   methods: {
     filtered_record_ids() {
-      return _.map(this.values, '_id')
+      if (this.definition.type === 'reverse_references') {
+        return _.map(this.values, 'source_record._id')
+      } else {
+        return _.map(this.values, 'record._id')
+      }
     },
     remove(record: db.Record) {
       let index_to_remove = _(this.currently_filtered_records).map('_id').indexOf(record._id)

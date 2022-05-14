@@ -140,17 +140,17 @@
 
         <div
           class="form-check form-check-inline"
-          v-for="definitions in definitions_referring_to_sheet"
-          v-bind:key="'reverse-column-to-display-' + definitions[0]._id"
+          v-for="definition in definitions_referring_to_sheet"
+          v-bind:key="'reverse-column-to-display-' + definition._id"
         >
           <label>
             <input
               type="checkbox"
               class="form-check-input"
-              v-bind:value="definitions[0].name"
+              v-bind:value="definition.name"
               v-model="sheet.definition_names_referring_to_sheet_to_display"
             />
-            {{ definitions[0].name }}
+            {{ definition.name }}
           </label>
         </div>
       </th>
@@ -191,18 +191,18 @@
 
       <template
         class="form-check form-check-inline"
-        v-for="definitions in definitions_referring_to_sheet_to_display"
-        v-bind:key="'reverse-definition-' + definitions[0]._id"
+        v-for="definition in definitions_referring_to_sheet_to_display"
+        v-bind:key="'reverse-definition-' + definition._id"
       >
         <th>
-          {{ definitions[0].name }} (INBOUND)
+          {{ definition.name }} (INBOUND)
 
-          <a role="button" data-toggle="modal" v-on:click="filter_definition(definitions[0])">
+          <a role="button" data-toggle="modal" v-on:click="filter_definition(definition)">
             <Icon
               name="filter"
               v-bind:class="{
-                notice: current_filter_edit_definition === definitions[0].name,
-                warning: filtering_on(definitions[0]._id),
+                notice: current_filter_edit_definition === definition.name,
+                warning: filtering_on(definition._id),
               }"
             ></Icon>
           </a>
@@ -238,27 +238,25 @@
         </template>
 
         <td
-          v-for="definitions in definitions_referring_to_sheet_to_display"
-          v-bind:key="'reverse-definition-' + definitions[0]._id"
+          v-for="definition in definitions_referring_to_sheet_to_display"
+          v-bind:key="'reverse-definition-' + definition._id"
         >
-          <div v-for="definition in definitions" v-bind:key="definition._id">
-            <References
-              v-bind:values="record.value_for_definition(definition)"
-              v-bind:side_to_display="'source_record'"
-              v-on:record-clicked="edit_record"
-              v-on:currently-edited-reference="set_currently_edited_reference"
-            />
-          </div>
+          <References
+            v-bind:values="record.value_for_definition(definition)"
+            v-bind:side_to_display="'source_record'"
+            v-on:record-clicked="edit_record"
+            v-on:currently-edited-reference="set_currently_edited_reference"
+          />
 
           <RecordsSearch
             v-if="!view_mode"
             v-bind:record_ids_to_skip="
-              referencer_reference_references_for_record_ids_to_skip(sheet, definitions, record)
+              referencer_reference_references_for_record_ids_to_skip(sheet, definition, record)
             "
             v-bind:database="sheet.database"
-            v-bind:sheet_ids_to_search="definitions.flatMap((def) => def.referenceable_sheet_ids)"
+            v-bind:sheet_ids_to_search="definition.referenceable_sheet_ids"
             v-on:record-selected="
-              reverse_reference_record_selected(record, definitions, $event)
+              reverse_reference_record_selected(record, definition, $event)
             "
           />
         </td>
@@ -403,18 +401,16 @@ export default defineComponent({
 
     definitions_referring_to_sheet(): { definition: db.Definition; sheet: db.Sheet }[][] {
       return _(this.sheet.database.definitions_referring_to(this.sheet))
-              .map((definition) => definition.reverse_definition(this.sheet))
               .groupBy((definition) => definition.name)
+              .map((definitions, name) => db.ReferencesDefinition.for(definitions, this.sheet))
               .values()
               .value()
     },
     definitions_referring_to_sheet_to_display(): { definition: db.Definition; sheet: db.Sheet }[][] {
       return(
         this.definitions_referring_to_sheet
-        .map((definitions) => {
-          return definitions.filter(this.should_display_definition_referring_to_sheet)
-        }).filter((definitions) => {
-          return definitions.length > 0
+        .filter((definition) => {
+          return this.should_display_definition_referring_to_sheet(definition);
         })
       )
     },
@@ -461,32 +457,17 @@ export default defineComponent({
     },
     reverse_reference_record_selected(
       record: db.Record,
-      definitions: db.ReferencesDefinition[],
+      definition: db.ReferencesDefinition,
       chosen_record: db.Record,
     ) {
-      definitions.forEach((definition) => {
-        console.log({chosen: chosen_record.sheet.name, definition: definition.sheet.name})
-        if (chosen_record.sheet._id === definition.sourceDefinition.sheet._id) {
-        console.log(2);
-          this.add_reference(chosen_record, definition.sourceDefinition, record)
-        }
-      })
-    },
-    referencer_reference_references_for(sheet: db.Sheet, definition: db.ReferencesDefinition, record: any) {
-      let test = this.database_reference_referencer_references[record._id]
-
-      return test ? test[definition._id] || [] : []
+      definition.add_reference(chosen_record, record)
     },
     referencer_reference_references_for_record_ids_to_skip(
       sheet: db.Sheet,
-      definitions: db.ReferencesDefinition[],
+      definition: db.ReferencesDefinition,
       record: db.Record,
     ) {
-      return [record._id].concat(
-        _.flatMap(definitions, (definition) => {
-          return _.map(this.referencer_reference_references_for(sheet, definition, record), 'source_record._id')
-        })
-      )
+      return [record._id].concat(_.map(record.value_for_definition(definition), 'source_record._id'));
     },
     set_filter(definition_id: string, value: ((record: any) => boolean) | null) {
       this.$emit('set-filter', this.sheet, definition_id, value)

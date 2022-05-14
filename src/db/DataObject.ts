@@ -12,7 +12,9 @@ export class DataObject {
 
   public value_for_definition(definition: Definition): any {
     if (definition.type === 'reverse_references') {
-      return _.get(definition.sheet.database.referencer_reference_references(), [this._id, definition.sourceDefinition._id]) || [];
+      return(definition.source_definitions.flatMap((source_definition) => {
+        return _.get(definition.sheet.database.referencer_reference_references(), [this._id, source_definition._id]) || [];
+      }))
     } else {
       return this.data[definition._id]
     }
