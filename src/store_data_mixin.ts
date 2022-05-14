@@ -14,7 +14,6 @@ export default (key_paths) => {
     data() {
       return _.reduce(key_paths, (result, options_fn, key) => {
         let options = options_fn(this);
-        console.log({options})
 
         let path = options.path;
         path.unshift(key)
@@ -24,7 +23,8 @@ export default (key_paths) => {
     },
 
     watch: _.reduce(key_paths, (watchers, options_fn, key) => {
-      return _.set(watchers, key, function (new_value, _old_value) {
+      return _.set(watchers, key, {
+        handler: function (new_value, _old_value) {
         console.log({key, new_value, _old_value})
         let options = options_fn(this);
 
@@ -32,6 +32,8 @@ export default (key_paths) => {
         path.unshift(key)
 
         this.$store.commit('setDataVar', {key, path, value: new_value})
+        },
+        deep: true,
       })
     }, {})
 

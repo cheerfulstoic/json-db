@@ -57,6 +57,9 @@ export class ReferencesDefinition extends Definition {
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
 
     this.source_definitions = data.source_definitions;
+    if (this.source_definitions) {
+      this.definitions = _.flatMap(this.source_definitions, 'definitions');
+    }
   }
 
   references_sheet(sheet: Sheet) {
