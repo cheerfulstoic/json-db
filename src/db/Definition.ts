@@ -48,7 +48,7 @@ export class Definition {
 export class ReferencesDefinition extends Definition {
   public definitions: Definition[]
   public _referenceable_sheet_ids: string[]
-  public originalReferenceId: string;
+  public sourceDefinition: string;
 
   constructor(data: any, sheet: Sheet) {
     super(data, sheet)
@@ -56,7 +56,7 @@ export class ReferencesDefinition extends Definition {
     this.definitions = _.map(data.definitions, (data) => new Definition(data, sheet)) || []
     this._referenceable_sheet_ids = data.referenceable_sheet_ids || []
 
-    this.originalReferenceId = data.originalReferenceId;
+    this.sourceDefinition = data.sourceDefinition;
   }
 
   references_sheet(sheet: Sheet) {
@@ -89,7 +89,7 @@ export class ReferencesDefinition extends Definition {
       type: 'reverse_references',
       name: this.name,
       referenceable_sheet_ids: [this.sheet._id],
-      originalReferenceId: this._id
+      sourceDefinition: this,
     }, sheet)
   }
 }

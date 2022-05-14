@@ -465,8 +465,10 @@ export default defineComponent({
       chosen_record: db.Record,
     ) {
       definitions.forEach((definition) => {
-        if (chosen_record.sheet._id === definition.sheet._id) {
-          this.add_reference(chosen_record, definition, record)
+        console.log({chosen: chosen_record.sheet.name, definition: definition.sheet.name})
+        if (chosen_record.sheet._id === definition.sourceDefinition.sheet._id) {
+        console.log(2);
+          this.add_reference(chosen_record, definition.sourceDefinition, record)
         }
       })
     },

@@ -109,7 +109,9 @@ import SelectOne from './FilterDefinitionDetails/SelectOne.vue'
 import Stringy from './FilterDefinitionDetails/Stringy.vue'
 
 const is_blank = (value: any) => {
-  return value == null || value === '' || (Array.isArray(value) && value.length === 0)
+  let isblank = value == null || value === '' || (Array.isArray(value) && value.length === 0)
+  console.log({value, isArray: Array.isArray(value), length: value.length, isblank})
+  return isblank;
 }
 
 export default defineComponent({
