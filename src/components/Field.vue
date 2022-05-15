@@ -143,7 +143,9 @@ export default defineComponent({
       }
     },
     record_ids_to_skip() {
-      return [this.record._id].concat(_.map(this.record_value, 'record._id') || [])
+      // Don't skip already added records
+      // Sometimes you want to be able to add two references with different attributes
+      return [this.record._id];
     },
     grouped_references(): any {
       let groups: object = _.groupBy(this.record_value, 'record.sheet._id')

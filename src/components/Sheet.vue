@@ -467,7 +467,9 @@ export default defineComponent({
       definition: db.ReferencesDefinition,
       record: db.Record,
     ) {
-      return [record._id].concat(_.map(record.value_for_definition(definition), 'source_record._id'));
+      // Don't skip already added records
+      // Sometimes you want to be able to add two references with different attributes
+      return [record._id];
     },
     set_filter(definition_id: string, value: ((record: any) => boolean) | null) {
       this.$emit('set-filter', this.sheet, definition_id, value)
