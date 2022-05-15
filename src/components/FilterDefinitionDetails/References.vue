@@ -30,10 +30,8 @@
 
         <div v-if="sub_definition.type == 'select_one'">
           <label class="form-check-label" v-for="value in sub_definition_options(sub_definition)" v-bind:key="value">
-            <span v-if="value">
-              <input type="checkbox" class="form-check-input" v-bind:value="value" v-model="currently_filtered_sub_definitions[sub_definition._id]" v-on:change="emit_input" />
-              {{value}}
-            </span>
+            <input type="checkbox" class="form-check-input" v-bind:value="value" v-model="currently_filtered_sub_definitions[sub_definition._id]" v-on:change="emit_input" />
+            {{value || "<UNSET>"}}
           </label>
         </div>
 
@@ -114,18 +112,22 @@ export default defineComponent({
       this.emit_input()
     },
     emit_input() {
-      let current_record_ids = new Set(_.map(this.currently_filtered_records, '_id'));
+      <!-- let current_record_ids = new Set(_.map(this.currently_filtered_records, '_id')); -->
+      let current_record_ids = new _.map(this.currently_filtered_records, '_id');
       let def = this.definition
-      if (current_record_ids.size === 0 && !this.currently_filtering_for_sub_definitions()) {
+      console.log({currently_filtering_for_sub_definitions: this.currently_filtering_for_sub_definitions()})
+      if (current_record_ids.length === 0 && !this.currently_filtering_for_sub_definitions()) {
         this.$emit('input', this.definition._id, null)
       } else {
         this.$emit('input', this.definition._id, (records: db.Record[]) => {
           return _.filter(records, (record) => {
+            console.log({record_matches_a_filtered_sub_definition:
+              this.record_matches_a_filtered_sub_definition(record)})
             return(
-              !_(record.value_for_definition(def) || [])
+              _(record.value_for_definition(def) || [])
                 .map((reference) => reference.record_for_definition(def)._id )
                 .intersection(current_record_ids)
-                .isEmpty() ||
+                .some() ||
 
               this.record_matches_a_filtered_sub_definition(record)
 
@@ -134,23 +136,28 @@ export default defineComponent({
         })
       }
     },
+    sub_definitions() {
+      return _.filter(this.definition.definitions, {type: 'select_one'})
+    },
     currently_filtered_sub_definitions_default() {
-      return(_(this.definition.definitions).filter({type: 'select_one'}).reduce((result, sub_definition) => {
+      return(_.reduce(this.sub_definitions(), (result, sub_definition) => {
         return(_.set(result, sub_definition._id, this.sub_definition_options(sub_definition)))
       }, {}))
     },
     clear_currently_filtered_sub_definitions() {
       this.currently_filtered_sub_definitions =
-        _(this.definition.definitions).filter({type: 'select_one'}).reduce((result, sub_definition) => {
+        _.reduce(this.sub_definitions(), (result, sub_definition) => {
           return(_.set(result, sub_definition._id, []))
         }, {});
+
       this.emit_input()
     },
     currently_filtering_for_sub_definitions() {
-      return _.some(this.currently_filtered_sub_definitions, (selected_values, sub_definition_id) => {
-        let sub_definition = this.sub_definitions_by_id[sub_definition_id];
-        return this.sub_definition_options(sub_definition).length != selected_values.length
-      })
+      return _.some(this.sub_definitions(), this.currently_filtering_for_sub_definition);
+    },
+    currently_filtering_for_sub_definition(sub_definition) {
+      console.log({currently_filtered_legth: this.currently_filtered_sub_definitions[sub_definition._id].length, options_legnth: this.sub_definition_options(sub_definition).length});
+      return((this.currently_filtered_sub_definitions[sub_definition._id].length) !== (this.sub_definition_options(sub_definition).length));
     },
     reset_filter() {
       this.$emit('input', this.definition._id, null);
@@ -158,14 +165,20 @@ export default defineComponent({
       this.currently_filtered_sub_definitions = this.currently_filtered_sub_definitions_default();
     },
     sub_definition_options(sub_definition) {
-      return _(this.values).map((reference) => reference.value_for_definition(sub_definition)).uniq().sort().value()
+      return _(this.values).map((reference) => reference.value_for_definition(sub_definition)).compact().uniq().sort().value()
     },
     record_matches_a_filtered_sub_definition(record) {
       return _.some(record.value_for_definition(this.definition), (reference) => {
-        return _.some(this.currently_filtered_sub_definitions, (selected_values, sub_definition_id) => {
-          let sub_definition = this.sub_definitions_by_id[sub_definition_id];
+        return _.some(this.sub_definitions(), (sub_definition) => {
 
-          return selected_values.includes(reference.value_for_definition(sub_definition));
+          let selected_values = this.currently_filtered_sub_definitions[sub_definition._id];
+
+          //console.log({currently_filtering: this.currently_filtering_for_sub_definition(sub_definition), sub_definition_name: sub_definition.name})
+          if (this.currently_filtering_for_sub_definition(sub_definition)) {
+            //console.log({selected_values, value: reference.value_for_definition(sub_definition), result: selected_values.includes(reference.value_for_definition(sub_definition))})
+            return selected_values.includes(reference.value_for_definition(sub_definition));
+          }
+          return(false);
         })
       })
     },
