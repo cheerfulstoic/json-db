@@ -112,17 +112,13 @@ export default defineComponent({
       this.emit_input()
     },
     emit_input() {
-      <!-- let current_record_ids = new Set(_.map(this.currently_filtered_records, '_id')); -->
       let current_record_ids = new _.map(this.currently_filtered_records, '_id');
       let def = this.definition
-      console.log({currently_filtering_for_sub_definitions: this.currently_filtering_for_sub_definitions()})
       if (current_record_ids.length === 0 && !this.currently_filtering_for_sub_definitions()) {
         this.$emit('input', this.definition._id, null)
       } else {
         this.$emit('input', this.definition._id, (records: db.Record[]) => {
           return _.filter(records, (record) => {
-            console.log({record_matches_a_filtered_sub_definition:
-              this.record_matches_a_filtered_sub_definition(record)})
             return(
               _(record.value_for_definition(def) || [])
                 .map((reference) => reference.record_for_definition(def)._id )
@@ -156,7 +152,6 @@ export default defineComponent({
       return _.some(this.sub_definitions(), this.currently_filtering_for_sub_definition);
     },
     currently_filtering_for_sub_definition(sub_definition) {
-      console.log({currently_filtered_legth: this.currently_filtered_sub_definitions[sub_definition._id].length, options_legnth: this.sub_definition_options(sub_definition).length});
       return((this.currently_filtered_sub_definitions[sub_definition._id].length) !== (this.sub_definition_options(sub_definition).length));
     },
     reset_filter() {
@@ -173,9 +168,7 @@ export default defineComponent({
 
           let selected_values = this.currently_filtered_sub_definitions[sub_definition._id];
 
-          //console.log({currently_filtering: this.currently_filtering_for_sub_definition(sub_definition), sub_definition_name: sub_definition.name})
           if (this.currently_filtering_for_sub_definition(sub_definition)) {
-            //console.log({selected_values, value: reference.value_for_definition(sub_definition), result: selected_values.includes(reference.value_for_definition(sub_definition))})
             return selected_values.includes(reference.value_for_definition(sub_definition));
           }
           return(false);
