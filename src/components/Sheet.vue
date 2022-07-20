@@ -642,6 +642,7 @@ table {
     padding: 0.75rem;
     border-collapse: collapse;
     border: 1px solid #dee2e6;
+    vertical-align: top;
   }
   th {
     background-color: white;
