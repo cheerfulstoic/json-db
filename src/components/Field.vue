@@ -1,6 +1,6 @@
 <template>
   <span>
-    <template v-if="!view_mode">
+    <template v-if="!view_mode_calc()">
       <String v-if="definition.type === 'string'" v-bind:value="record_value" v-on:input="update_value" />
       <template v-if="definition.type === 'text_area'">
         <RichTextArea v-if="definition.sub_type === 'rich_html'" mode="html" v-bind:value="record_value" v-on:input="update_value" />
@@ -29,7 +29,7 @@
       />
     </template>
 
-    <template v-if="view_mode && definition.type !== 'references'">
+    <template v-if="view_mode_calc() && definition.type !== 'references'">
       {{record_value}}
     </template>
 
@@ -40,14 +40,14 @@
                     v-bind:definition="definition"
                     v-bind:database="database"
                     v-bind:sheet="references_group.sheet"
-                    v-bind:view_mode="view_mode"
+                    v-bind:view_mode="view_mode_calc()"
                     v-on:record-clicked="record_clicked"
                     v-on:currently-edited-reference="emit_currently_edited_reference"
                   />
       </div>
     </template>
 
-    <div v-if="!view_mode">
+    <div v-if="!view_mode_calc()">
       <RecordsSearch
         v-if="definition.type === 'references'"
         v-bind:record_ids_to_skip="record_ids_to_skip()"
@@ -166,6 +166,9 @@ export default defineComponent({
     },
     emit_currently_edited_reference(reference) {
       this.$emit('currently-edited-reference', reference);
+    },
+    view_mode_calc() {
+      return this.view_mode || this.definition.view_mode;
     }
   },
 })
