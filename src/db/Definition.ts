@@ -12,6 +12,7 @@ export class Definition {
   public required: boolean
   public options?: string[]
   public rows?: number
+  public view_mode: number
 
   constructor(data: any, sheet: Sheet) {
     this._id = data._id || uuid()
@@ -29,6 +30,8 @@ export class Definition {
       this.rows = 3;
     }
 
+    this.view_mode = data.view_mode
+
     this.unique_id = data.unique_id
     this.required = data.required
     this.options = data.options
@@ -41,7 +44,7 @@ export class Definition {
   }
 
   public json_data() {
-    return _.pick(this, ['_id', 'name', 'type', 'sub_type', 'unique_id', 'required', 'rows', 'options'])
+    return _.pick(this, ['_id', 'name', 'type', 'sub_type', 'view_mode', 'unique_id', 'required', 'rows', 'options'])
   }
 }
 

@@ -21,7 +21,14 @@
       </label>
     </div>
 
-    <div class="form-group">      
+    <div class="form-group">
+      <label>
+        View Mode
+        <input type="checkbox" id="required" v-model="value.view_mode" />
+      </label>
+    </div>
+
+    <div class="form-group">
       <label>
         Type
         <select class="form-control" v-model="value.type">

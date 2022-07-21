@@ -7,7 +7,7 @@
         </span>
 
         <div v-for="reference in references_group.references" v-bind:key="record_to_display(reference)._id" class="referenced-record">
-          <template v-if="!view_mode">
+          <template v-if="!view_mode_calc()">
             <a v-if="reference.definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
               <Icon name="pencil-alt" />
             </a>
@@ -87,6 +87,19 @@ export default defineComponent({
     edit_properties(reference: db.Reference): void {
       this.$emit('currently-edited-reference', reference);
     },
+    valid_sheet(sheet: db.Sheet): boolean {
+      if (this.definition) {
+        return (
+          this.definition_referenceable_sheet_ids_set.size == 0 ||
+          this.definition_referenceable_sheet_ids_set.has(sheet._id)
+        )
+      } else {
+        return true
+      }
+    },
+    view_mode_calc() {
+      return this.view_mode || this.definition.view_mode;
+    }
   },
 })
 </script>
