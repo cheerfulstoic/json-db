@@ -5,7 +5,7 @@
         {{ sheet.name }}
       </span>
       <div v-for="reference in value" v-bind:key="record_to_display(reference)._id" class="referenced-record">
-        <template v-if="!view_mode()">
+        <template v-if="!view_mode_calc()">
           <a v-if="definition.definitions.length" v-on:click.stop="edit_properties(reference)" class="edit">
             <Icon name="pencil-alt" />
           </a>
@@ -99,7 +99,7 @@ export default defineComponent({
         return true
       }
     },
-    view_mode() {
+    view_mode_calc() {
       return this.view_mode || this.definition.view_mode;
     }
   },
